@@ -390,6 +390,7 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `.agents/rules/workflow-metrics.md` | Opt-in | Q11 = yes (`METRICS`) | C |
 | `.agents/rules/workflow-testing.md` | Opt-in | Q12 = yes (`TESTING`) | C |
 | `.agents/rules/workflow-frontend.md` | Opt-in | Q13 = yes (`FRONTEND`) | C |
+| `.agents/rules/frontend-visibility.md` | Opt-in | Q13 = yes (`FRONTEND`) | C |
 
 ---
 
@@ -421,6 +422,7 @@ Always follow the rules under `.agents/rules/`:
 {{IF_METRICS}}@.agents/rules/workflow-metrics.md
 {{IF_TESTING}}@.agents/rules/workflow-testing.md
 {{IF_FRONTEND}}@.agents/rules/workflow-frontend.md
+{{IF_FRONTEND}}@.agents/rules/frontend-visibility.md
 
 When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as a thin pointer rather than a parallel brief.
 ````
@@ -819,7 +821,7 @@ Once the work is done, create a git commit that includes:
 - The prompt file (`.docs/prompts/<ts>.<slug>.md`).
 - Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
 {{IF_TESTING}}- The tests that cover the change (per [`workflow-testing.md`](./workflow-testing.md) — same commit as the behaviour they prove; bug fixes start with a failing regression test).
-{{IF_FRONTEND}}- For shared frontend changes: every consumer update that follows from the change (per [`workflow-frontend.md`](./workflow-frontend.md) — touch source, sweep consumers, no inline duplication).
+{{IF_FRONTEND}}- For shared frontend changes: every consumer update that follows from the change (per [`workflow-frontend.md`](./workflow-frontend.md) — touch source, sweep consumers, no inline duplication). The communication side — how the UI issue was reported and how it was confirmed (screenshot, browser MCP, etc.) — gets a brief note in the prompt file per [`frontend-visibility.md`](./frontend-visibility.md).
 - Every other file produced or modified while handling the request.
 
 Commit message conventions:
@@ -2380,6 +2382,83 @@ Different stacks have different tools, but the principle holds:
 In frontend codebases especially, the cost of NOT propagating a shared change is invisible at first and painful later. The agent fixes page `Y`, the user closes the request, and three weeks later someone notices pages `Z`, `W`, and `Q` have the same bug — because the fix was applied to the symptom, not the source. Every re-request is the agent doing work that should have happened the first time, and a vote of low confidence from the user that the discipline holds.
 
 This rule turns the agent's reflex from *"fix the requested file"* into a slightly larger reflex: *"fix the source AND sweep consumers."* The marginal cost per request is small — usually a `grep` and a clear note in the prompt file. The cumulative savings over a year — fewer regressions, fewer re-requests, less consumer drift — are large and quiet, which is why teams don't notice the value until they've lived without it.
+
+## See also
+
+- [`frontend-visibility.md`](./frontend-visibility.md) — the companion rule. This file says how to *fix* a shared frontend change without breaking consumers; the visibility rule says how to *see* the UI in the first place and how to communicate UI issues across the engineer ↔ agent gap. Together they cover the full loop.
+````
+
+---
+
+### Template: `.agents/rules/frontend-visibility.md` *(opt-in, write only if `FRONTEND`)*
+
+````markdown
+# Frontend visibility — closing the loop between engineer and agent
+
+This document is the companion to [`workflow-frontend.md`](./workflow-frontend.md). That rule says how to *fix* a shared frontend change without breaking consumers; this one says how to *see* and *communicate* the issue at all — because the agent has no eyes by default and a markdown rule can't close that gap on its own.
+
+The single biggest source of friction in agentic frontend work isn't the agent making the wrong fix; it's the engineer struggling to *describe* what's wrong with a rendered UI to something that can't see the screen. Closing that gap takes three things, and all three are setup-and-convention work, not agent behaviour rules:
+
+1. **Tooling** that lets the agent see the rendered UI (browser MCP, screenshot pasting, component story files).
+2. **A convention on the engineer side** for how to report visual issues.
+3. **A convention on the agent side** for how to respond.
+
+This file documents all three.
+
+## 1. Per-agent visibility tooling
+
+The bootstrap doesn't *install* these — they're host-specific runtime conditions, not files committed to the repo. Get whichever ones your team uses connected before the first UI-fix request lands.
+
+| Agent | Visibility setup |
+| --- | --- |
+| **Claude Code** | Install [Playwright MCP](https://github.com/microsoft/playwright-mcp) or a Chrome DevTools MCP server. For static / authenticated localhost pages, `WebFetch` works once the domain is in `.claude/settings.json` `permissions.allow`. Pasting screenshots into chat is always supported. |
+| **Cursor** | `@web` symbol fetches live pages. Browser-extension MCP servers for Cursor are emerging — wire in whichever your team uses. Screenshots paste directly. |
+| **Aider** | No native browser access. Capture screenshots yourself (`screencapture` on macOS, `gnome-screenshot` on Linux, Snipping Tool on Windows) and pipe in: `aider --read screenshot.png`. |
+| **OpenAI Codex CLI** | Enable web access via the CLI's `--web` flag / config. MCP integration depends on the version. |
+| **OpenCode** | MCP integration; configure browser tools in the platform's tool config. |
+| **Continue.dev** | Add `web` to `contextProviders` in `.continue/config.json`. Browser-extension and MCP context providers add richer access. |
+| **Windsurf** | Cascade MCP integration. Configure browser tools in the workspace settings. |
+| **GitHub Copilot** | Limited file-based; mostly IDE-driven. For visual issues, paste screenshots into Copilot Chat directly. |
+
+If your host has none of the above, you fall back to **screenshot-and-paste** — slower per request but always works. Every modern agent host accepts an image paste into chat.
+
+## 2. Storybook / Histoire — the visual catalog
+
+For projects with non-trivial UI surface area, install [Storybook](https://storybook.js.org) (React / Vue / Svelte / Angular) or [Histoire](https://histoire.dev) (Vue / Svelte). The convention:
+
+- Every shared component has a story file alongside it (`Button.stories.tsx` next to `Button.tsx`).
+- Stories show the component in every supported variant, state, and prop combination.
+- The story file is the **canonical visual reference**. When an agent (with browser MCP) opens a story URL, it sees what the component looks like in isolation — no page context required.
+
+If [`ui-components.md`](./ui-components.md) is also installed (Q10 `UI_COMPONENTS=yes`), the two complement each other: the catalog tells the agent *what* affordances exist; the story files show *what they look like*.
+
+## 3. Engineer-side convention — how to report a UI issue
+
+When you find something wrong in the UI and want the agent to fix it, the ten-second discipline is:
+
+1. **Paste a screenshot.** Drag the image into the agent's chat input. Don't describe in 200 words what an image shows in one glance.
+2. **Name the route.** `/checkout`, `/profile/settings`, `/orders/:id`. This lets the agent jump to the right page file even when it has no browser tool.
+3. **Name the component if you know it.** `<CancelButton>`, `<PaymentForm>`, the `<Toast>` system. If you don't, describe the affordance precisely: *"the small orange button below the form on submit error,"* not *"the button."*
+4. **State what's wrong about the rendered pixels.** Colour, spacing, behaviour, animation timing, accessibility (focus rings, hit-target size, screen-reader labels), state transitions. Be specific — *"hover state is invisible"* beats *"hover looks weird."*
+5. **State what you want instead.** Desired colour (hex if you know it), desired spacing, desired behaviour. Or reference an existing correct pattern: *"match `<DialogPrimary>`'s hover — that one's right."*
+
+For larger issues — *"the whole checkout flow feels broken"* — break it into one issue per visible problem rather than describing a vague set. The agent works one focused fix per [`workflow.md`](./workflow.md)'s one-request-one-commit discipline.
+
+## 4. Agent-side convention — how to respond to a UI issue
+
+When the agent receives a UI fix request, before touching files:
+
+1. **If you have a browser MCP available**, open the named route. See the rendered page yourself. Confirm the issue the engineer described is the one you see — sometimes there's a second issue in the same screenshot the engineer hasn't named.
+2. **If you don't**, ask for a screenshot if the description is ambiguous (*"can you paste a screenshot of the broken state?"*) before guessing. Better to ask once than to ship the wrong fix.
+3. **Locate the canonical source file** via `grep` (per [`workflow-frontend.md`](./workflow-frontend.md) § *Find the source of truth*). Don't patch the consumer page until you've confirmed which component file is actually responsible.
+4. **Cross-reference [`ui-components.md`](./ui-components.md)** (if installed) for canonical patterns this project has already decided on. Match the existing style; don't invent a new variant.
+5. **Apply the propagation discipline** from [`workflow-frontend.md`](./workflow-frontend.md): edit the source, list consumers, sweep for regressions and opportunities, fold consumer updates into the same commit.
+
+When in doubt about what was meant, prefer asking one focused clarifying question (with a screenshot if helpful) over guessing across multiple round-trips.
+
+## Why this file exists
+
+A markdown rule alone can't close the visibility gap between an engineer who *sees* a rendered UI and an agent that doesn't. [`workflow-frontend.md`](./workflow-frontend.md) handles the *fixing* side; this file handles the *communicating* side — the tooling, the engineer's reporting convention, the agent's response convention. Together they cover what a senior frontend engineer does instinctively when explaining a UI issue to a colleague: shows them the screen, names the affordance, says what's wrong and what they want, then makes sure the fix lands in one place that everyone else benefits from.
 ````
 
 ---
@@ -3438,6 +3517,7 @@ Always follow the rules in `.agents/rules/`:
 {{IF_METRICS}}- [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) — companion to `workflow.md` for *metering* changes. Adding / modifying / removing a metered event must move surfaces in lockstep — constant, call site, catalog row, display side — all in the same commit. Cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable.
 {{IF_TESTING}}- [`workflow-testing.md`](.agents/rules/workflow-testing.md) — companion to `workflow.md` for testing discipline. Every artifact-producing change ships with the tests that prove its behaviour, in the same commit. Pyramid-shaped (unit-heavy / integration-light / e2e-thin), mock at boundaries not internals, bug fixes start with a failing regression test, TDD encouraged but not mandated, coverage tracked without a hard floor.
 {{IF_FRONTEND}}- [`workflow-frontend.md`](.agents/rules/workflow-frontend.md) — companion to `workflow.md` for shared frontend code. Touch the source, sweep the consumers: before patching a consumer, find the canonical source; edit there; list every importer; fix or call out behavioural regressions in the same commit; never duplicate to make a local tweak. Removes the friction of having to re-request the same fix across pages.
+{{IF_FRONTEND}}- [`frontend-visibility.md`](.agents/rules/frontend-visibility.md) — companion to `workflow-frontend.md` for the visibility / communication side. Per-agent browser-tooling setup (Playwright MCP for Claude, `@web` for Cursor, screenshot-piping for Aider, etc.), Storybook / Histoire conventions for the visual catalog, the engineer-side reporting convention (screenshot + route + component + symptom), and the agent-side response convention (open via MCP if available; ask for a screenshot otherwise; grep for the source; cross-reference `ui-components.md`).
 
 Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
 
@@ -3484,6 +3564,7 @@ Read these files at the start of any non-trivial task; they define the project's
 {{IF_METRICS}}- `.agents/rules/workflow-metrics.md`
 {{IF_TESTING}}- `.agents/rules/workflow-testing.md`
 {{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md`
+{{IF_FRONTEND}}- `.agents/rules/frontend-visibility.md`
 
 ADRs (architecture decisions) live under `.docs/adrs/` — read these before making structural changes. Do-later ideas live under `.docs/todos/`. Per-request prompt files live under `.docs/prompts/`.
 
@@ -3512,6 +3593,7 @@ read:
 {{IF_METRICS}}  - .agents/rules/workflow-metrics.md
 {{IF_TESTING}}  - .agents/rules/workflow-testing.md
 {{IF_FRONTEND}}  - .agents/rules/workflow-frontend.md
+{{IF_FRONTEND}}  - .agents/rules/frontend-visibility.md
 
 # --- Q3 POSTURE-driven autonomy keys -----------------------------------------
 # CAUTIOUS  — every edit and shell command prompts; auto-commit off.
@@ -3597,6 +3679,7 @@ Always-loaded context:
 {{IF_METRICS}}- `.agents/rules/workflow-metrics.md` — metering / cardinality rules.
 {{IF_TESTING}}- `.agents/rules/workflow-testing.md` — testing pyramid + regression-first + same-commit test gate.
 {{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md` — shared frontend code: touch source, sweep consumers, no inline duplication.
+{{IF_FRONTEND}}- `.agents/rules/frontend-visibility.md` — per-agent browser-tooling setup + engineer/agent communication conventions for UI issues.
 
 ADRs: `.docs/adrs/`. Per-request prompts: `.docs/prompts/`. Deferred ideas: `.docs/todos/`. Security audits: `.docs/security/`.
 
@@ -3644,6 +3727,10 @@ Before any security-sensitive commit, walk the rubric in [`.docs/security/method
 {{IF_FRONTEND}}## Shared frontend (summary — full text in `.agents/rules/workflow-frontend.md`)
 {{IF_FRONTEND}}
 {{IF_FRONTEND}}When a request says *"fix component X on page Y"*, find the canonical source first (`grep -r` for the import), edit there, and list every consumer in the prompt file. Sweep each consumer for regressions and opportunities; fold the consumer updates into the same commit. Never patch a consumer with a local copy of the fix — that's how drift starts. Anti-patterns: forking components into v2, hard-coding values where a token exists, leaving stale consumers after a prop rename.
+{{IF_FRONTEND}}
+{{IF_FRONTEND}}## Frontend visibility (summary — full text in `.agents/rules/frontend-visibility.md`)
+{{IF_FRONTEND}}
+{{IF_FRONTEND}}Copilot Chat accepts pasted screenshots — that's the primary visibility channel for UI issues. When a user reports a visual problem: ask for a screenshot if one isn't pasted, ask for the route, and ask for the component name if known. Cross-reference `ui-components.md` (if installed) for the project's canonical affordances before inventing a variant. Storybook story files (if the project uses them) are the canonical visual reference for any shared component. The engineer's reporting convention is *screenshot + route + component-name-or-precise-description + symptom + desired outcome*.
 {{IF_FRONTEND}}
 ## Autonomy posture (intent — apply manually in Copilot's IDE settings)
 
