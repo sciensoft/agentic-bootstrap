@@ -1,20 +1,20 @@
 name: lint-bootstrap
 
 # Runs scripts/lint_bootstrap.py on every PR and on pushes to the main
-# branches. Catches cross-reference drift inside AGENTIC_BOOTSTRAP.md
+# branches. Catches cross-reference drift inside AGENTIC-BOOTSTRAP.md
 # before it ships. See scripts/lint_bootstrap.py for the four checks.
 
 on:
   pull_request:
     paths:
-      - 'AGENTIC_BOOTSTRAP.md'
+      - 'AGENTIC-BOOTSTRAP.md'
       - 'BOOTSTRAP_CHANGELOG.md'
       - 'scripts/lint_bootstrap.py'
       - '.github/workflows/lint-bootstrap.yml'
   push:
     branches: [main, develop]
     paths:
-      - 'AGENTIC_BOOTSTRAP.md'
+      - 'AGENTIC-BOOTSTRAP.md'
       - 'BOOTSTRAP_CHANGELOG.md'
       - 'scripts/lint_bootstrap.py'
       - '.github/workflows/lint-bootstrap.yml'

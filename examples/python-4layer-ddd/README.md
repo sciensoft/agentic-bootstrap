@@ -29,4 +29,4 @@ A trimmed sample of what the bootstrap produces for `LANG=Python` + `ARCH=4_LAYE
 
 A real bootstrap run also produces: `.agents/rules/{workflow,workflow-todos,workflow-security,workflow-testing,best-practices,layered-architecture}.md`, `.docs/{adrs,prompts,todos,security}/`, `CLAUDE.md` adapter, `.claude/settings.json`, `pyproject.toml`, `ruff.toml`, `Makefile`, `.gitignore`, `.env.example`, `tests/conftest.py`, and the conventional repo files (`README.md`, `LICENSE`, `SECURITY.md`, `CHANGELOG.md`, `.pre-commit-config.yaml`, `.gitattributes`, `.editorconfig`).
 
-Browse the full template set in [`AGENTIC_BOOTSTRAP.md` Part 4](../../AGENTIC_BOOTSTRAP.md).
+Browse the full template set in [`AGENTIC-BOOTSTRAP.md` Part 4](../../AGENTIC-BOOTSTRAP.md).

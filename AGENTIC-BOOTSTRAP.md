@@ -97,7 +97,7 @@ When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo
 
 To fix everything above, re-run the bootstrap normally:
 
-> follow AGENTIC_BOOTSTRAP.md to bootstrap this repo
+> follow AGENTIC-BOOTSTRAP.md to bootstrap this repo
 
 Or fix individual items manually — each bullet above includes the path and the specific action needed.
 ```
@@ -114,7 +114,7 @@ Doctor mode is the safe way for teams to ask *"how compliant are we right now?"*
 ### Step 1. Sanity-check the working directory
 
 - Run `pwd` to confirm where you are; run `ls -la` to see what's already here.
-- **First-time mode**: if **any** of these already exist — `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/`, `AGENTIC_BOOTSTRAP.md` itself — **stop and ask the user** how to proceed (overwrite? merge? skip the conflicting files? switch to re-run mode?). Never silently overwrite their work.
+- **First-time mode**: if **any** of these already exist — `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/`, `AGENTIC-BOOTSTRAP.md` itself — **stop and ask the user** how to proceed (overwrite? merge? skip the conflicting files? switch to re-run mode?). Never silently overwrite their work.
 - **Re-run mode**: these files are expected to exist; no abort. Still sanity-check for unexpected state — if `.agents/rules/` (or the legacy `.agents/rules/` if migration was deferred) is missing files the matrix knows about, or `.docs/security/methodology.md` was deleted, or anything else seems wrong, surface it before proceeding.
 - If `.git/` doesn't exist, ask whether to `git init` as part of the bootstrap (default: yes). Re-run mode in a non-git directory is unusual; mention it.
 
@@ -4877,7 +4877,7 @@ After the agent finishes and pushes the first commit, here's what's worth doing 
 - **Add CI** for your hosting platform of choice — GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI, etc. The bootstrap intentionally skips CI (it's host-specific); the security methodology's "CVE scanner in CI" rubric stays aspirational until you wire one up.
 - **Lock dependencies** — run the language's lockfile generator (`uv lock`, `npm install` / `pnpm install`, `cargo build`, `go mod tidy`) and commit the resulting lockfile per `methodology.md §5.10`.
 - **Consider adding an `ARCHITECTURE.md`** at the repo root when the project grows enough to need a tree + diagram alongside `AGENTS.md`.
-- **Update this file** (`AGENTIC_BOOTSTRAP.md`) whenever you discover a pattern worth standardising across future projects. The whole point is that the next `cd new-project && paste-this-file` reflects your latest thinking. See Part 6 for the maintenance checklist.
+- **Update this file** (`AGENTIC-BOOTSTRAP.md`) whenever you discover a pattern worth standardising across future projects. The whole point is that the next `cd new-project && paste-this-file` reflects your latest thinking. See Part 6 for the maintenance checklist.
 
 ---
 

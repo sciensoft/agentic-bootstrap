@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Consistency lint for AGENTIC_BOOTSTRAP.md.
+"""Consistency lint for AGENTIC-BOOTSTRAP.md.
 
 Checks (each one independent; all run every invocation):
 
@@ -17,7 +17,7 @@ Checks (each one independent; all run every invocation):
    (or vice versa) leaves an unwritten file the bootstrap thinks it wrote.
 
 4. **Version header ↔ changelog** — the `<!-- bootstrap-version: ... -->`
-   header in AGENTIC_BOOTSTRAP.md matches the most recent dated entry in
+   header in AGENTIC-BOOTSTRAP.md matches the most recent dated entry in
    `BOOTSTRAP_CHANGELOG.md`. Bumping one without the other means re-run
    Step 8's upgrade narrative says the wrong thing.
 
@@ -32,7 +32,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-BOOTSTRAP_PATH = REPO_ROOT / "AGENTIC_BOOTSTRAP.md"
+BOOTSTRAP_PATH = REPO_ROOT / "AGENTIC-BOOTSTRAP.md"
 CHANGELOG_PATH = REPO_ROOT / "BOOTSTRAP_CHANGELOG.md"
 
 

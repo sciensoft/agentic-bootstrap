@@ -10,7 +10,7 @@
 
 Every project grows good engineering habits eventually — usually after the third *"why did we do it that way?"*, the first security scare, the fifth time the agent re-derives the same context. **The bootstrap installs them on day one.**
 
-Hand [`AGENTIC_BOOTSTRAP.md`](./AGENTIC_BOOTSTRAP.md) to your coding agent, say *"follow this bootstrap"*, and walk away with the discipline most projects don't get for months: an `AGENTS.md` brief every assistant reads, workflow rules under `.agents/rules/`, ADRs for load-bearing decisions, a prompt history that captures the *why*, a security rubric you actually walk, a testing pyramid (opt-in), permissions matched to risk, and a thin adapter file for each of the eight agentic tools the project supports.
+Hand [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) to your coding agent, say *"follow this bootstrap"*, and walk away with the discipline most projects don't get for months: an `AGENTS.md` brief every assistant reads, workflow rules under `.agents/rules/`, ADRs for load-bearing decisions, a prompt history that captures the *why*, a security rubric you actually walk, a testing pyramid (opt-in), permissions matched to risk, and a thin adapter file for each of the eight agentic tools the project supports.
 
 No templates to clone. No CLI to install. No external fetches. Just one file your agent reads end-to-end.
 
@@ -18,10 +18,10 @@ No templates to clone. No CLI to install. No external fetches. Just one file you
 
 ```text
 # 1. Drop the file
-curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md
+curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC-BOOTSTRAP.md
 
 # 2. Tell your agent
-> follow AGENTIC_BOOTSTRAP.md to bootstrap this repo
+> follow AGENTIC-BOOTSTRAP.md to bootstrap this repo
 
 # 3. Answer 17 questions
 # 4. Get a disciplined, tool-agnostic scaffold + first commit
@@ -86,7 +86,7 @@ The tool-agnostic spine (`AGENTS.md` + `.agents/rules/`) is written every time; 
 
 ## The interview
 
-Seventeen questions, six tiers. The full list is in [`AGENTIC_BOOTSTRAP.md` Part 2](./AGENTIC_BOOTSTRAP.md); the highlights:
+Seventeen questions, six tiers. The full list is in [`AGENTIC-BOOTSTRAP.md` Part 2](./AGENTIC-BOOTSTRAP.md); the highlights:
 
 | Tier | Questions | What it controls |
 | --- | --- | --- |
@@ -115,7 +115,7 @@ Nine, with a Q5 disambiguation that routes topology answers (microservice, monor
 
 ## The ownership model (why re-runs are safe)
 
-Every file the bootstrap writes is classified in [Part 3's decision matrix](./AGENTIC_BOOTSTRAP.md). This is the contract that makes the bootstrap re-runnable forever.
+Every file the bootstrap writes is classified in [Part 3's decision matrix](./AGENTIC-BOOTSTRAP.md). This is the contract that makes the bootstrap re-runnable forever.
 
 | Category | What it means | Re-run behaviour | Examples |
 | --- | --- | --- | --- |
@@ -136,7 +136,7 @@ If you want to check an existing project's compliance with the rules without wri
 > run bootstrap-doctor against this repo
 ```
 
-You get a structured report: missing rule files, stale `bootstrap.json` keys, security audits overdue, refinement marker still `stub`, ADR index out of sync. No writes. Full report shape in [`AGENTIC_BOOTSTRAP.md` § Step 0 → doctor mode](./AGENTIC_BOOTSTRAP.md).
+You get a structured report: missing rule files, stale `bootstrap.json` keys, security audits overdue, refinement marker still `stub`, ADR index out of sync. No writes. Full report shape in [`AGENTIC-BOOTSTRAP.md` § Step 0 → doctor mode](./AGENTIC-BOOTSTRAP.md).
 
 ## Design principles
 
@@ -154,7 +154,7 @@ These shape every decision in the artifact:
 
 ## How it's structured
 
-[`AGENTIC_BOOTSTRAP.md`](./AGENTIC_BOOTSTRAP.md) is one file in six parts:
+[`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) is one file in six parts:
 
 | Part | What it contains |
 | --- | --- |
@@ -167,7 +167,7 @@ These shape every decision in the artifact:
 
 ## Files in this repo
 
-- [`AGENTIC_BOOTSTRAP.md`](./AGENTIC_BOOTSTRAP.md) — **the artifact.** What you hand to your agent.
+- [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) — **the artifact.** What you hand to your agent.
 - [`QUICKSTART.md`](./QUICKSTART.md) — 60-second quickstart for human readers.
 - [`BOOTSTRAP_CHANGELOG.md`](./BOOTSTRAP_CHANGELOG.md) — version history.
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — how to extend the bootstrap.
@@ -192,4 +192,4 @@ If you've been doing this manually on every project, the bootstrap is the file t
 
 ---
 
-> **Try it now.** `cd` into any repo, hand [`AGENTIC_BOOTSTRAP.md`](./AGENTIC_BOOTSTRAP.md) to your agent, and say *"follow this bootstrap."* Sixty seconds to the day-one discipline you'd otherwise grow over six months — one painful lesson at a time.
+> **Try it now.** `cd` into any repo, hand [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) to your agent, and say *"follow this bootstrap."* Sixty seconds to the day-one discipline you'd otherwise grow over six months — one painful lesson at a time.

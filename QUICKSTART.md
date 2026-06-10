@@ -2,10 +2,10 @@
 
 ```text
 # 1. Drop the file
-curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md
+curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC-BOOTSTRAP.md
 
 # 2. Tell your agent
-> follow AGENTIC_BOOTSTRAP.md to bootstrap this repo
+> follow AGENTIC-BOOTSTRAP.md to bootstrap this repo
 
 # 3. Answer 17 questions
 # 4. Get a disciplined, tool-agnostic scaffold + first commit
@@ -27,7 +27,7 @@ The interview is 17 questions, grouped into six tiers. None are trick questions;
 - **Q14–Q15 — Repository metadata.** License + contributions.
 - **Q16–Q17 — Run instructions + anything else load-bearing.**
 
-The full interview reference is in [`AGENTIC_BOOTSTRAP.md` Part 2](./AGENTIC_BOOTSTRAP.md).
+The full interview reference is in [`AGENTIC-BOOTSTRAP.md` Part 2](./AGENTIC-BOOTSTRAP.md).
 
 ## What you'll get
 
@@ -94,7 +94,7 @@ Each example shows the actual file tree the bootstrap produced for that stack, w
 The bootstrap is **idempotent**. Run it again any time you want to pick up new rules, new architecture variants, or a new tool adapter from a newer version of the file:
 
 ```text
-> follow AGENTIC_BOOTSTRAP.md to bootstrap this repo
+> follow AGENTIC-BOOTSTRAP.md to bootstrap this repo
 ```
 
 The agent reads `.agents/bootstrap.json` to skip questions you've already answered. Only newly-added interview keys get re-asked. The version delta is named in the Step 8 report so you see what's changed since your last run — driven by [`BOOTSTRAP_CHANGELOG.md`](./BOOTSTRAP_CHANGELOG.md).
@@ -107,7 +107,7 @@ If you want to check an existing project's compliance with the rules without wri
 > run bootstrap-doctor against this repo
 ```
 
-You get a structured report: missing rule files, stale `bootstrap.json` keys, security audits overdue, refinement marker still `stub`, ADR index out of sync. No writes. See [`AGENTIC_BOOTSTRAP.md` § Step 0 → doctor mode](./AGENTIC_BOOTSTRAP.md) for the full report shape.
+You get a structured report: missing rule files, stale `bootstrap.json` keys, security audits overdue, refinement marker still `stub`, ADR index out of sync. No writes. See [`AGENTIC-BOOTSTRAP.md` § Step 0 → doctor mode](./AGENTIC-BOOTSTRAP.md) for the full report shape.
 
 ## Contributing
 

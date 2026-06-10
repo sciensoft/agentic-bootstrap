@@ -3,9 +3,9 @@
 
 # Bootstrap changelog
 
-The bootstrap's own change log. Each entry covers one notable version of [`AGENTIC_BOOTSTRAP.md`](./AGENTIC_BOOTSTRAP.md). On re-run, the Step 8 report names the version delta and surfaces the relevant bullets so the user sees what changed.
+The bootstrap's own change log. Each entry covers one notable version of [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md). On re-run, the Step 8 report names the version delta and surfaces the relevant bullets so the user sees what changed.
 
-Format: Keep a Changelog, dated by ISO date. The version marker at the top of `AGENTIC_BOOTSTRAP.md` (`<!-- bootstrap-version: <YYYY-MM-DD> -->`) is what the bootstrap reads to detect upgrades — bump it whenever you publish a notable change.
+Format: Keep a Changelog, dated by ISO date. The version marker at the top of `AGENTIC-BOOTSTRAP.md` (`<!-- bootstrap-version: <YYYY-MM-DD> -->`) is what the bootstrap reads to detect upgrades — bump it whenever you publish a notable change.
 
 ## [Unreleased]
 
@@ -36,7 +36,7 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 - `CONTRIBUTING.md` for this repo — how to add ARCH templates, tool adapters, feature gates, and language scaffolds.
 - `QUICKSTART.md` — 60-second human-readable quickstart, separate from the operational prompt.
 - 3 example projects under `examples/` — `python-4layer-ddd`, `typescript-vertical-slice`, `go-microservice`. Browseable proof of what the bootstrap produces.
-- `scripts/lint_bootstrap.py` + `.github/workflows/lint-bootstrap.yml` — consistency lint for `AGENTIC_BOOTSTRAP.md` with four checks (Q-numbers sequential, `{{IF_FLAG}}` references match `bootstrap.json` schema, decision-matrix rows point to existing Part 4 templates, version header matches latest dated changelog entry). Runs on every PR.
+- `scripts/lint_bootstrap.py` + `.github/workflows/lint-bootstrap.yml` — consistency lint for `AGENTIC-BOOTSTRAP.md` with four checks (Q-numbers sequential, `{{IF_FLAG}}` references match `bootstrap.json` schema, decision-matrix rows point to existing Part 4 templates, version header matches latest dated changelog entry). Runs on every PR.
 - Per-tool permission-posture templates — Q3 `POSTURE` is now a single tool-agnostic intent that fans out into every tool's native permission config: `.claude/settings.json`, `.cursor/settings.json`, `.codex/config.toml`, `.windsurf/settings.json` (each in 4 variants), plus `IF_POSTURE_*` blocks in the existing `.aider.conf.yml` and `.continue/config.json` adapters. OpenCode and GitHub Copilot don't have file-based permission models; their adapters carry a posture-intent note for the user to apply manually.
 - SVG favicon + theme-color meta on the landing page matching the brand mark.
 - Landing-page "Adoption" section with linked cards (examples, quickstart, doctor mode), positioning table vs Cookiecutter / copier / hand-typed agent brief, trust signals (Star button, version badge linking to changelog, Contribute button, CI status badge).
@@ -85,4 +85,4 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## Format
 
-When updating this file: add to `[Unreleased]` as you go; when the change is meaningful enough to bump the bootstrap version, rename `[Unreleased]` to `[<YYYY-MM-DD>] — <short summary>`, bump the `<!-- bootstrap-version: ... -->` header in `AGENTIC_BOOTSTRAP.md` to the same date, and start a new empty `[Unreleased]` block above. Existing projects re-running the bootstrap will see the new version's bullets in their Step 8 report.
+When updating this file: add to `[Unreleased]` as you go; when the change is meaningful enough to bump the bootstrap version, rename `[Unreleased]` to `[<YYYY-MM-DD>] — <short summary>`, bump the `<!-- bootstrap-version: ... -->` header in `AGENTIC-BOOTSTRAP.md` to the same date, and start a new empty `[Unreleased]` block above. Existing projects re-running the bootstrap will see the new version's bullets in their Step 8 report.

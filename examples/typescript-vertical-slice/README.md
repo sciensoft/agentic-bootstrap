@@ -30,4 +30,4 @@ A trimmed sample of what the bootstrap produces for `LANG=TypeScript/Node` + `AR
 
 A real bootstrap run also produces: `.agents/rules/{workflow,workflow-todos,workflow-security,workflow-testing,best-practices,layered-architecture}.md`, `.docs/{adrs,prompts,todos,security}/`, `.cursor/rules/agents.mdc`, `.aider.conf.yml`, `package.json`, `tsconfig.json`, `eslint.config.js`, `.prettierrc.json`, `vitest.config.ts`, `Makefile`, `.gitignore`, `.env.example`, plus conventional repo files.
 
-Browse the full template set in [`AGENTIC_BOOTSTRAP.md` Part 4](../../AGENTIC_BOOTSTRAP.md).
+Browse the full template set in [`AGENTIC-BOOTSTRAP.md` Part 4](../../AGENTIC-BOOTSTRAP.md).

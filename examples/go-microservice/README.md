@@ -27,4 +27,4 @@ A trimmed sample of what the bootstrap produces for `LANG=Go` + `ARCH=MICROSERVI
 
 A real bootstrap run also produces: `.agents/rules/{workflow,workflow-todos,workflow-security,workflow-testing,best-practices,workflow-metrics,layered-architecture}.md`, `.docs/{adrs,prompts,todos,security}/`, `CLAUDE.md`, `.claude/settings.json`, `.github/copilot-instructions.md`, `go.mod`, `Dockerfile`, deploy manifest (Helm chart / Kubernetes YAML), `.golangci.yml`, `Makefile`, `.gitignore`, plus conventional repo files.
 
-Browse the full template set in [`AGENTIC_BOOTSTRAP.md` Part 4](../../AGENTIC_BOOTSTRAP.md).
+Browse the full template set in [`AGENTIC-BOOTSTRAP.md` Part 4](../../AGENTIC-BOOTSTRAP.md).
