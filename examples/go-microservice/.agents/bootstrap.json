@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-bootstrap.json",
+  "bootstrap_version": "2026-06-10",
+  "last_run_at": "2026-06-10T14:10:00Z",
+  "answers": {
+    "PROJECT_NAME": "quill",
+    "ONE_LINE_PURPOSE": "Accept order events from the storefront and forward fulfilment requests to the warehouse.",
+    "AGENTS_USED": ["CLAUDE", "COPILOT"],
+    "LAYOUT": "agents",
+    "POSTURE": "TRUSTED_DEV",
+    "LANG": "Go",
+    "ARCH": "MICROSERVICE",
+    "WEB": true,
+    "LLM": false,
+    "ENV_VARS": true,
+    "CHANGES": false,
+    "UI_COMPONENTS": false,
+    "METRICS": true,
+    "TESTING": true,
+    "BEST_PRACTICES_REFINED": false,
+    "LICENSE": "MIT",
+    "COPYRIGHT_HOLDER": "Quill Order Flow Team",
+    "CONTRIB": false,
+    "RUN_INSTRUCTIONS": "go build ./... && make run",
+    "ADDITIONAL_SECTIONS_FROM_INTERVIEW": ""
+  }
+}

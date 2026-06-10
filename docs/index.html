@@ -9,7 +9,7 @@
   <link rel="mask-icon" href="favicon.svg" color="#7c3aed">
   <meta name="theme-color" content="#7c3aed">
   <meta name="description"
-    content="One file. Hand it to any agentic coding assistant (Claude Code, Cursor, Aider, Codex, OpenCode, Continue.dev, Windsurf, Copilot) in any repo. It interviews you, scaffolds the rules, ADRs, prompts, todos, and the testing pyramid — then bundles every change into a single disciplined git commit. Opinionated. Project-agnostic. Tool-agnostic.">
+    content="One file. Hand it to any agentic coding assistant (Claude Code, Cursor, Aider, Codex, OpenCode, Continue.dev, Windsurf, Copilot) in any repo. It interviews you, scaffolds the rules, ADRs, prompts, TODOs, and the testing pyramid — then bundles every change into a single disciplined git commit. Opinionated. Project-agnostic. Tool-agnostic.">
   <meta property="og:title" content="Agentic Bootstrap">
   <meta property="og:description" content="From fresh repo to agent-ready, in one prompt. Works with Claude Code, Cursor, Aider, Codex, OpenCode, Continue.dev, Windsurf, and Copilot.">
   <meta property="og:type" content="website">
@@ -253,7 +253,7 @@
           </h1>
           <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
             Hand <span class="font-mono text-zinc-200">AGENTIC_BOOTSTRAP.md</span> to your favourite agentic coding
-            assistant. It interviews you, scaffolds the rules, ADRs, prompts, todo discipline, and the testing pyramid — then bundles every change into <span class="text-zinc-200 font-medium">one focused git commit</span>: prompt, ADR, tests, telemetry, code. Opinionated. Project-agnostic. <span class="text-zinc-200 font-medium">One file. Every agent.</span>
+            assistant. It interviews you, scaffolds the rules, ADRs, prompts, TODO discipline, and the testing pyramid — then bundles every change into <span class="text-zinc-200 font-medium">one focused git commit</span>: prompt, ADR, tests, telemetry, code. Opinionated. Project-agnostic. <span class="text-zinc-200 font-medium">One file. Every agent.</span>
           </p>
           <div class="mt-9 flex flex-wrap items-center gap-3">
             <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC_BOOTSTRAP.md"
@@ -424,7 +424,7 @@
           <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Every artifact has a reason. <span
               class="text-zinc-200">AGENTS.md</span> is the primary cross-tool brief. <span
               class="text-zinc-200">.agents/rules/</span> holds the durable workflow rules. <span
-              class="text-zinc-200">.docs/</span> grows with the project — ADRs, timestamped prompts, deferred todos,
+              class="text-zinc-200">.docs/</span> grows with the project — ADRs, timestamped prompts, deferred TODOs,
             security audits. Per-tool adapters (<span class="font-mono text-zinc-300">CLAUDE.md</span>, <span class="font-mono text-zinc-300">.cursor/rules/</span>, <span class="font-mono text-zinc-300">.aider.conf.yml</span>, …) are thin pointers.</p>
 
           <ul class="mt-8 space-y-4 text-zinc-300">
@@ -493,7 +493,7 @@
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Features</p>
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Process, encoded.</h2>
         <p class="mt-4 text-zinc-400 text-lg">AI agents are powerful but undisciplined. Without a process, decisions
-          vanish, todos pile up, and changes lose their why. The bootstrap turns the discipline into files.</p>
+          vanish, TODOs pile up, and changes lose their why. The bootstrap turns the discipline into files.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -694,9 +694,9 @@
         <div class="lg:col-span-5 reveal">
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Permission postures</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Trust on your terms.</h2>
-          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">For Claude Code, pick how much autonomy the agent gets — from "ask for
-            everything" to "no prompts ever" — and the bootstrap writes the right <span
-              class="font-mono text-zinc-200">.claude/settings.json</span>. Other assistants use their own permission models; the bootstrap respects each one's adapter conventions.</p>
+          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Pick how much autonomy your agent gets — from "ask for
+            everything" to "no prompts ever". Each assistant carries its own permission model; the bootstrap respects whichever one applies. For Claude Code specifically, the four postures map to a generated <span
+              class="font-mono text-zinc-200">.claude/settings.json</span>; for other assistants, the bootstrap writes the adapter file and the permission discipline lives in each tool's native config (Cursor settings, Aider config, Codex flags, etc.).</p>
           <!-- IMAGE SLOT: optional illustration showing posture progression. Replace below. -->
           <div class="img-slot mt-8 rounded-xl h-44 grid place-items-center text-xs font-mono">
             image slot — posture spectrum
@@ -828,7 +828,7 @@
               </tr>
               <tr>
                 <td class="py-3 pr-4 text-zinc-300 font-medium">Discipline encoded</td>
-                <td class="py-3 pr-4 text-zinc-200">Workflow + ADRs + tests + security + todos</td>
+                <td class="py-3 pr-4 text-zinc-200">Workflow + ADRs + tests + security + TODOs</td>
                 <td class="py-3 pr-4">Whatever the template author wrote</td>
                 <td class="py-3 pr-4">Whatever you typed</td>
               </tr>

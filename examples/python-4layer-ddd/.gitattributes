@@ -1,0 +1,36 @@
+# Normalise line endings — repository stores LF; checkouts convert per OS where needed.
+* text=auto eol=lf
+
+# Explicitly binary (do not normalise).
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.webp      binary
+*.pdf       binary
+*.zip       binary
+*.gz        binary
+*.tar       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.otf       binary
+*.eot       binary
+*.mp3       binary
+*.mp4       binary
+*.wav       binary
+*.flac      binary
+
+# Lockfiles — generated, treat as text but linguist should not count toward language stats.
+*.lock              linguist-generated=true
+package-lock.json   linguist-generated=true
+yarn.lock           linguist-generated=true
+pnpm-lock.yaml      linguist-generated=true
+poetry.lock         linguist-generated=true
+uv.lock             linguist-generated=true
+Cargo.lock          linguist-generated=true
+go.sum              linguist-generated=true
+
+# Markdown docs aren't "code" — keep them out of language stats too.
+.docs/**           linguist-documentation=true

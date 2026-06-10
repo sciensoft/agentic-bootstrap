@@ -1,0 +1,22 @@
+# editorconfig.org — consistent indentation, line endings, charset across editors.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{js,jsx,ts,tsx,json,yml,yaml,html,css,scss,md}]
+indent_size = 2
+
+[*.{go,py,rs}]
+indent_size = 4
+
+[Makefile]
+indent_style = tab
+
+[*.md]
+trim_trailing_whitespace = false

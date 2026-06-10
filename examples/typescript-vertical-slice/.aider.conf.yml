@@ -1,0 +1,20 @@
+# Aider config — keeps the cross-tool brief and rule files in context for every session.
+# See https://aider.chat/docs/config/aider_conf.html for the full option list.
+
+read:
+  - AGENTS.md
+  - .agents/rules/workflow.md
+  - .agents/rules/workflow-todos.md
+  - .agents/rules/workflow-security.md
+  - .agents/rules/best-practices.md
+  - .agents/rules/layered-architecture.md
+  - .agents/rules/workflow-testing.md
+
+# Aider auto-commits by default; the workflow.md rule wants one commit per request
+# bundling the prompt file + ADR + code + telemetry. Leave auto-commit on, and let
+# the rule guide what goes into a single commit.
+# auto-commits: true
+
+# Add your preferred model + edit-format here, e.g.:
+# model: anthropic/claude-opus-4-7
+# edit-format: diff

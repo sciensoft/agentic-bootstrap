@@ -1,0 +1,21 @@
+---
+description: Cross-tool agent brief — see AGENTS.md
+globs: ["**/*"]
+alwaysApply: true
+---
+
+This project's primary agent brief lives in `AGENTS.md` at the repo root.
+
+Read these files at the start of any non-trivial task; they define the project's purpose, run instructions, architecture, and the workflow / security / best-practices rules every change must follow:
+
+- `AGENTS.md`
+- `.agents/rules/workflow.md`
+- `.agents/rules/workflow-todos.md`
+- `.agents/rules/workflow-security.md`
+- `.agents/rules/best-practices.md`
+- `.agents/rules/layered-architecture.md`
+- `.agents/rules/workflow-testing.md`
+
+ADRs (architecture decisions) live under `.docs/adrs/` — read these before making structural changes. Do-later ideas live under `.docs/todos/`. Per-request prompt files live under `.docs/prompts/`.
+
+When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
