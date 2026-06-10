@@ -1,3 +1,6 @@
+<!-- markdownlint-disable MD024 -->
+<!-- MD024 disabled: Keep-a-Changelog nests Added/Changed/Removed under every version section — duplicates are the format. -->
+
 # Bootstrap changelog
 
 The bootstrap's own change log. Each entry covers one notable version of [`AGENTIC_BOOTSTRAP.md`](./AGENTIC_BOOTSTRAP.md). On re-run, the Step 8 report names the version delta and surfaces the relevant bullets so the user sees what changed.
@@ -13,6 +16,7 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 - `CONTRIBUTING.md` for this repo — how to add ARCH templates, tool adapters, feature gates, and language scaffolds.
 - `QUICKSTART.md` — 60-second human-readable quickstart, separate from the operational prompt.
 - 3 example projects under `examples/` — `python-4layer-ddd`, `typescript-vertical-slice`, `go-microservice`. Browseable proof of what the bootstrap produces.
+- `scripts/lint_bootstrap.py` + `.github/workflows/lint-bootstrap.yml` — consistency lint for `AGENTIC_BOOTSTRAP.md` with four checks (Q-numbers sequential, `{{IF_FLAG}}` references match `bootstrap.json` schema, decision-matrix rows point to existing Part 4 templates, version header matches latest dated changelog entry). Runs on every PR.
 
 ### Changed
 

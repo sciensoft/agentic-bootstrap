@@ -88,10 +88,11 @@ The five template families (`.gitignore`, manifest, linter, `Makefile`, `TRUSTED
 
 Before opening the PR, run a smoke check:
 
-1. **Manual bootstrap.** Spin up a fresh empty directory; ask an agent (Claude Code is easiest if you have it) to follow the modified `AGENTIC_BOOTSTRAP.md` against it; confirm the bootstrap produces the expected files for a stack that exercises your change. For an ARCH-template contribution: pick that ARCH, confirm the template renders correctly; for a feature-gate contribution: answer yes to the new question, confirm the rule file lands.
-2. **Re-run check.** Run the bootstrap a second time against the same directory; confirm re-run mode picks up the already-bootstrapped project and only asks for any newly-added interview keys.
-3. **Doctor check** (when bootstrap-doctor mode ships): invoke `doctor` mode, confirm the report surfaces nothing unexpected.
-4. **Lint**: the bootstrap file is one large markdown document. Run your editor's markdown linter or `markdownlint AGENTIC_BOOTSTRAP.md` and fix anything it flags that isn't a known false positive (the file's header disables MD010 for the Makefile tab requirement; everything else should be clean).
+1. **Consistency lint (required).** Run `python scripts/lint_bootstrap.py` from the repo root. It validates four properties of `AGENTIC_BOOTSTRAP.md`: Q-numbers are sequential 1..N with no gaps; every `{{IF_<FLAG>}}` reference in Part 4 templates matches a key in `bootstrap.json`'s `answers` schema (or is a documented derived flag); every row in the Part 3 decision matrix points to a Part 4 template that exists; the `<!-- bootstrap-version: ... -->` header matches the most recent dated entry in `BOOTSTRAP_CHANGELOG.md`. CI runs the same script on every PR — failing locally first saves you a round trip. If your change introduces a new derived flag or a new IF_FLAG pattern the lint doesn't recognise, update `DERIVED_FLAGS` in `scripts/lint_bootstrap.py` or refine the relevant check in the same PR.
+2. **Manual bootstrap.** Spin up a fresh empty directory; ask an agent (Claude Code is easiest if you have it) to follow the modified `AGENTIC_BOOTSTRAP.md` against it; confirm the bootstrap produces the expected files for a stack that exercises your change. For an ARCH-template contribution: pick that ARCH, confirm the template renders correctly; for a feature-gate contribution: answer yes to the new question, confirm the rule file lands.
+3. **Re-run check.** Run the bootstrap a second time against the same directory; confirm re-run mode picks up the already-bootstrapped project and only asks for any newly-added interview keys.
+4. **Doctor check.** Invoke doctor mode (*"run bootstrap-doctor against this repo"*), confirm the report surfaces nothing unexpected.
+5. **Markdown lint** (optional but useful): the bootstrap file is one large markdown document. Run your editor's markdown linter or `markdownlint AGENTIC_BOOTSTRAP.md` and fix anything it flags that isn't a known false positive (the file's header disables MD010 for the Makefile tab requirement; everything else should be clean).
 
 ## PR conventions
 

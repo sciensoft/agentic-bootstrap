@@ -1,0 +1,31 @@
+name: lint-bootstrap
+
+# Runs scripts/lint_bootstrap.py on every PR and on pushes to the main
+# branches. Catches cross-reference drift inside AGENTIC_BOOTSTRAP.md
+# before it ships. See scripts/lint_bootstrap.py for the four checks.
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTIC_BOOTSTRAP.md'
+      - 'BOOTSTRAP_CHANGELOG.md'
+      - 'scripts/lint_bootstrap.py'
+      - '.github/workflows/lint-bootstrap.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'AGENTIC_BOOTSTRAP.md'
+      - 'BOOTSTRAP_CHANGELOG.md'
+      - 'scripts/lint_bootstrap.py'
+      - '.github/workflows/lint-bootstrap.yml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run consistency lint
+        run: python scripts/lint_bootstrap.py
