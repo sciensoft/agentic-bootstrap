@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" class="dark scroll-smooth">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agentic Bootstrap — Fresh repo to Claude-Code-ready in one prompt</title>
-  <meta name="description" content="One file. Hand it to an agent in any repo. It interviews you, scaffolds the rules, ADRs, prompts, and todo discipline, then commits the lot. Opinionated. Project-agnostic.">
+  <meta name="description"
+    content="One file. Hand it to an agent in any repo. It interviews you, scaffolds the rules, ADRs, prompts, and todo discipline, then commits the lot. Opinionated. Project-agnostic.">
   <meta property="og:title" content="Agentic Bootstrap">
   <meta property="og:description" content="From fresh repo to Claude-Code-ready, in one prompt.">
   <meta property="og:type" content="website">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B9N6RPX058"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-B9N6RPX058');
+  </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -25,7 +39,7 @@
           },
           colors: {
             accent: {
-              50:  '#f5f3ff',
+              50: '#f5f3ff',
               100: '#ede9fe',
               200: '#ddd6fe',
               300: '#c4b5fd',
@@ -45,13 +59,16 @@
   </script>
 
   <style>
-    html, body { background-color: #09090b; }
+    html,
+    body {
+      background-color: #09090b;
+    }
 
     /* Subtle grid background */
     .grid-bg {
       background-image:
-        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
       background-size: 56px 56px;
       mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 80%);
     }
@@ -59,8 +76,8 @@
     /* Radial glows */
     .glow-hero {
       background:
-        radial-gradient(ellipse 60% 50% at 50% -10%, rgba(139,92,246,0.22), transparent 60%),
-        radial-gradient(ellipse 40% 40% at 80% 30%, rgba(232,121,249,0.14), transparent 60%);
+        radial-gradient(ellipse 60% 50% at 50% -10%, rgba(139, 92, 246, 0.22), transparent 60%),
+        radial-gradient(ellipse 40% 40% at 80% 30%, rgba(232, 121, 249, 0.14), transparent 60%);
     }
 
     /* Gradient text */
@@ -70,6 +87,7 @@
       background-clip: text;
       color: transparent;
     }
+
     .text-gradient-cool {
       background: linear-gradient(120deg, #e4e4e7 0%, #a1a1aa 50%, #e4e4e7 100%);
       -webkit-background-clip: text;
@@ -79,65 +97,113 @@
 
     /* Card with soft inner border + glow on hover */
     .card {
-      background: linear-gradient(180deg, rgba(39,39,42,0.5) 0%, rgba(24,24,27,0.5) 100%);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(180deg, rgba(39, 39, 42, 0.5) 0%, rgba(24, 24, 27, 0.5) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
     }
+
     .card:hover {
-      border-color: rgba(167,139,250,0.45);
+      border-color: rgba(167, 139, 250, 0.45);
       transform: translateY(-2px);
-      box-shadow: 0 12px 40px -12px rgba(139,92,246,0.25);
+      box-shadow: 0 12px 40px -12px rgba(139, 92, 246, 0.25);
     }
 
     /* Code blocks */
     .codeblock {
       background: #0a0a0b;
-      border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
     }
-    .codeblock .tk-c { color: #71717a; }     /* comment */
-    .codeblock .tk-k { color: #a78bfa; }     /* keyword */
-    .codeblock .tk-s { color: #a3e635; }     /* string */
-    .codeblock .tk-p { color: #67e8f9; }     /* path */
-    .codeblock .tk-m { color: #e879f9; }     /* meta */
-    .codeblock .tk-d { color: #d4d4d8; }     /* default */
+
+    .codeblock .tk-c {
+      color: #71717a;
+    }
+
+    /* comment */
+    .codeblock .tk-k {
+      color: #a78bfa;
+    }
+
+    /* keyword */
+    .codeblock .tk-s {
+      color: #a3e635;
+    }
+
+    /* string */
+    .codeblock .tk-p {
+      color: #67e8f9;
+    }
+
+    /* path */
+    .codeblock .tk-m {
+      color: #e879f9;
+    }
+
+    /* meta */
+    .codeblock .tk-d {
+      color: #d4d4d8;
+    }
+
+    /* default */
 
     /* Image placeholder styling */
     .img-slot {
       background:
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 14px, transparent 14px 28px),
-        linear-gradient(180deg, rgba(39,39,42,0.6) 0%, rgba(24,24,27,0.6) 100%);
-      border: 1px dashed rgba(167,139,250,0.35);
-      color: rgba(196,181,253,0.7);
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0 14px, transparent 14px 28px),
+        linear-gradient(180deg, rgba(39, 39, 42, 0.6) 0%, rgba(24, 24, 27, 0.6) 100%);
+      border: 1px dashed rgba(167, 139, 250, 0.35);
+      color: rgba(196, 181, 253, 0.7);
     }
 
     /* Reveal on scroll */
-    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .7s ease, transform .7s ease; }
-    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     /* Subtle button shine */
     .btn-primary {
       background: linear-gradient(180deg, #c4b5fd 0%, #8b5cf6 100%);
       color: #18181b;
-      box-shadow: 0 8px 28px -8px rgba(139,92,246,0.55), inset 0 1px 0 rgba(255,255,255,0.55);
+      box-shadow: 0 8px 28px -8px rgba(139, 92, 246, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.55);
     }
-    .btn-primary:hover { filter: brightness(1.06); }
+
+    .btn-primary:hover {
+      filter: brightness(1.06);
+    }
 
     /* Nav blur backdrop */
-    .nav-blur { backdrop-filter: saturate(140%) blur(10px); background: rgba(9,9,11,0.6); }
+    .nav-blur {
+      backdrop-filter: saturate(140%) blur(10px);
+      background: rgba(9, 9, 11, 0.6);
+    }
 
     /* Hide scrollbar in code blocks while keeping scroll */
-    .codeblock pre::-webkit-scrollbar { height: 6px; }
-    .codeblock pre::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .codeblock pre::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .codeblock pre::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
   </style>
 </head>
+
 <body class="text-zinc-100 font-sans antialiased selection:bg-accent-400/30 selection:text-accent-100">
 
   <!-- Nav -->
   <header class="fixed top-0 inset-x-0 z-50 nav-blur border-b border-white/5">
     <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
       <a href="#" class="flex items-center gap-2.5 group">
-        <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-400 to-accent-600 grid place-items-center text-zinc-950 font-black text-sm">A</span>
+        <span
+          class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-400 to-accent-600 grid place-items-center text-zinc-950 font-black text-sm">A</span>
         <span class="font-semibold tracking-tight">Agentic Bootstrap</span>
       </a>
       <div class="hidden md:flex items-center gap-7 text-sm text-zinc-400">
@@ -146,8 +212,12 @@
         <a href="#architectures" class="hover:text-zinc-100 transition">Architectures</a>
         <a href="#postures" class="hover:text-zinc-100 transition">Postures</a>
       </div>
-      <a href="https://github.com/sciensoft/agentic-bootstrap" class="inline-flex items-center gap-2 text-sm font-medium px-3.5 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
-        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.92.58.1.79-.25.79-.55v-2.04c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.27-1.68-1.27-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11 11 0 015.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.35.78 1.05.78 2.12v3.14c0 .3.21.66.8.55C20.22 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+      <a href="https://github.com/sciensoft/agentic-bootstrap"
+        class="inline-flex items-center gap-2 text-sm font-medium px-3.5 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor">
+          <path
+            d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.92.58.1.79-.25.79-.55v-2.04c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.27-1.68-1.27-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11 11 0 015.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.35.78 1.05.78 2.12v3.14c0 .3.21.66.8.55C20.22 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
+        </svg>
         GitHub
       </a>
     </nav>
@@ -161,7 +231,8 @@
     <div class="max-w-7xl mx-auto px-6 relative">
       <div class="grid lg:grid-cols-12 gap-12 items-center">
         <div class="lg:col-span-7">
-          <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
             <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
             Workflow discipline · for AI coding
           </div>
@@ -171,31 +242,58 @@
             in one prompt.
           </h1>
           <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-            Hand <span class="font-mono text-zinc-200">AGENTIC_BOOTSTRAP.md</span> to an agent. It interviews you, scaffolds the rules, ADRs, prompts, and todo discipline — then commits the lot. Opinionated. Project-agnostic. <span class="text-zinc-200 font-medium">One file.</span>
+            Hand <span class="font-mono text-zinc-200">AGENTIC_BOOTSTRAP.md</span> to an agent. It interviews you,
+            scaffolds the rules, ADRs, prompts, and todo discipline — then commits the lot. Opinionated.
+            Project-agnostic. <span class="text-zinc-200 font-medium">One file.</span>
           </p>
           <div class="mt-9 flex flex-wrap items-center gap-3">
-            <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md" class="btn-primary inline-flex items-center gap-2 font-semibold px-5 py-3 rounded-xl">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md"
+              class="btn-primary inline-flex items-center gap-2 font-semibold px-5 py-3 rounded-xl">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
               Get AGENTIC_BOOTSTRAP.md
             </a>
-            <a href="https://github.com/sciensoft/agentic-bootstrap" class="inline-flex items-center gap-2 font-medium px-5 py-3 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
+            <a href="https://github.com/sciensoft/agentic-bootstrap"
+              class="inline-flex items-center gap-2 font-medium px-5 py-3 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
               View on GitHub
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7" />
+                <path d="M7 7h10v10" />
+              </svg>
             </a>
           </div>
 
           <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-zinc-500">
-            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Project-agnostic</span>
-            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Re-runnable</span>
-            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No dependencies</span>
-            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> One file</span>
+            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg> Project-agnostic</span>
+            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg> Re-runnable</span>
+            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg> No dependencies</span>
+            <span class="inline-flex items-center gap-2"><svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg> One file</span>
           </div>
         </div>
 
         <div class="lg:col-span-5">
           <!-- IMAGE SLOT: Hero illustration. Replace the div below with an <img> tag. Suggested: terminal screenshot or product mark. -->
           <div class="relative">
-            <div class="absolute -inset-4 bg-gradient-to-br from-accent-500/20 via-violet-500/10 to-transparent blur-2xl"></div>
+            <div
+              class="absolute -inset-4 bg-gradient-to-br from-accent-500/20 via-violet-500/10 to-transparent blur-2xl">
+            </div>
             <div class="relative codeblock rounded-2xl p-5 font-mono text-[13px] leading-relaxed">
               <div class="flex items-center gap-1.5 pb-3 border-b border-white/5 mb-3">
                 <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
@@ -206,15 +304,16 @@
               <div><span class="tk-m">$</span> <span class="tk-d">claude</span></div>
               <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md to bootstrap this repo</div>
               <div class="mt-3 text-zinc-400">
-                <span class="tk-k">▸</span> Project name?            <span class="tk-s">"orbital"</span><br>
-                <span class="tk-k">▸</span> Language?                 <span class="tk-s">Python</span><br>
-                <span class="tk-k">▸</span> Architecture?             <span class="tk-s">4-Layer DDD</span><br>
-                <span class="tk-k">▸</span> Permission posture?       <span class="tk-s">Trusted dev</span><br>
+                <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                <span class="tk-k">▸</span> Permission posture? <span class="tk-s">Trusted dev</span><br>
                 <span class="tk-c">… 10 more questions, one commit later …</span>
               </div>
               <div class="mt-3">
                 <span class="tk-c"># Scaffold written:</span><br>
-                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.claude/rules/</span> <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.claude/rules/</span>
+                <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
                 <span class="tk-c">+ first commit recording the bootstrap itself</span>
               </div>
             </div>
@@ -230,16 +329,20 @@
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">60-second demo</p>
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Three steps. One file. One commit.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">No dependencies. No SDK. The discipline lives in a single markdown file you can read end-to-end.</p>
+        <p class="mt-4 text-zinc-400 text-lg">No dependencies. No SDK. The discipline lives in a single markdown file
+          you can read end-to-end.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-3 gap-6">
         <div class="card rounded-2xl p-7 reveal">
           <div class="flex items-center gap-3 mb-5">
-            <span class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">01</span>
+            <span
+              class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">01</span>
             <h3 class="text-lg font-semibold">Drop the file</h3>
           </div>
-          <p class="text-zinc-400 leading-relaxed">Save <span class="font-mono text-zinc-200">AGENTIC_BOOTSTRAP.md</span> at the root of any repo — fresh or existing.</p>
+          <p class="text-zinc-400 leading-relaxed">Save <span
+              class="font-mono text-zinc-200">AGENTIC_BOOTSTRAP.md</span> at the root of any repo — fresh or existing.
+          </p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs">
             <span class="tk-m">$</span> <span class="tk-d">curl -O https://raw.githubusercontent.com/</span><br>
             <span class="tk-d">&nbsp;&nbsp;sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md</span>
@@ -248,7 +351,8 @@
 
         <div class="card rounded-2xl p-7 reveal">
           <div class="flex items-center gap-3 mb-5">
-            <span class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">02</span>
+            <span
+              class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">02</span>
             <h3 class="text-lg font-semibold">Tell the agent</h3>
           </div>
           <p class="text-zinc-400 leading-relaxed">Hand it to Claude Code (or any capable agent) with one prompt.</p>
@@ -260,10 +364,12 @@
 
         <div class="card rounded-2xl p-7 reveal">
           <div class="flex items-center gap-3 mb-5">
-            <span class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">03</span>
+            <span
+              class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">03</span>
             <h3 class="text-lg font-semibold">Get the scaffold</h3>
           </div>
-          <p class="text-zinc-400 leading-relaxed">14 questions, smart defaults, then the agent writes the rules, ADR index, prompt log, and first commit.</p>
+          <p class="text-zinc-400 leading-relaxed">14 questions, smart defaults, then the agent writes the rules, ADR
+            index, prompt log, and first commit.</p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs">
             <span class="tk-c"># 23 files written</span><br>
             <span class="tk-c"># [main] chore: bootstrap project</span>
@@ -275,26 +381,42 @@
 
   <!-- What you get (artifacts) -->
   <section class="py-24 border-t border-white/5 relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-accent-500/5 to-transparent blur-3xl pointer-events-none"></div>
+    <div
+      class="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-accent-500/5 to-transparent blur-3xl pointer-events-none">
+    </div>
     <div class="max-w-7xl mx-auto px-6 relative">
       <div class="grid lg:grid-cols-12 gap-12 items-start">
         <div class="lg:col-span-5 reveal">
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">What you get</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">A repo that knows its own rules.</h2>
-          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Every artifact has a reason. <span class="text-zinc-200">CLAUDE.md</span> is the cold-start brief. <span class="text-zinc-200">.claude/rules/</span> holds the durable workflow rules. <span class="text-zinc-200">.docs/</span> grows with the project — ADRs, timestamped prompts, deferred todos, security audits.</p>
+          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Every artifact has a reason. <span
+              class="text-zinc-200">CLAUDE.md</span> is the cold-start brief. <span
+              class="text-zinc-200">.claude/rules/</span> holds the durable workflow rules. <span
+              class="text-zinc-200">.docs/</span> grows with the project — ADRs, timestamped prompts, deferred todos,
+            security audits.</p>
 
           <ul class="mt-8 space-y-4 text-zinc-300">
-            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span class="text-zinc-100 font-medium">Prompt log</span> — every artifact-producing request gets a timestamped file under <span class="font-mono text-zinc-400">.docs/prompts/</span>. Read it back like git log with intent.</span></li>
-            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span class="text-zinc-100 font-medium">ADR culture</span> — slim Nygard format. New module / pattern / dependency → new ADR. Index auto-maintained.</span></li>
-            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span class="text-zinc-100 font-medium">Do-later, captured</span> — deferred ideas land as one-file-per-entry under <span class="font-mono text-zinc-400">.docs/todos/</span>. No buried promises.</span></li>
-            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span class="text-zinc-100 font-medium">Security rubric</span> — OWASP-aligned methodology plus LLM-specific sub-rubric. Dated audits on cadence.</span></li>
+            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
+                  class="text-zinc-100 font-medium">Prompt log</span> — every artifact-producing request gets a
+                timestamped file under <span class="font-mono text-zinc-400">.docs/prompts/</span>. Read it back like
+                git log with intent.</span></li>
+            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
+                  class="text-zinc-100 font-medium">ADR culture</span> — slim Nygard format. New module / pattern /
+                dependency → new ADR. Index auto-maintained.</span></li>
+            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
+                  class="text-zinc-100 font-medium">Do-later, captured</span> — deferred ideas land as
+                one-file-per-entry under <span class="font-mono text-zinc-400">.docs/todos/</span>. No buried
+                promises.</span></li>
+            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
+                  class="text-zinc-100 font-medium">Security rubric</span> — OWASP-aligned methodology plus LLM-specific
+                sub-rubric. Dated audits on cadence.</span></li>
           </ul>
         </div>
 
         <div class="lg:col-span-7 reveal">
           <!-- IMAGE SLOT (optional): replace this codeblock with a real screenshot of a bootstrapped repo. -->
           <div class="codeblock rounded-2xl p-6 font-mono text-[13px] leading-7 overflow-x-auto">
-<pre><span class="tk-p">your-repo/</span>
+            <pre><span class="tk-p">your-repo/</span>
 ├── <span class="tk-k">CLAUDE.md</span>                       <span class="tk-c"># cold-start brief — rules, run, architecture</span>
 ├── <span class="tk-k">AGENTS.md</span>                       <span class="tk-c"># cross-tool pointer to CLAUDE.md</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
@@ -325,57 +447,94 @@
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Features</p>
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Process, encoded.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">AI agents are powerful but undisciplined. Without a process, decisions vanish, todos pile up, and changes lose their why. The bootstrap turns the discipline into files.</p>
+        <p class="mt-4 text-zinc-400 text-lg">AI agents are powerful but undisciplined. Without a process, decisions
+          vanish, todos pile up, and changes lose their why. The bootstrap turns the discipline into files.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         <div class="card rounded-2xl p-7 reveal">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
           </div>
           <h3 class="font-semibold text-lg">Interview-driven</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">14 targeted questions. Smart defaults. Re-runnable — adding a new question only asks existing projects that one.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">14 targeted questions. Smart defaults. Re-runnable — adding a
+            new question only asks existing projects that one.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
           </div>
           <h3 class="font-semibold text-lg">Workflow discipline</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Every artifact-producing request gets a prompt file + telemetry pass + one commit. <span class="font-mono text-zinc-300">git log</span> tells the story.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Every artifact-producing request gets a prompt file + telemetry
+            pass + one commit. <span class="font-mono text-zinc-300">git log</span> tells the story.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="9" y1="13" x2="15" y2="13" />
+              <line x1="9" y1="17" x2="15" y2="17" />
+            </svg>
           </div>
           <h3 class="font-semibold text-lg">ADR culture</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Architecturally significant decisions captured in slim Nygard format. Optional Mermaid diagrams. Indexed by README.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Architecturally significant decisions captured in slim Nygard
+            format. Optional Mermaid diagrams. Indexed by README.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
           </div>
           <h3 class="font-semibold text-lg">Do-later, captured</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Deferred ideas become files in <span class="font-mono text-zinc-300">.docs/todos/</span> — context, deferred-because, revisit-when. No silent buried promises.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Deferred ideas become files in <span
+              class="font-mono text-zinc-300">.docs/todos/</span> — context, deferred-because, revisit-when. No silent
+            buried promises.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
           </div>
           <h3 class="font-semibold text-lg">Security, built in</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">OWASP Top 10 rubric plus optional LLM sub-rubric (prompt injection, tool agency, supply chain). Dated audits as siblings.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">OWASP Top 10 rubric plus optional LLM sub-rubric (prompt
+            injection, tool agency, supply chain). Dated audits as siblings.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
           </div>
           <h3 class="font-semibold text-lg">Multi-language, multi-arch</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Python · TypeScript · Go · Rust. 4-Layer DDD · 3-Tier · SPA · Flat · Monorepo · Serverless. The right scaffold for the shape you pick.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Python · TypeScript · Go · Rust. 4-Layer DDD · 3-Tier · SPA ·
+            Flat · Monorepo · Serverless. The right scaffold for the shape you pick.</p>
         </div>
 
       </div>
@@ -384,12 +543,15 @@
 
   <!-- Architecture support -->
   <section id="architectures" class="py-24 border-t border-white/5 relative overflow-hidden">
-    <div class="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-violet-500/5 to-transparent blur-3xl pointer-events-none"></div>
+    <div
+      class="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-violet-500/5 to-transparent blur-3xl pointer-events-none">
+    </div>
     <div class="max-w-7xl mx-auto px-6 relative">
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Architectures supported</p>
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Pick a shape. Get the rules.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">The interview detects the difference between <em>system topology</em> ("microservices") and <em>internal code organisation</em> — and routes you to the right scaffold for each.</p>
+        <p class="mt-4 text-zinc-400 text-lg">The interview detects the difference between <em>system topology</em>
+          ("microservices") and <em>internal code organisation</em> — and routes you to the right scaffold for each.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -398,8 +560,10 @@
             <h3 class="font-semibold">4-Layer DDD</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=4_LAYER_DDD</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">Presentation → application → domain ← infrastructure + shared. Non-trivial backends with multiple I/O surfaces.</p>
-          <div class="mt-4 font-mono text-[11px] text-zinc-500">presentation/ · application/ · domain/ · infrastructure/ · shared/</div>
+          <p class="mt-2 text-sm text-zinc-400">Presentation → application → domain ← infrastructure + shared.
+            Non-trivial backends with multiple I/O surfaces.</p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">presentation/ · application/ · domain/ · infrastructure/
+            · shared/</div>
         </div>
 
         <div class="card rounded-xl p-6 reveal">
@@ -407,7 +571,8 @@
             <h3 class="font-semibold">Classical 3-Tier</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=3_TIER</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">Presentation / business / data. Simpler CRUD apps — Rails/Django/.NET-style.</p>
+          <p class="mt-2 text-sm text-zinc-400">Presentation / business / data. Simpler CRUD apps —
+            Rails/Django/.NET-style.</p>
           <div class="mt-4 font-mono text-[11px] text-zinc-500">presentation/ · business/ · data/ · shared/</div>
         </div>
 
@@ -416,8 +581,10 @@
             <h3 class="font-semibold">SPA Frontend</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=SPA</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">Pages → components → hooks → services. React / Vue / Svelte conventions.</p>
-          <div class="mt-4 font-mono text-[11px] text-zinc-500">pages/ · components/ · hooks/ · services/ · stores/</div>
+          <p class="mt-2 text-sm text-zinc-400">Pages → components → hooks → services. React / Vue / Svelte conventions.
+          </p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">pages/ · components/ · hooks/ · services/ · stores/
+          </div>
         </div>
 
         <div class="card rounded-xl p-6 reveal">
@@ -425,7 +592,8 @@
             <h3 class="font-semibold">Flat</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=FLAT</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">No layering — modules organised by topic. CLIs, libraries, small scripts.</p>
+          <p class="mt-2 text-sm text-zinc-400">No layering — modules organised by topic. CLIs, libraries, small
+            scripts.</p>
           <div class="mt-4 font-mono text-[11px] text-zinc-500">no layered-architecture.md written</div>
         </div>
 
@@ -434,7 +602,8 @@
             <h3 class="font-semibold">Monorepo</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=MONOREPO</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">Apps + services + packages. Each sub-project picks its own internal architecture.</p>
+          <p class="mt-2 text-sm text-zinc-400">Apps + services + packages. Each sub-project picks its own internal
+            architecture.</p>
           <div class="mt-4 font-mono text-[11px] text-zinc-500">apps/ · services/ · packages/ · tools/</div>
         </div>
 
@@ -443,7 +612,8 @@
             <h3 class="font-semibold">Serverless</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=SERVERLESS</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">Handler-per-trigger + thin <span class="font-mono">lib/</span> core. AWS Lambda / Cloud Functions / Workers / Vercel.</p>
+          <p class="mt-2 text-sm text-zinc-400">Handler-per-trigger + thin <span class="font-mono">lib/</span> core. AWS
+            Lambda / Cloud Functions / Workers / Vercel.</p>
           <div class="mt-4 font-mono text-[11px] text-zinc-500">handlers/{http,events,scheduled}/ · lib/ · shared/</div>
         </div>
       </div>
@@ -457,7 +627,9 @@
         <div class="lg:col-span-5 reveal">
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Permission postures</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Trust on your terms.</h2>
-          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Pick how much autonomy the agent gets — from "ask for everything" to "no prompts ever" — and the bootstrap writes the right <span class="font-mono text-zinc-200">.claude/settings.json</span>.</p>
+          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Pick how much autonomy the agent gets — from "ask for
+            everything" to "no prompts ever" — and the bootstrap writes the right <span
+              class="font-mono text-zinc-200">.claude/settings.json</span>.</p>
           <!-- IMAGE SLOT: optional illustration showing posture progression. Replace below. -->
           <div class="img-slot mt-8 rounded-xl h-44 grid place-items-center text-xs font-mono">
             image slot — posture spectrum
@@ -466,31 +638,51 @@
 
         <div class="lg:col-span-7 space-y-3 reveal">
           <div class="card rounded-xl p-5 flex items-start gap-4">
-            <span class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-zinc-400 shrink-0">01</span>
+            <span
+              class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-zinc-400 shrink-0">01</span>
             <div>
-              <div class="flex items-center gap-2"><h3 class="font-semibold">Cautious</h3><span class="text-xs font-mono text-zinc-500">POSTURE=CAUTIOUS</span></div>
-              <p class="mt-1 text-sm text-zinc-400">Every action prompts. Safest for shared / team / open-source projects.</p>
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold">Cautious</h3><span
+                  class="text-xs font-mono text-zinc-500">POSTURE=CAUTIOUS</span>
+              </div>
+              <p class="mt-1 text-sm text-zinc-400">Every action prompts. Safest for shared / team / open-source
+                projects.</p>
             </div>
           </div>
           <div class="card rounded-xl p-5 flex items-start gap-4">
-            <span class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-accent-400 shrink-0">02</span>
+            <span
+              class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-accent-400 shrink-0">02</span>
             <div>
-              <div class="flex items-center gap-2"><h3 class="font-semibold">Read-only autonomy</h3><span class="text-xs font-mono text-zinc-500">POSTURE=READONLY</span></div>
-              <p class="mt-1 text-sm text-zinc-400">Pre-allows safe reads (<span class="font-mono">ls, cat, grep, git status/log/diff</span>). Writes still prompt.</p>
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold">Read-only autonomy</h3><span
+                  class="text-xs font-mono text-zinc-500">POSTURE=READONLY</span>
+              </div>
+              <p class="mt-1 text-sm text-zinc-400">Pre-allows safe reads (<span class="font-mono">ls, cat, grep, git
+                  status/log/diff</span>). Writes still prompt.</p>
             </div>
           </div>
           <div class="card rounded-xl p-5 flex items-start gap-4">
-            <span class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-accent-400 shrink-0">03</span>
+            <span
+              class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-accent-400 shrink-0">03</span>
             <div>
-              <div class="flex items-center gap-2"><h3 class="font-semibold">Trusted dev</h3><span class="text-xs font-mono text-zinc-500">POSTURE=TRUSTED_DEV</span></div>
-              <p class="mt-1 text-sm text-zinc-400">Reads + safe git + language-specific build/test (<span class="font-mono">uv:* · npm:* · go:* · cargo:*</span>). Force-push / hard-reset still gated.</p>
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold">Trusted dev</h3><span
+                  class="text-xs font-mono text-zinc-500">POSTURE=TRUSTED_DEV</span>
+              </div>
+              <p class="mt-1 text-sm text-zinc-400">Reads + safe git + language-specific build/test (<span
+                  class="font-mono">uv:* · npm:* · go:* · cargo:*</span>). Force-push / hard-reset still gated.</p>
             </div>
           </div>
           <div class="card rounded-xl p-5 flex items-start gap-4">
-            <span class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-accent-400 shrink-0">04</span>
+            <span
+              class="w-10 h-10 rounded-lg bg-zinc-800 grid place-items-center text-xs font-mono text-accent-400 shrink-0">04</span>
             <div>
-              <div class="flex items-center gap-2"><h3 class="font-semibold">Full bypass</h3><span class="text-xs font-mono text-zinc-500">POSTURE=BYPASS</span></div>
-              <p class="mt-1 text-sm text-zinc-400">No prompts, ever. Only safe in dedicated dev VMs / containers / trusted personal workspaces.</p>
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold">Full bypass</h3><span
+                  class="text-xs font-mono text-zinc-500">POSTURE=BYPASS</span>
+              </div>
+              <p class="mt-1 text-sm text-zinc-400">No prompts, ever. Only safe in dedicated dev VMs / containers /
+                trusted personal workspaces.</p>
             </div>
           </div>
         </div>
@@ -511,19 +703,27 @@
   <!-- CTA -->
   <section class="py-24 border-t border-white/5 relative overflow-hidden">
     <div class="absolute inset-0 grid-bg pointer-events-none opacity-50"></div>
-    <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse 50% 70% at 50% 50%, rgba(139,92,246,0.15), transparent 70%);"></div>
+    <div class="absolute inset-0 pointer-events-none"
+      style="background: radial-gradient(ellipse 50% 70% at 50% 50%, rgba(139,92,246,0.15), transparent 70%);"></div>
     <div class="max-w-4xl mx-auto px-6 text-center relative reveal">
       <h2 class="text-4xl md:text-6xl font-extrabold tracking-tight">
         Ship the discipline.
         <span class="text-gradient block mt-2">Not the boilerplate.</span>
       </h2>
-      <p class="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto">One file. One prompt. One commit. Drop it into a fresh repo, an existing repo, or re-run it later — the bootstrap reuses your prior answers and only asks about what's new.</p>
+      <p class="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto">One file. One prompt. One commit. Drop it into a fresh
+        repo, an existing repo, or re-run it later — the bootstrap reuses your prior answers and only asks about what's
+        new.</p>
       <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
-        <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md" class="btn-primary inline-flex items-center gap-2 font-semibold px-6 py-3.5 rounded-xl">
+        <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md"
+          class="btn-primary inline-flex items-center gap-2 font-semibold px-6 py-3.5 rounded-xl">
           Download AGENTIC_BOOTSTRAP.md
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap" class="inline-flex items-center gap-2 font-medium px-6 py-3.5 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
+        <a href="https://github.com/sciensoft/agentic-bootstrap"
+          class="inline-flex items-center gap-2 font-medium px-6 py-3.5 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
           Read it on GitHub
         </a>
       </div>
@@ -533,15 +733,19 @@
 
   <!-- Footer -->
   <footer class="border-t border-white/5 py-12">
-    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
+    <div
+      class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
       <div class="flex items-center gap-2.5">
-        <span class="w-6 h-6 rounded-md bg-gradient-to-br from-accent-400 to-accent-600 grid place-items-center text-zinc-950 font-black text-xs">A</span>
+        <span
+          class="w-6 h-6 rounded-md bg-gradient-to-br from-accent-400 to-accent-600 grid place-items-center text-zinc-950 font-black text-xs">A</span>
         <span>Agentic Bootstrap · MIT licensed</span>
       </div>
       <div class="flex items-center gap-6">
         <a href="https://github.com/sciensoft/agentic-bootstrap" class="hover:text-zinc-300 transition">GitHub</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/main/AGENTIC_BOOTSTRAP.md" class="hover:text-zinc-300 transition">The file</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/issues" class="hover:text-zinc-300 transition">Issues</a>
+        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/main/AGENTIC_BOOTSTRAP.md"
+          class="hover:text-zinc-300 transition">The file</a>
+        <a href="https://github.com/sciensoft/agentic-bootstrap/issues"
+          class="hover:text-zinc-300 transition">Issues</a>
       </div>
     </div>
   </footer>
@@ -554,4 +758,5 @@
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   </script>
 </body>
+
 </html>
