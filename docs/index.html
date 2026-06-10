@@ -217,6 +217,7 @@
         <a href="#features" class="hover:text-zinc-100 transition">Features</a>
         <a href="#architectures" class="hover:text-zinc-100 transition">Architectures</a>
         <a href="#postures" class="hover:text-zinc-100 transition">Postures</a>
+        <a href="#adoption" class="hover:text-zinc-100 transition">Adoption</a>
       </div>
       <a href="https://github.com/sciensoft/agentic-bootstrap"
         class="inline-flex items-center gap-2 text-sm font-medium px-3.5 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
@@ -516,7 +517,7 @@
             </svg>
           </div>
           <h3 class="font-semibold text-lg">One request, one commit</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Every artifact-producing request bundles prompt file + ADR (when it matters) + tests + telemetry + code into a single focused commit. No drive-by changes. No half-finished branches. <span class="font-mono text-zinc-300">git log</span> reads as the project's story.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Every request bundles prompt file + ADR (when it matters) + tests + telemetry + code into a single focused commit. Deferred ideas land as one-file-per-entry under <span class="font-mono text-zinc-300">.docs/todos/</span> — context, deferred-because, revisit-when. No drive-by changes. No buried promises. <span class="font-mono text-zinc-300">git log</span> reads as the project's story.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -530,51 +531,8 @@
               <line x1="9" y1="17" x2="15" y2="17" />
             </svg>
           </div>
-          <h3 class="font-semibold text-lg">ADR culture</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Architecturally significant decisions captured in slim Nygard
-            format. Optional Mermaid diagrams. Indexed by README.</p>
-        </div>
-
-        <div class="card rounded-2xl p-7 reveal">
-          <div
-            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-lg">Do-later, captured</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Deferred ideas become files in <span
-              class="font-mono text-zinc-300">.docs/todos/</span> — context, deferred-because, revisit-when. No silent
-            buried promises.</p>
-        </div>
-
-        <div class="card rounded-2xl p-7 reveal">
-          <div
-            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-lg">Security, built in</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">OWASP Top 10 rubric plus optional LLM sub-rubric (prompt
-            injection, tool agency, supply chain). Dated audits as siblings.</p>
-        </div>
-
-        <div class="card rounded-2xl p-7 reveal">
-          <div
-            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
-            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6" />
-              <polyline points="8 6 2 12 8 18" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-lg">Multi-language, multi-arch</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Python · TypeScript · Go · Rust. 4-Layer DDD · 3-Tier · SPA ·
-            Flat · Monorepo · Serverless. The right scaffold for the shape you pick.</p>
+          <h3 class="font-semibold text-lg">ADRs with the right diagram</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Slim Nygard format, indexed by README. The agent picks the Mermaid type that fits — <span class="font-mono text-zinc-300">flowchart</span>, <span class="font-mono text-zinc-300">sequenceDiagram</span>, <span class="font-mono text-zinc-300">stateDiagram</span>, <span class="font-mono text-zinc-300">erDiagram</span>, <span class="font-mono text-zinc-300">C4Context</span>, <span class="font-mono text-zinc-300">gitGraph</span>, <span class="font-mono text-zinc-300">gantt</span>, and any other Mermaid type the situation calls for — guided by a picker table that maps decision-shape to diagram-type, plus readability conventions that keep diagrams legible.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -596,13 +554,24 @@
             class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
             <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="7" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              <path d="M8 11h6M11 8v6" />
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <h3 class="font-semibold text-lg">Best practices, live-refined</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">If your agent has web search, the bootstrap probes current sources for your specific language + framework and synthesises a stack-specific <span class="font-mono text-zinc-300">best-practices.md</span> with inline citations. If not, you get a sensible generic baseline plus a per-agent enablement matrix — never blocked, never empty.</p>
+          <h3 class="font-semibold text-lg">Security, built in</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">OWASP Top 10 rubric plus optional LLM sub-rubric (prompt injection, tool agency, supply chain). Dated audits as siblings.</p>
+        </div>
+
+        <div class="card rounded-2xl p-7 reveal">
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-lg">Polyglot &amp; stack-aware</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Python · TypeScript · Go · Rust scaffolds, paired with 9 architecture shapes (4-Layer DDD · Hexagonal · Microservice · Vertical Slice · 3-Tier · SPA · Flat · Monorepo · Serverless). And when your agent has web search, <span class="font-mono text-zinc-300">best-practices.md</span> gets refined live from current sources for your exact stack, with inline citations — falling back to a sensible generic baseline when search isn't available.</p>
         </div>
 
       </div>
@@ -632,6 +601,15 @@
             Non-trivial backends with multiple I/O surfaces.</p>
           <div class="mt-4 font-mono text-[11px] text-zinc-500">presentation/ · application/ · domain/ · infrastructure/
             · shared/</div>
+        </div>
+
+        <div class="card rounded-xl p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <h3 class="font-semibold">Hexagonal · Clean · Onion</h3>
+            <span class="text-xs font-mono text-accent-400">ARCH=HEXAGONAL</span>
+          </div>
+          <p class="mt-2 text-sm text-zinc-400">Pure <span class="font-mono">domain/</span> with <span class="font-mono">ports/</span> + symmetric <span class="font-mono">adapters/primary</span> & <span class="font-mono">/secondary</span>. Covers the Ports-and-Adapters / Clean / Onion family in one template.</p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">domain/{model,ports/{primary,secondary},service}/ · adapters/{primary,secondary}/ · shared/</div>
         </div>
 
         <div class="card rounded-xl p-6 reveal">
@@ -683,6 +661,24 @@
           <p class="mt-2 text-sm text-zinc-400">Handler-per-trigger + thin <span class="font-mono">lib/</span> core. AWS
             Lambda / Cloud Functions / Workers / Vercel.</p>
           <div class="mt-4 font-mono text-[11px] text-zinc-500">handlers/{http,events,scheduled}/ · lib/ · shared/</div>
+        </div>
+
+        <div class="card rounded-xl p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <h3 class="font-semibold">Microservice</h3>
+            <span class="text-xs font-mono text-accent-400">ARCH=MICROSERVICE</span>
+          </div>
+          <p class="mt-2 text-sm text-zinc-400">One service in a larger ecosystem. 4-Layer DDD internals plus health / readiness, retries + circuit breakers, distributed tracing, consumer-driven contracts.</p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">presentation/{http,health,messaging}/ · application/ · domain/ · infrastructure/{clients,telemetry}/ · contracts/</div>
+        </div>
+
+        <div class="card rounded-xl p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <h3 class="font-semibold">Vertical Slice</h3>
+            <span class="text-xs font-mono text-accent-400">ARCH=VERTICAL_SLICE</span>
+          </div>
+          <p class="mt-2 text-sm text-zinc-400">Organise by feature, not by layer. Each slice owns its handler / service / model / repository / tests. Features may only import from <span class="font-mono">shared/</span> — never from each other.</p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">features/&lt;feature&gt;/{handler,service,model,repository,tests}/ · shared/{domain,infrastructure,…}/</div>
         </div>
       </div>
     </div>
@@ -764,6 +760,128 @@
       <!-- IMAGE SLOT: big screenshot or product hero. Recommended aspect 16:7. Replace this div with an <img>. -->
       <div class="img-slot rounded-2xl h-72 md:h-96 grid place-items-center text-sm font-mono">
         image slot — product screenshot (16:7 recommended)
+      </div>
+    </div>
+  </section>
+
+  <!-- Adoption: examples, quickstart, doctor, positioning -->
+  <section id="adoption" class="py-24 border-t border-white/5 relative">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="max-w-2xl reveal">
+        <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Adoption</p>
+        <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">See it. Run it. Audit it.</h2>
+        <p class="mt-4 text-zinc-400 text-lg">Three example projects show what the bootstrap actually produces. A 60-second quickstart walks the steps. A doctor mode audits an existing repo against the rules without writing anything.</p>
+      </div>
+
+      <div class="mt-14 grid md:grid-cols-3 gap-6">
+        <a href="https://github.com/sciensoft/agentic-bootstrap/tree/main/examples" class="card rounded-2xl p-7 reveal block hover:no-underline">
+          <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Examples</p>
+          <h3 class="mt-2 font-semibold text-lg">See the output</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Three fully-bootstrapped sample projects — <span class="font-mono text-zinc-300">python-4layer-ddd</span>, <span class="font-mono text-zinc-300">typescript-vertical-slice</span>, <span class="font-mono text-zinc-300">go-microservice</span>. Browse what lands before you run it.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Browse examples/ →</span>
+        </a>
+
+        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/main/QUICKSTART.md" class="card rounded-2xl p-7 reveal block hover:no-underline">
+          <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Quickstart</p>
+          <h3 class="mt-2 font-semibold text-lg">60 seconds, three steps</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Drop the file, prompt the agent, get the scaffold + first commit. Includes the question-by-question reference and a side-by-side comparison vs Cookiecutter / copier / a hand-typed <span class="font-mono text-zinc-300">CLAUDE.md</span>.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Read QUICKSTART.md →</span>
+        </a>
+
+        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/main/AGENTIC_BOOTSTRAP.md" class="card rounded-2xl p-7 reveal block hover:no-underline">
+          <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Doctor mode</p>
+          <h3 class="mt-2 font-semibold text-lg">Audit without writing</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Already bootstrapped? Ask <em>"run bootstrap-doctor against this repo"</em> for a structured drift report — missing rule files, stale answer cache, security audits overdue, stub best-practices, ADR-index drift. No writes; pure read.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">See doctor-mode spec →</span>
+        </a>
+      </div>
+
+      <!-- Positioning -->
+      <div class="mt-20 reveal">
+        <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Why this, not …</p>
+        <h3 class="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Not a template engine. Not a CLI. Not a hand-typed brief.</h3>
+        <div class="mt-8 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="text-zinc-400 border-b border-white/10">
+              <tr>
+                <th class="text-left py-3 pr-4 font-medium">&nbsp;</th>
+                <th class="text-left py-3 pr-4 font-medium text-zinc-100">This bootstrap</th>
+                <th class="text-left py-3 pr-4 font-medium">Cookiecutter / copier</th>
+                <th class="text-left py-3 pr-4 font-medium">Hand-typed CLAUDE.md</th>
+              </tr>
+            </thead>
+            <tbody class="text-zinc-400 divide-y divide-white/5">
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Output</td>
+                <td class="py-3 pr-4 text-zinc-200">Disciplined repo + first commit</td>
+                <td class="py-3 pr-4">A working repo</td>
+                <td class="py-3 pr-4">A markdown file</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Tools supported</td>
+                <td class="py-3 pr-4 text-zinc-200">8 agentic assistants</td>
+                <td class="py-3 pr-4">N/A — templating tool</td>
+                <td class="py-3 pr-4">One</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Discipline encoded</td>
+                <td class="py-3 pr-4 text-zinc-200">Workflow + ADRs + tests + security + todos</td>
+                <td class="py-3 pr-4">Whatever the template author wrote</td>
+                <td class="py-3 pr-4">Whatever you typed</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Architectures</td>
+                <td class="py-3 pr-4 text-zinc-200">9, with diagram picker</td>
+                <td class="py-3 pr-4">Whatever the template author wrote</td>
+                <td class="py-3 pr-4">None</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Live best-practices</td>
+                <td class="py-3 pr-4 text-zinc-200">Refined from current sources for your stack</td>
+                <td class="py-3 pr-4">Frozen at template-author time</td>
+                <td class="py-3 pr-4">Frozen at typing time</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Onboarding cost</td>
+                <td class="py-3 pr-4 text-zinc-200">One file. One prompt. 60 seconds.</td>
+                <td class="py-3 pr-4">Install + find + verify a template</td>
+                <td class="py-3 pr-4">Hours of typing</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Re-runnable</td>
+                <td class="py-3 pr-4 text-zinc-200">Yes — idempotent; picks up new conventions</td>
+                <td class="py-3 pr-4">Usually no</td>
+                <td class="py-3 pr-4">No</td>
+              </tr>
+              <tr>
+                <td class="py-3 pr-4 text-zinc-300 font-medium">Audit mode</td>
+                <td class="py-3 pr-4 text-zinc-200">Yes — doctor mode reports drift</td>
+                <td class="py-3 pr-4">No</td>
+                <td class="py-3 pr-4">No</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Trust signals + version -->
+      <div class="mt-16 reveal flex flex-wrap items-center justify-between gap-6 pt-8 border-t border-white/5">
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <a href="https://github.com/sciensoft/agentic-bootstrap/stargazers" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
+            <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Star on GitHub</span>
+          </a>
+          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/main/BOOTSTRAP_CHANGELOG.md" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent-400"></span>
+            <span class="font-mono text-xs">v2026-06-10</span>
+            <span class="text-zinc-500">Changelog</span>
+          </a>
+          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/main/CONTRIBUTING.md" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
+            <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Contribute</span>
+          </a>
+        </div>
+        <div class="text-xs text-zinc-500">MIT licensed · re-runnable · failure-safe refinement · 8 tool adapters</div>
       </div>
     </div>
   </section>

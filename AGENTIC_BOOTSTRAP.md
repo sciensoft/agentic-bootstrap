@@ -1,5 +1,8 @@
 <!-- markdownlint-disable MD010 -->
 <!-- MD010 disabled: Makefile fenced blocks legitimately require hard tabs (POSIX make spec). -->
+<!-- bootstrap-version: 2026-06-10 -->
+<!-- Version is the ISO date this file was last meaningfully changed. -->
+<!-- Bumped manually on each notable change; the diff lives in BOOTSTRAP_CHANGELOG.md. -->
 
 # Agentic Bootstrap
 
@@ -29,10 +32,12 @@ The agent will interview you, write the scaffold, create the first commit, and (
 
 The bootstrap is **idempotent**: it's safe to re-run on a project that's already been bootstrapped (e.g. to pick up new rules / templates from a newer version of this file). Decide the mode first.
 
+- **Detect doctor mode first.** If the user's invocation contains *"bootstrap-doctor"*, *"doctor mode"*, *"audit this repo"*, *"check compliance"*, *"drift report"*, or otherwise signals an audit-only intent, switch to **doctor mode** and follow the dedicated playbook in *Doctor mode* below (no writes, structured report only). If the invocation is ambiguous (just *"check this"*), ask the user to confirm: write mode or audit mode?
 - Check for the sentinel: `.agents/rules/workflow.md`. If it exists, the bootstrap has already run here → **re-run mode** (also called *update mode*).
 - Also check for `.agents/bootstrap.json` — if it exists, read it; the file holds the answers captured during the previous bootstrap (see Part 4 template). On re-run, reuse those answers and skip those questions; only ask for any keys *missing* from the file (new interview questions added in newer bootstrap versions).
 - **Legacy-layout migration**: if `.agents/rules/workflow.md` does *not* exist but `.claude/rules/workflow.md` does, this is a project bootstrapped under the **pre-multi-tool layout** (rules under `.claude/rules/`, answer cache at `.claude/bootstrap.json`). Treat it as re-run mode and **ask the user**: *"This project uses the legacy `.claude/rules/` layout. Migrate to `.agents/rules/` so other agentic assistants can be added (recommended)? Or leave the files in place?"* If they pick **migrate**, `git mv .claude/rules .agents/rules` and `git mv .claude/bootstrap.json .agents/bootstrap.json` before proceeding; update any `@.claude/rules/…` references in `CLAUDE.md` to `@.agents/rules/…` in the same step. If they pick **leave**, keep treating the legacy paths as the live ones for this re-run (skip the rename, keep writing to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools will be limited until they migrate. Either way, write the chosen layout into `bootstrap.json` so future re-runs don't re-ask.
 - If no sentinel exists at either path → **first-time mode**. Standard flow (Steps 1–8 as written).
+- **Read the version markers**. This bootstrap file carries `<!-- bootstrap-version: <YYYY-MM-DD> -->` near the top — parse it as `CURRENT_BOOTSTRAP_VERSION`. On re-run, also read `bootstrap_version` from `.agents/bootstrap.json` as `PREVIOUS_BOOTSTRAP_VERSION`. If they differ, the user is upgrading; carry both values through to Step 8 so the report can name what changed (see [BOOTSTRAP_CHANGELOG.md](./BOOTSTRAP_CHANGELOG.md) for the change log between versions). If they're identical, this is a re-run on the same version (e.g. to refresh after an interview tweak); the upgrade narrative is omitted.
 
 Both modes share the same playbook from this point on, with these behavioural differences:
 
@@ -44,6 +49,67 @@ Both modes share the same playbook from this point on, with these behavioural di
 | Step 6 commit message | `Bootstrap project with agentic workflow conventions` | `Re-bootstrap: <one-line summary of what changed>` (e.g. *"refresh rules to `<date>` bootstrap version"*) |
 
 If the user explicitly wants a clean wipe-and-recreate, they can tell you to *"treat this as first-time mode"*; in that case, ask them to confirm the destructive intent, then back up the existing `.agents/`, `.claude/`, `.docs/`, and root config files (rename to `.agents.backup-<ts>/` etc.) before running first-time mode.
+
+#### Doctor mode (audit-only — no writes)
+
+When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo"*, or equivalent, the agent does **not** write or modify anything. It produces a structured drift report — what the bootstrap *would* fix if run normally — and stops. Teams use this on a cadence to detect when the project has drifted from the conventions.
+
+**What to check, in this order:**
+
+1. **Layout**. Does `.agents/rules/` exist? Or is the project on the legacy `.claude/rules/` layout? If neither exists, this isn't a bootstrapped project — say so, recommend running the bootstrap normally, stop.
+2. **Sentinel files**. For each entry in the Part 3 decision matrix that should exist given the answers in `.agents/bootstrap.json` (or `.claude/bootstrap.json` for legacy), confirm the file is present. Missing rule files, missing security methodology, missing ADR README, missing todos README — all flagged.
+3. **`bootstrap.json` freshness**. Read the `bootstrap_version` from the cache and compare against `CURRENT_BOOTSTRAP_VERSION` (this file's header). If they differ, note the delta and list the `BOOTSTRAP_CHANGELOG.md` bullets the user hasn't picked up yet. Check that every key the current bootstrap knows about is present in `answers`; flag any keys that would be re-asked on next re-run.
+4. **Architecture rule freshness**. If `.agents/rules/layered-architecture.md` exists, confirm its first line matches the variant header for the `ARCH` value in `bootstrap.json` (the bootstrap writes `# Layered Architecture (...)` / `# Hexagonal Architecture (Ports and Adapters)` / `# Microservice Architecture` / etc.). A mismatch means someone hand-edited the file or the ARCH answer changed without a re-run.
+5. **Best-practices refinement status**. Read the top-of-file marker in `.agents/rules/best-practices.md`. Report whether it's `refined` (with the accessed date) or `stub` (with the reason). If stubbed and the marker date is older than the current bootstrap version, suggest a re-refinement attempt.
+6. **Security audit cadence**. List the dated files under `.docs/security/*.md`. Report the most recent audit date and how long ago it was. Flag if no dated audit exists at all (the methodology is the playbook; without dated audits the rubric isn't being walked), or if the most recent is more than 90 days old.
+7. **Per-tool adapter coverage**. For each tool in `AGENTS_USED`, confirm the matching adapter file exists at the expected path. Flag missing adapters (the user added a tool to `AGENTS_USED` but didn't re-run); flag stray adapters (a file exists for a tool that's not in `AGENTS_USED`).
+8. **ADR index integrity**. List `.docs/adrs/00*.md` files and compare against the rows in `.docs/adrs/README.md`'s index table. Flag ADRs missing from the index; flag index rows referencing non-existent files.
+9. **Todos hygiene**. List `.docs/todos/*.md` entries. Count them. If any entry's *Revisit when* trigger has obviously fired (a date in the past, a referenced PR that's merged), flag it as sweepable. Don't auto-sweep — that's a write.
+10. **Prompt-file presence**. Count `.docs/prompts/*.md` files. Compare against commit count since bootstrap. If there are many commits but few prompts, flag that the workflow.md discipline may not be active.
+
+**Report shape** — print as Markdown so it's pasteable into chat or a doc:
+
+```markdown
+# bootstrap-doctor report — <project name>
+
+**Bootstrap version on disk**: `<previous>` · **current**: `<current>` · **drift**: <none | N versions behind>
+**Layout**: `.agents/rules/` | `.claude/rules/` (legacy — migration recommended)
+
+## Summary
+
+<one-line: clean | <N> findings>
+
+## Findings
+
+### Critical (rules / layout / sentinels)
+- <bullet> · <one-line remediation>
+
+### Stale (refinement / audit / version cadence)
+- <bullet> · <one-line remediation>
+
+### Drift (adapter / ADR / todo hygiene)
+- <bullet> · <one-line remediation>
+
+### Informational
+- <bullet>
+
+## Remediation
+
+To fix everything above, re-run the bootstrap normally:
+
+> follow AGENTIC_BOOTSTRAP.md to bootstrap this repo
+
+Or fix individual items manually — each bullet above includes the path and the specific action needed.
+```
+
+**Hard rules for doctor mode:**
+
+- **Zero writes.** Don't write any file, even to log the run. The doctor is read-only.
+- **Don't prompt for missing capabilities.** If web search would help (e.g. to check whether `BOOTSTRAP_CHANGELOG.md` has been bumped upstream), use it; if not available, skip that check silently.
+- **Severity ordering matters.** Critical findings (missing rule files, broken layout) lead the report; informational findings come last.
+- **No false alarms.** If a check can't run reliably (e.g. the cache file is malformed JSON), say so in the *Informational* section — don't pretend you ran the check.
+
+Doctor mode is the safe way for teams to ask *"how compliant are we right now?"* without committing to a re-run.
 
 ### Step 1. Sanity-check the working directory
 
@@ -85,7 +151,7 @@ For each file you decided to write in Step 3:
     - `COPILOT` → `.github/copilot-instructions.md`.
   - **`POSTURE`** (Q3): variants `CAUTIOUS`, `READONLY`, `TRUSTED_DEV`, `BYPASS` each have their own `.claude/settings.json` template. **Only asked / applied if `CLAUDE ∈ AGENTS_USED`**; otherwise set `POSTURE=N_A` and skip both the question and the settings file. `TRUSTED_DEV` is composed: write the base template, then append the language-specific allow entries from the table that follows the base, picking by Q4 `LANG`. For `LANG=Other / mixed` under `TRUSTED_DEV`, skip the language addendum and tell the user post-bootstrap to extend their `allow` list with their toolchain's commands. **Write `.claude/settings.json` first** (after creating directories, before any other file) so the chosen posture takes effect for the rest of the bootstrap's file writes.
   - **`LANG`** (Q4): controls four template families — the `.gitignore` variant, the manifest + test-scaffold variant, the linter / formatter config variant, and the `Makefile` variant. Each family has Python / TypeScript-Node / Go / Rust / Fallback variants. Pick the variant matching the user's primary language across all four; they ship together. If mixed (e.g. fullstack monorepo), pick the dominant backend language and tell the user the frontend equivalents need adding separately.
-  - **`ARCH`** (Q5): variants `4_LAYER_DDD`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS` each have their own `layered-architecture.md` template. `MONOREPO` documents the top-level workspace layout (sub-projects pick their own internal architecture on add); `SERVERLESS` documents a handlers-first layout for FaaS codebases. If `ARCH=OTHER`, ask the user for a one-paragraph description and write a minimal stub capturing it. If `ARCH=FLAT`, don't write the file. If Q5 elicited a system-topology answer, run the disambiguation in Part 2 before settling on `ARCH`.
+  - **`ARCH`** (Q5): variants `4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS` each have their own `layered-architecture.md` template. `HEXAGONAL` covers the Hexagonal / Ports and Adapters / Clean Architecture / Onion Architecture family (single template, names all four traditions); `MICROSERVICE` documents one service in a larger ecosystem — internal layering plus cross-service conventions; `VERTICAL_SLICE` documents the feature-first layout where each slice owns its own thin layers; `MONOREPO` documents the top-level workspace layout (sub-projects pick their own internal architecture on add); `SERVERLESS` documents a handlers-first layout for FaaS codebases. If `ARCH=OTHER`, ask the user for a one-paragraph description and write a minimal stub capturing it. If `ARCH=FLAT`, don't write the file. If Q5 elicited a system-topology answer that doesn't directly map (serverless / FaaS / monorepo / modular monolith / SOA), a vocabulary-alias answer (hexagonal / ports and adapters / clean / onion), or bare *DDD*, run the disambiguation in Part 2 before settling on `ARCH`.
   - **`LICENSE`** (Q13): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q13's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
 - **Conditional file writes**: `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` are written only if Q14 `CONTRIB=yes`. `LICENSE` is written only if Q13 `LICENSE != SKIP`. `.env.example` is written only if Q8 `ENV_VARS=yes` (skipped for purely static frontends, libraries, and other projects with no runtime config).
 - **Re-run policy** (re-run mode only): every file in the Part 3 decision matrix has a **Re-run** category — `Canon`, `Mixed`, or `Sacred`. For each file you would write in first-time mode, on re-run apply the category's behaviour:
@@ -163,6 +229,7 @@ In one short paragraph:
 
 - **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), which per-tool adapters were written (from `AGENTS_USED`), the natural next step — usually: open `AGENTS.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`.docs/adrs/0001-<slug>.md`).
 - **Re-run mode**: which Canon files were refreshed, which Mixed files were merged / kept / overwritten / skipped (with per-file user decisions), which Sacred files were preserved untouched, which new interview keys landed in `.agents/bootstrap.json`. Also flag any Sacred files that were missing on disk (the user may want to re-scaffold from the template manually).
+- **Upgrade narrative** (re-run mode, only when `PREVIOUS_BOOTSTRAP_VERSION ≠ CURRENT_BOOTSTRAP_VERSION`): one sentence naming the version delta — *"Upgrading from `<previous>` to `<current>`"* — and a 2-4 bullet summary of the relevant changes since the previous version (from `BOOTSTRAP_CHANGELOG.md`). Skip changes that don't apply to this project (e.g. a new tool adapter that isn't in `AGENTS_USED`).
 - **Best-practices refinement status** (always — call this out explicitly so the user notices). Two outcomes:
   - *Refined*: name the sources cited (one-line summary), the accessed date, and that the file is now user-owned (re-runs won't touch it).
   - *Stubbed*: name the one-line failure reason (probe error / permission gated / no capability), point at `§ Enable refinement` in `best-practices.md` for the per-agent remediation matrix, and offer: *"Want me to try self-configuring your host's web access now?"* if the host gap appears to be permissions (not capability).
@@ -201,17 +268,26 @@ Questions are grouped into six tiers reflecting how they're used: **bootstrap be
 | # | Question | Affects |
 | --- | --- | --- |
 | Q4 | **Language / runtime.** "Python / TypeScript / Go / Rust / something else / mixed?" | `AGENTS.md` run section, `best-practices.md` idioms. Drives the multi-variant dispatch for `.gitignore`, manifest + test scaffold, linter configs, `Makefile`, and the `POSTURE=TRUSTED_DEV` language-specific allow addendum. |
-| Q5 | **Architecture shape?** "What's the primary *internal* code organisation of this codebase? Single-pick from: **4-Layer DDD** (presentation → application → domain ← infrastructure + shared — non-trivial backends with multiple I/O surfaces); **Classical 3-Tier** (presentation / business / data — simpler CRUD apps, Rails/Django/.NET-style); **SPA frontend** (components / pages / hooks / services / types — React/Vue/Svelte conventional layout); **Flat** (no layering, modules organised by topic — CLIs, libraries, small scripts). If none fits, say so — the agent will write a minimal stub capturing the user's own description for them to expand post-bootstrap. **If the user answers with a system-topology word instead** (microservices, serverless / FaaS, monorepo, modular monolith, distributed, SOA), drop into the disambiguation below before settling on `ARCH`." | `ARCH` flag — value in `{4_LAYER_DDD, 3_TIER, SPA, FLAT, MONOREPO, SERVERLESS, OTHER}`. Derived `LAYERED` = (ARCH ≠ FLAT). Controls which `layered-architecture.md` template gets written and the `AGENTS.md` / `best-practices.md` rule-ref lines. |
+| Q5 | **Architecture shape?** "What's the primary *internal* code organisation of this codebase? Single-pick from: **4-Layer DDD** (presentation → application → domain ← infrastructure + shared — non-trivial backends with multiple I/O surfaces, named layers); **Hexagonal / Ports & Adapters** (domain at the centre with `ports/` interfaces and symmetric `adapters/primary/` + `adapters/secondary/` — covers the Hexagonal / Clean Architecture / Onion Architecture family); **Microservice** (a single service in a larger microservice ecosystem — internal layering plus cross-service conventions: health / readiness, retries, circuit breakers, distributed tracing, consumer-driven contract tests, deploy manifest discipline); **Vertical Slice** (organise by feature, not by layer — each feature is a self-contained slice with its own handler / service / model / repository / tests; features may only import from `shared/`, never from each other); **Classical 3-Tier** (presentation / business / data — simpler CRUD apps, Rails/Django/.NET-style); **SPA frontend** (components / pages / hooks / services / types — React/Vue/Svelte conventional layout); **Flat** (no layering, modules organised by topic — CLIs, libraries, small scripts). If none fits, say so — the agent will write a minimal stub capturing the user's own description for them to expand post-bootstrap. **If the user answers with a system-topology word that doesn't directly match a slot** (serverless / FaaS, monorepo, modular monolith, distributed, SOA), or with a name that's ambiguous between 4-Layer DDD and the Hexagonal family (bare *DDD*, *layered*, *clean code*), drop into the disambiguation below before settling on `ARCH`." | `ARCH` flag — value in `{4_LAYER_DDD, HEXAGONAL, MICROSERVICE, VERTICAL_SLICE, 3_TIER, SPA, FLAT, MONOREPO, SERVERLESS, OTHER}`. Derived `LAYERED` = (ARCH ≠ FLAT). Controls which `layered-architecture.md` template gets written and the `AGENTS.md` / `best-practices.md` rule-ref lines. |
 
-#### Q5 disambiguation — when the user answers with system topology
+#### Q5 disambiguation — when the user answers with system topology, vocabulary aliases, or bare "DDD"
 
-Q5 asks how code is organised *inside* this codebase. Topology answers — **microservices**, **serverless / FaaS**, **monorepo**, **modular monolith**, **distributed**, **SOA** — answer a different question. Don't silently coerce them into one of Q5's options; ask one follow-up to pick the scenario that actually fits, then route:
+Q5 asks how code is organised *inside* this codebase. Two classes of answer need disambiguation before settling on `ARCH`:
+
+- **System-topology answers** — **microservices**, **serverless / FaaS**, **monorepo**, **modular monolith**, **distributed**, **SOA**. These answer a different question.
+- **Vocabulary aliases for an existing slot** — **hexagonal**, **ports and adapters**, **clean architecture**, **onion architecture**, bare **DDD**, **layered**, **clean code**. The user already knows the shape they want; the bootstrap just needs to route to the right slot without silently picking the wrong one.
+
+Ask one follow-up to pick the scenario that fits, then route:
 
 | User's clarification | Route to |
 | --- | --- |
-| "This repo is one service among many (poly-repo, or a single microservice in a larger ecosystem)." | Re-ask Q5's normal options for **this service's** internal layering. From the bootstrap's POV the repo is just a single codebase; the surrounding ecosystem doesn't change what we write here. |
+| **Vocabulary — hexagonal / ports and adapters.** "I want a `domain/` core with `ports/` interfaces and symmetric `adapters/primary/` + `adapters/secondary/`." | `ARCH=HEXAGONAL`. Hexagonal / Ports and Adapters template. |
+| **Vocabulary — clean architecture / onion.** "I want concentric layers with strict inward dependency — entities → use cases → interface adapters → frameworks." | `ARCH=HEXAGONAL`. The Hexagonal template names Clean Architecture / Onion Architecture explicitly in its prose and shows where the `entities` / `use_cases` / `interface_adapters` / `frameworks_and_drivers` naming maps into the Ports and Adapters folder shape. Same family, single template. |
+| **Bare *DDD* — needs a one-shot disambiguation.** Ask: *"With a `presentation/application/domain/infrastructure` split (4-Layer DDD — named layers), or a `domain/ports/adapters` split (Hexagonal family — symmetric adapters)?"* | Route to `ARCH=4_LAYER_DDD` or `ARCH=HEXAGONAL` based on the user's answer. Both are legitimate readings of "DDD"; silent default would be misleading. |
+| "This repo is one service among many (poly-repo, or a single microservice in a larger ecosystem)." | `ARCH=MICROSERVICE`. The Microservice template builds on 4-Layer DDD's internal shape and adds the cross-service conventions that only apply at that scale: a `health/` + `readiness/` endpoint contract, retry / circuit-breaker scaffolding hints, distributed-tracing setup notes, consumer-driven contract test discipline, and a deploy-manifest pointer. |
 | "This repo is a monorepo containing multiple sub-projects / services / apps." | `ARCH=MONOREPO`. Top-level `layered-architecture.md` documents the monorepo layout and the discipline for adding sub-projects; each sub-project picks its own internal architecture when added (re-run the bootstrap inside the sub-project, or capture the choice in an ADR). |
-| "Modular monolith — single deployable now, designed to be split into services later." | `ARCH=4_LAYER_DDD` (the layering that maps cleanest to bounded contexts). Note in the Step 5 prompt file that bounded-context boundaries are intentional and should be preserved when adding new code. |
+| "Modular monolith — single deployable now, designed to be split into services later." | `ARCH=4_LAYER_DDD` (the layering that maps cleanest to bounded contexts) **or** `ARCH=VERTICAL_SLICE` (if the team thinks in features rather than layers). Ask which fits; default to `4_LAYER_DDD` if unclear. Note in the Step 5 prompt file that bounded-context / feature boundaries are intentional and should be preserved when adding new code. |
+| "Vertical slice / feature folders / colocate by feature." | `ARCH=VERTICAL_SLICE`. Features at the top level; each owns its own thin layers; features may only import from `shared/`. |
 | "Serverless / functions / FaaS — handlers per route / event / schedule, no long-running service." | `ARCH=SERVERLESS`. A handlers-first template gets written. |
 | "I want microservices but haven't picked services yet" / "I just want clean separation of concerns." | Re-ask Q5's normal options. The likely fit is `4_LAYER_DDD` — a well-organised monolith with clear seams the user can split later. |
 | "None of the above — I want to describe it myself." | `ARCH=OTHER`. Capture the user's one-paragraph description as a minimal stub. |
@@ -294,7 +370,7 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `CODE_OF_CONDUCT.md` | Opt-in | Q14 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
 | `CONTRIBUTING.md` | Opt-in | Q14 = yes (`CONTRIB`) | S |
 | `.docs/prompts/<ts>.bootstrap_project.md` | Always | written in Step 5 | N |
-| `.agents/rules/layered-architecture.md` | Opt-in | Q5 ≠ FLAT (`LAYERED` derived). Template variant picked by `ARCH` value — `4_LAYER_DDD`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS`, or `OTHER` stub. | C |
+| `.agents/rules/layered-architecture.md` | Opt-in | Q5 ≠ FLAT (`LAYERED` derived). Template variant picked by `ARCH` value — `4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS`, or `OTHER` stub. | C |
 | `.agents/rules/workflow-changes.md` | Opt-in | Q9 = yes (`CHANGES`) | C |
 | `.agents/rules/ui-components.md` | Opt-in | Q10 = yes (`UI_COMPONENTS`) | C |
 | `.agents/rules/workflow-metrics.md` | Opt-in | Q11 = yes (`METRICS`) | C |
@@ -454,7 +530,14 @@ Skip Mermaid when:
 
 ### Diagram-type picker
 
-Don't default to `flowchart` for everything. **Mermaid supports many diagram types — the table below is a guide, not a closed list.** If the decision's shape fits a type not listed here (e.g. a `gantt` for a release schedule, a `quadrantChart` for a 2×2 strategic positioning, a `sankey-beta` for flow volumes), use it. The full type reference is at <https://mermaid.js.org/intro/> — consult it whenever the listed types don't quite fit. The agent should scan this table before drawing and choose deliberately, but the *underlying rule* is "pick whatever Mermaid type makes the shape easiest to grasp" — including types not enumerated below.
+**The choice depends on the request, the situation, the problem being solved, and the proposed solution — not on a lookup table.** The table below is a menu of common matches, not a rule. Before drawing, the agent answers four questions about *this specific* ADR:
+
+1. **What is the reader being asked to grasp?** Boundaries, ordering, state changes, proportions, comparisons, traceability, throughput, time?
+2. **What did the user actually request?** A "request flow" ADR wants ordering; a "let's adopt this DB" ADR wants schema or context; a "split this into two services" ADR wants boundaries plus deployment topology.
+3. **What does the problem expose?** A race-condition problem surfaces ordering (`sequenceDiagram`) and state (`stateDiagram-v2`); a scaling problem surfaces throughput (`sankey-beta`) and topology (`C4Deployment` / `architecture-beta`); a compliance problem surfaces requirement traceability (`requirementDiagram`).
+4. **What does the proposed solution change?** Pick the diagram that makes the *delta* visible, not just the end-state.
+
+**Mermaid supports many diagram types — the table below is a guide, not a closed list.** If the decision's shape fits a type not listed here, use it. The full type reference is at <https://mermaid.js.org/intro/> — consult it whenever the listed types don't quite fit, or when a newer Mermaid version has shipped a type more apt than anything below. The underlying rule is "pick whatever Mermaid type makes the shape easiest to grasp for *this* reader, given *this* request" — including types not enumerated below, and including combining multiple types in one ADR when one view isn't enough.
 
 | Decision shape | Mermaid type | Why |
 | --- | --- | --- |
@@ -1195,6 +1278,377 @@ presentation ──▶ application ──▶ domain ◀── infrastructure
 - `shared/` depends on nothing business-specific — only on the standard library and framework primitives.
 
 If an import would break the arrows above, the layering is wrong — fix the dependency before merging.
+
+### When to pick this over Hexagonal
+
+4-Layer DDD and Hexagonal / Ports and Adapters belong to the same family — both put a pure `domain/` at the centre with a strict inward dependency rule, and both seam business logic away from I/O. They differ in **vocabulary** and **directory shape**:
+
+- **Pick 4-Layer DDD** when your team thinks in *named layers* (`presentation`, `application`, `domain`, `infrastructure`) and your driving surfaces are dominated by HTTP / web UI (so `presentation/` carries its weight as a named layer). The named-layer split also reads more naturally to people coming from MVC / Rails / Django / .NET traditions.
+- **Pick Hexagonal** when your team thinks in *primary vs secondary adapters* (driving vs driven), when the codebase has multiple equally-important driving surfaces (HTTP + CLI + message consumers), or when the symmetric "domain in the middle, adapters around it" framing matches how you talk about the architecture in conversation. See [`layered-architecture.md` — variant for `ARCH=HEXAGONAL`](#) for that shape.
+
+The rules — pure domain, inward-only dependencies, repositories behind interfaces, services orchestrated through use cases — are the same in both. The folder tree is what differs.
+````
+
+---
+
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=HEXAGONAL`
+
+````markdown
+# Hexagonal Architecture (Ports and Adapters)
+
+This document describes the **Hexagonal / Ports and Adapters** layout of this project — `domain/` at the centre (pure core), `ports/` defining the interfaces the domain *requires* and *exposes*, and `adapters/` translating between the outside world and those ports. The same shape is also known as **Clean Architecture** (Uncle Bob) and **Onion Architecture** (Jeffrey Palermo); the *family* is unified by one rule: **dependencies point inward, never outward**.
+
+The naming differs slightly across the family — Clean Architecture's "entities", "use cases", "interface adapters", and "frameworks and drivers" map onto Hexagonal's `domain/model`, `domain/service`, `adapters/primary` + `adapters/secondary`, and the runtime wiring respectively. This template uses the Ports-and-Adapters terminology because the symmetry between primary (driving) and secondary (driven) is what most teams want made visible in the folder tree.
+
+## Project Structure (Sample)
+
+Concrete entries are placeholders; rename / extend as the project takes shape.
+
+```txt
+{project-folder}/
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
+├── .docs/                              # ADRs, prompts, todos, project docs
+├── .python-version / .nvmrc / etc.     # Language/runtime version pin
+├── .gitignore
+├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
+│
+├── <entrypoint>                        # Process entrypoint (composition root — wires adapters into the domain; no business logic)
+│
+├── domain/                             # The hexagon's core. Zero outward dependencies.
+│   ├── model/                          # Entities, value objects, aggregate roots, domain errors
+│   │   └── <entity>.<ext>
+│   ├── ports/
+│   │   ├── primary/                    # *Driving* ports — use-case interfaces the domain offers
+│   │   │   └── <verb_noun>_use_case.<ext>     # e.g. PlaceOrderUseCase
+│   │   └── secondary/                  # *Driven* ports — outbound interfaces the domain requires
+│   │       ├── <entity>_repository.<ext>      # Persistence contract
+│   │       ├── <external>_client.<ext>        # External service contract (e.g. PaymentGateway)
+│   │       └── <capability>_provider.<ext>    # Cross-cutting capability (e.g. ClockProvider, IdGenerator)
+│   └── service/                        # Application services — implement primary ports, orchestrate domain logic
+│       └── <feature>_service.<ext>
+│
+├── adapters/                           # Everything that touches the outside world
+│   ├── primary/                        # *Driving* adapters — translate inbound triggers into primary-port calls
+│   │   ├── rest/                       # HTTP route handlers
+│   │   │   └── <resource>_router.<ext>
+│   │   ├── cli/                        # CLI command handlers
+│   │   │   └── <command>_command.<ext>
+│   │   ├── messaging/                  # Queue / topic / event consumers
+│   │   │   └── <event>_consumer.<ext>
+│   │   └── scheduled/                  # Cron / timer triggers
+│   │       └── <task>_task.<ext>
+│   └── secondary/                      # *Driven* adapters — implement secondary ports
+│       ├── persistence/                # DB repository implementations
+│       │   └── <entity>_<store>_repository.<ext>  # e.g. order_postgres_repository.py
+│       ├── external/                   # Third-party HTTP / SDK clients
+│       │   └── <provider>_client.<ext>
+│       ├── filesystem/                 # FS / object-store adapters
+│       └── time/                       # Clock / scheduler implementations
+│
+└── shared/                             # Cross-cutting utilities (logging, config types, errors that aren't domain-specific). No business logic.
+    └── utils/
+```
+
+## The two kinds of ports
+
+The split is what makes Hexagonal Hexagonal — both kinds of port live in `domain/ports/`, but they face opposite directions and are implemented by opposite layers.
+
+- **Primary (driving) ports** — `domain/ports/primary/`. Interfaces the **domain exposes** for outside callers. Use-case interfaces like `PlaceOrderUseCase`, `ApproveDraftUseCase`. Implemented by `domain/service/` (application services), called by `adapters/primary/` (HTTP routes, CLI commands, message consumers). When an HTTP handler receives a `POST /orders`, it parses the request, calls `PlaceOrderUseCase.execute(...)`, and shapes the response. The handler never reaches into `domain/` for anything else.
+- **Secondary (driven) ports** — `domain/ports/secondary/`. Interfaces the **domain requires** from the outside world. Repository contracts like `OrderRepository`, external-service contracts like `PaymentGateway`, capability contracts like `Clock`. Defined in the domain (so the domain controls its own contract), implemented by `adapters/secondary/` (concrete Postgres / Stripe / system-clock adapters), and injected into `domain/service/` classes via the composition root.
+
+The symmetry is the point. Primary adapters call IN through primary ports; the domain calls OUT through secondary ports; adapters never call each other directly.
+
+## Layer responsibilities
+
+- **Entrypoint** — process entrypoint. The composition root that knows how to instantiate every concrete adapter, inject them into application services, and launch the server / CLI / worker. Contains no business logic.
+- **`domain/model/`** — entities, value objects, aggregate roots, domain errors. Plain types. Zero imports from `domain/service/`, `adapters/`, or `shared/`.
+- **`domain/ports/primary/`** — use-case interfaces. Each describes one application operation in business language (`PlaceOrderUseCase`, `CancelSubscriptionUseCase`). One method per use case is the common pattern; multiple methods are fine when they share the same setup but produce different outcomes.
+- **`domain/ports/secondary/`** — outbound interfaces. Repositories (read/write contracts for aggregates), external clients (third-party service contracts), capability providers (clock, id generator, RNG). Defined in the domain's language, not in the adapter's.
+- **`domain/service/`** — application services that implement primary ports. Receive secondary-port dependencies via constructor injection. Orchestrate domain entities + secondary-port calls to fulfil the use case. No HTTP, no SQL, no SDK calls inside service bodies — those go through ports.
+- **`adapters/primary/`** — translate inbound triggers into primary-port calls. HTTP routers, CLI command handlers, queue consumers, scheduled tasks. Validate input, call exactly one primary port, format output. No business rules.
+- **`adapters/secondary/`** — implement secondary ports against real backends. The Postgres repository implements `OrderRepository`; the Stripe client implements `PaymentGateway`; the system clock implements `Clock`. Swap an adapter to swap a backend; the domain never notices.
+- **`shared/`** — pure utilities, constants, cross-cutting types. No business logic; no port or adapter imports.
+
+## The Dependency-Injection composition root
+
+The entrypoint is the **composition root**: the single module that knows how to build every concrete adapter and wire it into the domain services. Everything else receives its collaborators by constructor injection.
+
+- **Constructor injection everywhere.** Application services declare their port dependencies in `__init__`. The composition root instantiates secondary adapters and passes them to the services. Primary adapters receive the use-case implementations from the same place.
+- **Ports are typed contracts, not strings.** A service constructor takes `order_repo: OrderRepository`, never `order_repo: Any` or a stringly-typed factory. The interface lives in `domain/ports/secondary/`.
+- **Fail fast.** Constructors validate required collaborators so missing wiring surfaces at boot, not on the first request.
+- **Testability.** Because every external touch-point is a port, tests substitute fake adapters trivially — an in-memory `OrderRepository`, a `FakeClock`, a `StubPaymentGateway`. The domain runs without the network, the filesystem, or the database. This is the *primary* benefit of Hexagonal, not an incidental one.
+- **Active identity resolution.** Where requests are scoped to a signed-in user, the composition root exposes a single helper that reads the verified session and returns the scoping key. Every scoped secondary adapter is instantiated from that key, so one session can only read its own data.
+
+## Dependency direction (the only rule that never bends)
+
+```
+adapters/primary  ──▶  domain/ports/primary  ──▶  domain/service  ──▶  domain/model
+                                                       │
+                                                       ▼
+                                              domain/ports/secondary
+                                                       ▲
+                                                       │
+                                              adapters/secondary
+```
+
+Read left-to-right + top-to-bottom:
+
+- `adapters/primary/` depends on `domain/ports/primary/` (the interfaces they call) and `domain/model/` (the types they pass in / receive back). They do **not** depend on `domain/service/` concretes or on `adapters/secondary/`.
+- `domain/service/` depends on `domain/ports/primary/` (the interfaces it implements), `domain/model/` (the types it manipulates), and `domain/ports/secondary/` (the contracts it calls outward).
+- `domain/model/` depends on **nothing** project-internal. This is the heart of the hexagon.
+- `domain/ports/secondary/` depends on `domain/model/` only — port methods take and return domain types.
+- `adapters/secondary/` depends on `domain/ports/secondary/` (to implement them) and `domain/model/` (the types they translate between the backend and the domain). They do **not** depend on `domain/service/`, `domain/ports/primary/`, or `adapters/primary/`.
+- `shared/` depends on nothing business-specific.
+
+If an import would break the arrows above, the architecture is wrong — fix the dependency before merging. The most common drift is a primary adapter (an HTTP route) reaching into `adapters/secondary/` directly to "save one quick thing" — that's the moment Hexagonal degrades into a 3-tier app with extra steps. Route the call through a primary port instead, always.
+
+## Naming conventions for ports and adapters
+
+- **Primary ports**: `<VerbNoun>UseCase` — `PlaceOrderUseCase`, `ApproveDraftUseCase`. Name them by the business operation, not by the route or command that drives them.
+- **Secondary ports**: `<Entity>Repository`, `<Service>Gateway` (when the external thing is a remote service with semantics worth capturing), `<Capability>Provider` (`Clock`, `IdGenerator`). The port name speaks the domain's language; the adapter's name carries the implementation detail.
+- **Primary adapters**: `<Resource>Router` / `<Command>Command` / `<Event>Consumer`. The suffix names the trigger type.
+- **Secondary adapters**: `<Entity><Backend>Repository` (`OrderPostgresRepository`, `OrderInMemoryRepository`), `<Provider>Client` (`StripeClient`), `<Capability>Impl` for capability providers. The suffix names the backend.
+
+This naming discipline makes a `grep -r Repository` show every adapter implementation immediately, and a `grep -r UseCase` show every business operation. Both queries are useful at scale.
+
+## When to pick this over 4-Layer DDD
+
+Hexagonal and 4-Layer DDD belong to the same family (pure domain, inward-only dependencies, repositories behind interfaces, services orchestrated through use cases). They differ in **vocabulary** and **directory shape**:
+
+- **Pick Hexagonal** when your team talks in *primary vs secondary adapters*, when the codebase has multiple equally-important driving surfaces (HTTP + CLI + message consumers + scheduled tasks), or when "domain in the middle, adapters around it" matches how you describe the architecture out loud. Hexagonal makes the *symmetry* visible.
+- **Pick 4-Layer DDD** when your team talks in *named layers* (`presentation`, `application`, `domain`, `infrastructure`) and your driving surface is dominated by HTTP / web UI (so `presentation/` carries its weight as a named layer). The named-layer split also reads more naturally to people coming from MVC / Rails / Django / .NET traditions. See [`layered-architecture.md` — variant for `ARCH=4_LAYER_DDD`](#) for that shape.
+
+The runtime behaviour is identical. The seams are in the same places. What changes is which words appear in the import paths and how the folder tree looks to a new contributor opening the repo for the first time.
+````
+
+---
+
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=MICROSERVICE`
+
+````markdown
+# Microservice Architecture
+
+This document describes the layout of **one service in a larger microservice ecosystem**. The *internal* shape of this service mirrors 4-Layer DDD (presentation → application → domain ← infrastructure + shared); the *additional* conventions in this template cover the cross-service concerns that only apply when this codebase is one of many cooperating services — health and readiness contracts, retries and circuit breakers, distributed tracing, consumer-driven contract tests, and deploy-manifest discipline.
+
+If this repo is a **monorepo containing multiple services**, you want the `ARCH=MONOREPO` template instead (and each sub-service inside picks its own internal architecture — likely this one).
+
+## Project Structure (Sample)
+
+Concrete entries are placeholders; rename / extend as the project takes shape.
+
+```txt
+{project-folder}/
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
+├── .docs/                              # ADRs, prompts, todos, project docs
+├── .gitignore
+├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
+├── <deploy manifest>                   # Dockerfile + helm chart / docker-compose / kustomize / nomad job / serverless.yml
+│
+├── <entrypoint>                        # Process entrypoint (DI bootstrap; launches the HTTP server + background consumers)
+│
+├── presentation/                       # Inbound surfaces — routes, message consumers, scheduled tasks
+│   ├── http/                           # HTTP route handlers (one module per resource)
+│   ├── health/                         # Liveness + readiness endpoints (see § Health and readiness below)
+│   ├── messaging/                      # Queue / topic / stream consumers
+│   └── scheduled/                      # Cron / timer tasks
+│
+├── application/                        # Business logic — no I/O, no transport framework imports
+│   ├── container.py / di.ts / …        # DI composition root
+│   ├── services/                       # Stateless orchestrators over repositories + external clients
+│   └── use_cases/                      # Multi-service workflows (optional)
+│
+├── domain/                             # Pure models & contracts — zero deps on other layers
+│   ├── model/
+│   ├── interfaces/                     # Protocol / interface contracts (repositories, external service clients)
+│   └── errors/                         # Domain-specific exception classes
+│
+├── infrastructure/                     # All I/O lives here — repositories, HTTP clients, message producers, observability adapters
+│   ├── http/                           # Inbound HTTP server config + middleware (auth, request-id, tracing, rate limit)
+│   ├── repositories/                   # Persistence adapters implementing domain protocols
+│   ├── clients/                        # Outbound HTTP / gRPC / SDK clients for other services (with retries + circuit breakers)
+│   ├── messaging/                      # Outbound queue / topic producers
+│   ├── telemetry/                      # Tracing, metrics, logging adapters (OpenTelemetry-shaped)
+│   └── secrets/                        # Secret-store adapter (Vault / KMS / cloud secret manager)
+│
+├── contracts/                          # Consumer-driven contract tests against this service's API + against the services this calls
+│   ├── provider/                       # What this service promises to its callers (Pact provider tests, OpenAPI snapshots)
+│   └── consumer/                       # What this service expects from its dependencies (Pact consumer tests, replay fixtures)
+│
+└── shared/                             # Cross-cutting utilities & types (no business logic)
+```
+
+## Health and readiness contracts
+
+Every microservice exposes two endpoints. They look similar; they answer different questions.
+
+- **`/healthz` (liveness)** — *is the process alive?* Always returns 200 if the process can serve a request at all. Used by orchestrators (Kubernetes, Nomad) to decide whether to restart the pod. Does not check dependencies; a dead DB shouldn't restart the pod (a restart won't fix the DB).
+- **`/readyz` (readiness)** — *can this instance accept traffic right now?* Returns 200 only when *every* hard dependency the service needs to serve requests is reachable — DB ping succeeds, the auth-service is up, the message broker is connected. Used by orchestrators + load balancers to decide whether to route traffic to this pod. A pod can be live but not ready (cold start, dependency outage, rolling restart underway).
+
+Both endpoints live in `presentation/health/`. The readiness check delegates to a `ReadinessProbe` implementation in `infrastructure/` that knows how to ping each dependency; the presentation layer never imports those clients directly.
+
+## Inter-service communication discipline
+
+- **Every outbound call goes through an adapter under `infrastructure/clients/`.** Direct `httpx.post(...)` or `fetch(...)` from a service module is a bug — wrap it in a typed client that lives behind a domain-defined interface.
+- **Retries with backoff + jitter** on every transient-failure category (5xx, timeout, connection refused). Configurable per client; sensible defaults (3 retries, exponential 100ms → 800ms, 25% jitter). Idempotency keys for any retried POST.
+- **Circuit breakers** on every cross-service call — open after N consecutive failures, half-open after a cooldown, close on first success. The breaker protects this service from a downstream that's slowly dying; without it, one bad neighbour drags this service down too.
+- **Timeouts shorter than the caller's timeout** by a safety margin. If your caller times out at 30s, your downstream call must time out at <30s (typically much sooner); otherwise the caller sees a generic timeout instead of a structured error you could have returned.
+- **Distributed tracing context propagated on every call.** Inbound middleware reads the W3C `traceparent` header (or whatever your platform uses), pins the trace+span to the request scope, and every outbound client injects them again. Without this, a request's path through 7 services is invisible.
+
+## Consumer-driven contract tests
+
+Contracts under `contracts/` are first-class — same commit as the API change that motivates them.
+
+- **Provider tests** (`contracts/provider/`) prove this service still honours what it promised its consumers. Drive them from the OpenAPI / Protobuf / Pact pact files the consumers publish.
+- **Consumer tests** (`contracts/consumer/`) prove this service still tolerates what its dependencies actually emit. Drive them from canned responses captured against the real dependency in a staging environment, or against published Pact pacts the dependency owns.
+- A contract test failure is a release blocker — the alternative is that the contract drift surfaces in production as a 500 with a cryptic deserialization error.
+
+These tests are *integration*-flavoured (they exercise real serialization and wire formats) but live separately from the unit / integration tests under `tests/` because their lifecycle is different — they re-run whenever a consumer or provider publishes a new pact, not just on local changes. CI orchestrates them on a schedule + on every PR that touches the API surface.
+
+## Observability surface
+
+- **Logs** carry the request-id and trace-id on every line. A request's logs across services join via trace-id; a request's logs within this service join via request-id. Without both, distributed debugging is impossible.
+- **Metrics** follow the `workflow-metrics.md` rule (if installed) for naming + cardinality. Three "golden signals" per inbound surface: request rate, error rate, p50 / p95 / p99 latency. Same three per outbound client.
+- **Traces** are emitted via OpenTelemetry (or the platform equivalent). Span around every inbound request, every outbound call, every DB query, every queue publish/consume. Span attributes name the resource, not the URL (so the trace says `GET /orders/:id`, not `GET /orders/01J2KZ3R...`).
+
+The observability adapters live in `infrastructure/telemetry/`. The presentation layer middleware imports them; service code does not — services emit *domain events* via a logger interface in `shared/`, and the adapter decides how to translate them into log lines, metrics, and span attributes.
+
+## Deploy manifest is part of the architecture
+
+The deploy manifest (`Dockerfile` + Helm chart, Kubernetes YAML, Nomad job, ECS task definition, Cloud Run service spec, …) is **as load-bearing as the code**. Treat changes to it as architectural — they belong in ADRs when the change introduces a new resource limit, a new network policy, a new init container, a new sidecar, a new secret mount, or a new auto-scaling trigger.
+
+The manifest also encodes the **resource contract** every other team can rely on: CPU / memory requests + limits, replica count, health-check paths, timeouts, restart policy. Drift between the manifest and the running service's actual behaviour is a recurring source of incidents — keep them aligned.
+
+## Dependency direction (the only rule that never bends)
+
+```
+presentation ──▶ application ──▶ domain ◀── infrastructure
+       │                              ▲
+       └──────────── shared ──────────┘
+contracts ──▶ presentation (provider tests)
+contracts ──▶ infrastructure/clients (consumer tests)
+```
+
+- Same inward-only rule as 4-Layer DDD: presentation depends on application, application on domain protocols, infrastructure implements those protocols.
+- `contracts/` is allowed to depend on presentation and infrastructure (the layers it exercises) but no inward layer depends on it.
+- `shared/` depends on nothing business-specific.
+
+## What this rule does NOT cover
+
+- **Service decomposition strategy** (when to split, where to draw boundaries, how to handle shared data) — that's an ADR-level decision; the rule encodes a single service's discipline, not the system's.
+- **Sync vs async between services** (REST vs gRPC vs message queue vs event stream) — capture the choice in an ADR. The clients/ + messaging/ folders accommodate either.
+- **Saga / orchestration / choreography patterns** for distributed transactions — pattern-level, ADR-worthy.
+- **Service mesh** (Istio, Linkerd, …) — platform-level; document in the deploy manifest section of `AGENTS.md`.
+- **API gateway** — same as above.
+````
+
+---
+
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=VERTICAL_SLICE`
+
+````markdown
+# Vertical Slice Architecture
+
+This document describes the **feature-first** layout of this project. Instead of organising by *technical layer* (presentation / application / domain / infrastructure), every feature is a self-contained vertical slice that owns its own thin layers internally. The only allowed cross-slice dependency is `shared/`; **features never import from each other**.
+
+The trade-off vs 4-Layer DDD / Hexagonal: adding a new feature is faster (everything for it lives in one folder) and removing one is trivial (delete the folder); the cost is that cross-cutting refactors touch many slices instead of a single layer, and the discipline of "no feature-to-feature imports" needs active enforcement (linter rule, code review).
+
+## Project Structure (Sample)
+
+Concrete entries are placeholders; rename / extend as the project takes shape.
+
+```txt
+{project-folder}/
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
+├── .docs/                              # ADRs, prompts, todos, project docs
+├── .gitignore
+├── <pkg manifest>
+│
+├── <entrypoint>                        # Process entrypoint (DI + slice registration)
+│
+├── features/                           # Each subdirectory is one self-contained vertical slice
+│   ├── place_order/
+│   │   ├── handler.<ext>               # Inbound entry — HTTP route, CLI command, queue consumer, whatever drives the slice
+│   │   ├── service.<ext>               # Business logic specific to this feature
+│   │   ├── model.<ext>                 # Types specific to this feature (request/response shapes, internal value objects)
+│   │   ├── repository.<ext>            # Persistence access — small, focused on this feature's queries
+│   │   ├── validation.<ext>            # Input validation rules (optional — fold into handler if trivial)
+│   │   └── place_order_test.<ext>      # All tests for this slice — unit + integration, co-located
+│   ├── approve_draft/
+│   │   └── …                           # Same internal shape
+│   └── cancel_subscription/
+│       └── …
+│
+├── shared/                             # THE ONLY cross-cutting dependency features may import
+│   ├── domain/                         # Truly cross-feature domain types (User, Tenant, Money — types every slice talks about)
+│   ├── infrastructure/                 # Cross-feature infra adapters (the DB connection, the message broker, the HTTP client)
+│   ├── auth/                           # Auth / session / permission primitives every slice needs
+│   ├── observability/                  # Logger, tracer, metrics interfaces
+│   └── utils/                          # Pure helpers
+│
+└── tests/                              # Cross-slice integration / e2e tests that exercise multiple features together (rare; most tests live in the slice)
+```
+
+## The one rule that defines this architecture
+
+**Features may only import from `shared/`. Features may NEVER import from each other.**
+
+This is the discipline that makes Vertical Slice *Vertical Slice*. Without it, you have feature folders but no isolation — the moment `features/place_order/` imports from `features/inventory/`, the slices are coupled and you've lost the ability to delete or relocate a slice without breaking others.
+
+Concretely:
+
+- ✅ `features/place_order/service.py` imports `shared/domain/money.py`. Fine — `Money` is cross-feature.
+- ✅ `features/place_order/repository.py` imports `shared/infrastructure/db_connection.py`. Fine — the DB pool is cross-feature.
+- ❌ `features/place_order/service.py` imports `features/inventory/service.py`. **Bug.** If `place_order` needs to check inventory, it does so via a `shared/` interface that `inventory/` implements, or by emitting a domain event that `inventory/` reacts to — never by direct import.
+
+If two features genuinely need to communicate, the right move is to lift the *contract* into `shared/` (an interface, a domain event, a protocol). The implementations stay in the features that own them.
+
+## How a slice is structured internally
+
+Each feature folder is a thin internal stack — handler → service → repository → model — that mirrors a small 4-Layer DDD shape. The difference vs full 4-Layer DDD is *scale*: every slice's `service.<ext>` is small (one feature's worth of logic), every slice's `repository.<ext>` is small (one feature's queries), and the layering is a few hundred lines per slice rather than thousands per top-level layer.
+
+- **`handler.<ext>`** — the inbound entry. For an HTTP slice, the route handler. For a queue-consumer slice, the message handler. For a CLI slice, the command handler. Validates the input, calls the service, formats the response.
+- **`service.<ext>`** — the feature's business logic. Receives the repository + any `shared/` dependencies via constructor injection.
+- **`model.<ext>`** — the feature's internal types. Request / response shapes, internal value objects, feature-specific errors.
+- **`repository.<ext>`** — the feature's persistence. Small, focused queries. Two features can share a database table and each have their own repository that only knows the columns it needs.
+- **`<feature>_test.<ext>`** — all tests for the slice, co-located. Unit tests for the service, integration tests for the handler + repository against a real (or test-double) DB.
+
+## When the discipline strains
+
+Vertical Slice works beautifully when features are genuinely independent. It strains when:
+
+- **Cross-feature domain logic is large.** If `User` carries a hundred lines of behaviour that every feature needs, it belongs in `shared/domain/`. Keep `shared/` thin; if it grows to dominate the codebase, you've effectively rebuilt 4-Layer DDD inside `shared/` and should consider migrating.
+- **The same query is duplicated across slices.** Two slices reading the same join is fine. Five slices reading the same join is a smell — lift it to `shared/infrastructure/` as a thin query helper.
+- **Transactional boundaries cross slices.** If `place_order` must atomically reserve `inventory`, the boundary is either drawn wrong (these are one feature) or the slices need to coordinate via a saga / domain event / cross-slice transaction — none of which is hidden inside a slice.
+
+When the strain is real, capture an ADR before refactoring. Vertical Slice → 4-Layer DDD is a known migration path: lift each slice's `service.ext` into `application/services/<feature>/`, each `model.ext` into `domain/`, each `repository.ext` into `infrastructure/repositories/`. The discipline of "no feature-to-feature imports" carries forward as the discipline of "no application service imports another application service's internals".
+
+## Dependency direction (the only rule that never bends)
+
+```
+features/<any> ──▶ shared
+features/<any> ──╳── features/<other>     (forbidden — never)
+shared ──▶ (standard library + framework primitives only)
+```
+
+- A feature may depend on anything inside `shared/`.
+- A feature may NEVER depend on another feature's internals — not the service, not the model, not the repository.
+- `shared/` depends only on the standard library and framework primitives. Business logic does not live in `shared/`.
+
+If an import would break the arrows above, the architecture is wrong — fix the dependency before merging. The most common drift is a "quick" import from one feature to another to reuse a function; that's the moment to lift the function into `shared/` if it's genuinely shared, or duplicate it if it's not (Vertical Slice tolerates small duplication; the alternative — coupling — is more expensive).
+
+## Enforcement
+
+The "no feature-to-feature imports" rule is critical enough to enforce mechanically, not just by review. Pick the language's tool:
+
+- **Python**: `import-linter` with a layered contract — `features.*` forbidden from importing `features.*`.
+- **TypeScript**: ESLint's `no-restricted-imports` or `eslint-plugin-boundaries`.
+- **Go**: a custom `go vet` analyser, or `depguard`.
+- **Rust**: workspace structure — each feature as a crate, with `cargo` enforcing the dependency graph in `Cargo.toml`.
+
+Wire this into the pre-commit hook + CI. A boundary violation that lands in `main` is harder to remove than to prevent.
 ````
 
 ---
@@ -1858,13 +2312,71 @@ What is the situation prompting this decision? What constraints, requirements, o
 
 ## Decision
 
-What did we decide? State it plainly. Include a Mermaid diagram if the change reshapes more than two collaborators or introduces a multi-step flow.
+What did we decide? State it plainly.
 
+**Pick the diagram type that fits this decision** — see the picker in [`workflow.md`'s "Diagram-type picker" section](../../.agents/rules/workflow.md). The choice depends on the request, situation, problem, and solution. Use any Mermaid type that makes the shape easiest to grasp, including types not enumerated in the picker. An ADR may carry **multiple diagrams** (e.g., a context view + a sequence view) when one isn't enough — split rather than crowd.
+
+Skeletons to copy / adapt / delete (keep only the ones that fit this decision; delete the others):
+
+<!-- Boundaries / dependency direction:
 ```mermaid
-graph LR
-  A --> B
-  B --> C
+flowchart LR
+  subgraph LayerA
+    a[component]
+  end
+  subgraph LayerB
+    b[component]
+  end
+  a --> b
 ```
+-->
+
+<!-- Request flow / ordering:
+```mermaid
+sequenceDiagram
+  participant Client
+  participant Service
+  participant Store
+  Client->>Service: request
+  Service->>Store: query
+  Store-->>Service: result
+  Service-->>Client: response
+```
+-->
+
+<!-- Entity lifecycle / state machine:
+```mermaid
+stateDiagram-v2
+  [*] --> Initial
+  Initial --> Active: event
+  Active --> Closed: event
+  Closed --> [*]
+```
+-->
+
+<!-- Data model / schema:
+```mermaid
+erDiagram
+  PARENT ||--o{ CHILD : relates_to
+  PARENT { uuid id PK }
+  CHILD { uuid id PK; uuid parent_id FK }
+```
+-->
+
+<!-- System context (C4):
+```mermaid
+C4Context
+  Person(user, "User")
+  System(this, "This Service", "What we own")
+  System_Ext(other, "External Dep", "Third-party")
+  Rel(user, this, "uses")
+  Rel(this, other, "calls")
+```
+-->
+
+<!-- For any other shape — gantt, gitGraph, quadrantChart, sankey-beta, requirementDiagram, C4Deployment, timeline, mindmap, pie, journey, xychart-beta, treemap, kanban, architecture-beta, classDiagram, packet-beta, radar — see workflow.md and Mermaid's reference at https://mermaid.js.org/intro/. -->
+
+Caption every kept diagram with one sentence: what the reader should take away.
 
 ## Consequences
 
