@@ -812,10 +812,51 @@
       <div class="mermaid-surface rounded-2xl p-8 md:p-14 overflow-x-auto reveal">
         <div class="mermaid">
 flowchart LR
-  hand["<b>Hand it over</b><br/><br/>AGENTIC_BOOTSTRAP.md<br/>one prompt<br/>your stack &amp; agent"]
-  interview["<b>Interview</b><br/><br/>16 questions<br/>smart defaults<br/>Q4 LANG · Q5 ARCH dispatch"]
-  grow["<b>Grow the discipline</b><br/><br/>workflow rules<br/>ADR culture<br/>testing pyramid<br/>telemetry<br/>security rubric<br/>TODO discipline<br/>per-tool adapters<br/>one focused commit"]
-  hand --> interview --> grow
+  classDef stageBox fill:#0f0a1f,stroke:#7c3aed,stroke-width:2px,color:#e4e4e7
+  classDef inputItem fill:#1a1233,stroke:#a78bfa,stroke-width:1.5px,color:#e4e4e7
+  classDef processItem fill:#221646,stroke:#c084fc,stroke-width:1.5px,color:#f4f4f5
+  classDef outputItem fill:#2a1a58,stroke:#e879f9,stroke-width:1.5px,color:#ffffff
+
+  subgraph hand["&nbsp;<b>Hand it over</b>&nbsp;"]
+    direction TB
+    file["AGENTIC_BOOTSTRAP.md"]:::inputItem
+    prompt["one prompt"]:::inputItem
+    stack["your stack &amp; agent"]:::inputItem
+    file ~~~ prompt
+    prompt ~~~ stack
+  end
+
+  subgraph interview["&nbsp;<b>Interview</b>&nbsp;"]
+    direction TB
+    q["16 questions"]:::processItem
+    smart["smart defaults"]:::processItem
+    disp["Q4 LANG · Q5 ARCH dispatch"]:::processItem
+    q ~~~ smart
+    smart ~~~ disp
+  end
+
+  subgraph grow["&nbsp;<b>Grow the discipline</b>&nbsp;"]
+    direction TB
+    rules["workflow rules"]:::outputItem
+    adrs["ADR culture"]:::outputItem
+    tests["testing pyramid"]:::outputItem
+    tele["telemetry"]:::outputItem
+    sec["security rubric"]:::outputItem
+    todos["TODO discipline"]:::outputItem
+    adapters["per-tool adapters"]:::outputItem
+    commit["one focused commit"]:::outputItem
+    rules ~~~ adrs
+    adrs ~~~ tests
+    tests ~~~ tele
+    tele ~~~ sec
+    sec ~~~ todos
+    todos ~~~ adapters
+    adapters ~~~ commit
+  end
+
+  hand ==> interview ==> grow
+
+  class hand,interview,grow stageBox
         </div>
       </div>
     </div>
