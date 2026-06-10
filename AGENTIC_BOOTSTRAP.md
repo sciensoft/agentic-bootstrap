@@ -3,9 +3,9 @@
 
 # Agentic Bootstrap
 
-> One file. Project-agnostic. Hand it to an agent in a fresh (or existing) repo and say *"follow this bootstrap"*; the agent interviews you and lays down a Claude Code workflow scaffold — `CLAUDE.md`, `.claude/rules/`, `.claude/prompts/`, `.docs/adrs/`, `.docs/todos/` — plus the first commit that records the bootstrap itself.
+> One file. Project-agnostic. Tool-agnostic. Hand it to any agentic coding assistant in a fresh (or existing) repo and say *"follow this bootstrap"*; the agent interviews you and lays down a cross-tool workflow scaffold — `AGENTS.md` (the primary brief), `.agents/rules/` (workflow + best-practices + architecture), `.docs/prompts/`, `.docs/adrs/`, `.docs/todos/` — plus a thin adapter file for each agentic tool the project supports (Claude Code, Cursor, Aider, Codex CLI, OpenCode, Continue.dev, Windsurf, GitHub Copilot), plus the first commit that records the bootstrap itself.
 >
-> The discipline encoded here: every artifact-producing request gets a timestamped prompt file under `.claude/prompts/`, an ADR under `.docs/adrs/` when architecturally significant, deferred ideas as one-file-per-entry under `.docs/todos/`, telemetry kept current, security-sensitive changes run through the rubric in `.docs/security/methodology.md` before commit (dated audits as sibling files on a cadence), and a single commit + push wrapping all of the above.
+> The discipline encoded here: every artifact-producing request gets a timestamped prompt file under `.docs/prompts/`, an ADR under `.docs/adrs/` when architecturally significant, deferred ideas as one-file-per-entry under `.docs/todos/`, telemetry kept current, security-sensitive changes run through the rubric in `.docs/security/methodology.md` before commit (dated audits as sibling files on a cadence), and a single commit + push wrapping all of the above.
 >
 > The file is self-contained. The agent does not need to fetch anything. To evolve the bootstrap, edit this file in place — your next bootstrap reflects the change.
 
@@ -29,35 +29,36 @@ The agent will interview you, write the scaffold, create the first commit, and (
 
 The bootstrap is **idempotent**: it's safe to re-run on a project that's already been bootstrapped (e.g. to pick up new rules / templates from a newer version of this file). Decide the mode first.
 
-- Check for the sentinel: `.claude/rules/workflow.md`. If it exists, the bootstrap has already run here → **re-run mode** (also called *update mode*).
-- Also check for `.claude/bootstrap.json` — if it exists, read it; the file holds the answers captured during the previous bootstrap (see Part 4 template). On re-run, reuse those answers and skip those questions; only ask for any keys *missing* from the file (new interview questions added in newer bootstrap versions).
-- If neither sentinel exists → **first-time mode**. Standard flow (Steps 1–8 as written).
+- Check for the sentinel: `.agents/rules/workflow.md`. If it exists, the bootstrap has already run here → **re-run mode** (also called *update mode*).
+- Also check for `.agents/bootstrap.json` — if it exists, read it; the file holds the answers captured during the previous bootstrap (see Part 4 template). On re-run, reuse those answers and skip those questions; only ask for any keys *missing* from the file (new interview questions added in newer bootstrap versions).
+- **Legacy-layout migration**: if `.agents/rules/workflow.md` does *not* exist but `.claude/rules/workflow.md` does, this is a project bootstrapped under the **pre-multi-tool layout** (rules under `.claude/rules/`, answer cache at `.claude/bootstrap.json`). Treat it as re-run mode and **ask the user**: *"This project uses the legacy `.claude/rules/` layout. Migrate to `.agents/rules/` so other agentic assistants can be added (recommended)? Or leave the files in place?"* If they pick **migrate**, `git mv .claude/rules .agents/rules` and `git mv .claude/bootstrap.json .agents/bootstrap.json` before proceeding; update any `@.claude/rules/…` references in `CLAUDE.md` to `@.agents/rules/…` in the same step. If they pick **leave**, keep treating the legacy paths as the live ones for this re-run (skip the rename, keep writing to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools will be limited until they migrate. Either way, write the chosen layout into `bootstrap.json` so future re-runs don't re-ask.
+- If no sentinel exists at either path → **first-time mode**. Standard flow (Steps 1–8 as written).
 
 Both modes share the same playbook from this point on, with these behavioural differences:
 
 | | First-time mode | Re-run / update mode |
 | --- | --- | --- |
-| Step 1 collision check | Stop on any of `CLAUDE.md`, `.claude/rules/`, `.docs/adrs/`, `.docs/todos/` | Expected to exist; no abort |
-| Step 2 interview | Ask all 14 questions | Ask only questions whose flag is **missing** from `.claude/bootstrap.json` |
+| Step 1 collision check | Stop on any of `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/` | Expected to exist; no abort |
+| Step 2 interview | Ask all 15 questions | Ask only questions whose flag is **missing** from `.agents/bootstrap.json` |
 | Step 4 file writes | Write every applicable file from scratch | Apply the per-file **re-run policy** (Canon / Mixed / Sacred — see Part 3 matrix) |
-| Step 6 commit message | `Bootstrap project with Claude Code workflow conventions` | `Re-bootstrap: <one-line summary of what changed>` (e.g. *"refresh rules to `<date>` bootstrap version"*) |
+| Step 6 commit message | `Bootstrap project with agentic workflow conventions` | `Re-bootstrap: <one-line summary of what changed>` (e.g. *"refresh rules to `<date>` bootstrap version"*) |
 
-If the user explicitly wants a clean wipe-and-recreate, they can tell you to *"treat this as first-time mode"*; in that case, ask them to confirm the destructive intent, then back up the existing `.claude/`, `.docs/`, and root config files (rename to `.claude.backup-<ts>/` etc.) before running first-time mode.
+If the user explicitly wants a clean wipe-and-recreate, they can tell you to *"treat this as first-time mode"*; in that case, ask them to confirm the destructive intent, then back up the existing `.agents/`, `.claude/`, `.docs/`, and root config files (rename to `.agents.backup-<ts>/` etc.) before running first-time mode.
 
 ### Step 1. Sanity-check the working directory
 
 - Run `pwd` to confirm where you are; run `ls -la` to see what's already here.
-- **First-time mode**: if **any** of these already exist — `CLAUDE.md`, `.claude/rules/`, `.docs/adrs/`, `.docs/todos/`, `AGENTIC_BOOTSTRAP.md` itself — **stop and ask the user** how to proceed (overwrite? merge? skip the conflicting files? switch to re-run mode?). Never silently overwrite their work.
-- **Re-run mode**: these files are expected to exist; no abort. Still sanity-check for unexpected state — if `.claude/rules/` is missing files the matrix knows about, or `.docs/security/methodology.md` was deleted, or anything else seems wrong, surface it before proceeding.
+- **First-time mode**: if **any** of these already exist — `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/`, `AGENTIC_BOOTSTRAP.md` itself — **stop and ask the user** how to proceed (overwrite? merge? skip the conflicting files? switch to re-run mode?). Never silently overwrite their work.
+- **Re-run mode**: these files are expected to exist; no abort. Still sanity-check for unexpected state — if `.agents/rules/` (or the legacy `.agents/rules/` if migration was deferred) is missing files the matrix knows about, or `.docs/security/methodology.md` was deleted, or anything else seems wrong, surface it before proceeding.
 - If `.git/` doesn't exist, ask whether to `git init` as part of the bootstrap (default: yes). Re-run mode in a non-git directory is unusual; mention it.
 
 ### Step 2. Run the interview (Part 2)
 
 Ask the interview questions. Capture answers. If your host supports a structured interactive question tool (e.g. `AskUserQuestion` in Claude Code), use it; otherwise ask one question at a time in chat. Record the answers compactly — you'll reference them when filling templates.
 
-**Re-run mode**: load `.claude/bootstrap.json` (read in Step 0). Treat its keys as already-answered. Ask the user **only** for keys whose flag is missing from the file — these are new interview questions added in newer bootstrap versions, or fields the previous bootstrap didn't capture. When done, write the updated `.claude/bootstrap.json` with the merged set (old + new keys) in Step 4's bootstrap.json template.
+**Re-run mode**: load `.agents/bootstrap.json` (read in Step 0). Treat its keys as already-answered. Ask the user **only** for keys whose flag is missing from the file — these are new interview questions added in newer bootstrap versions, or fields the previous bootstrap didn't capture. When done, write the updated `.agents/bootstrap.json` with the merged set (old + new keys) in Step 4's bootstrap.json template.
 
-If the user wants to change a previously-captured answer (e.g. switch `POSTURE` from `CAUTIOUS` to `TRUSTED_DEV`), they can tell you explicitly — *"re-ask about posture"*; in that case, ask the relevant question even though the key is present, and update `.claude/bootstrap.json` with the new value. Make sure the user understands which files will be re-written under the new answer (the re-run policy still applies — Sacred files stay sacred even on a changed answer).
+If the user wants to change a previously-captured answer (e.g. switch `POSTURE` from `CAUTIOUS` to `TRUSTED_DEV`), they can tell you explicitly — *"re-ask about posture"*; in that case, ask the relevant question even though the key is present, and update `.agents/bootstrap.json` with the new value. Make sure the user understands which files will be re-written under the new answer (the re-run policy still applies — Sacred files stay sacred even on a changed answer).
 
 ### Step 3. Decide which files to write (Part 3 decision matrix)
 
@@ -72,13 +73,21 @@ For each file you decided to write in Step 3:
   - `{{PLACEHOLDER}}` tokens → the user's interview answer.
   - `{{IF_FLAG}}<line content>` → keep the line (after stripping the `{{IF_FLAG}}` prefix) when `FLAG` is true; remove the line entirely when false.
 - **Derived flags** (computed from interview answers, not asked directly):
-  - `LAYERED` = `(ARCH != FLAT)`. True when Q4 picked any non-Flat shape; controls the architecture-rule ref lines in CLAUDE.md and best-practices.md.
+  - `LAYERED` = `(ARCH != FLAT)`. True when Q5 picked any non-Flat shape; controls the architecture-rule ref lines in `AGENTS.md`, the `CLAUDE.md` adapter (if Claude in `AGENTS_USED`), each other per-tool adapter, and `best-practices.md`.
 - **Multi-value flag dispatch**: pick the template variant whose label matches the user's interview answer.
-  - **`POSTURE`** (Q2): variants `CAUTIOUS`, `READONLY`, `TRUSTED_DEV`, `BYPASS` each have their own `.claude/settings.json` template. `TRUSTED_DEV` is composed: write the base template, then append the language-specific allow entries from the table that follows the base, picking by Q3 `LANG`. For `LANG=Other / mixed` under `TRUSTED_DEV`, skip the language addendum and tell the user post-bootstrap to extend their `allow` list with their toolchain's commands. **Write this file first** (after creating directories) so the chosen posture takes effect for the rest of the bootstrap's file writes.
-  - **`LANG`** (Q3): controls four template families — the `.gitignore` variant, the manifest + test-scaffold variant, the linter / formatter config variant, and the `Makefile` variant. Each family has Python / TypeScript-Node / Go / Rust / Fallback variants. Pick the variant matching the user's primary language across all four; they ship together. If mixed (e.g. fullstack monorepo), pick the dominant backend language and tell the user the frontend equivalents need adding separately.
-  - **`ARCH`** (Q4): variants `4_LAYER_DDD`, `3_TIER`, `SPA` each have their own `layered-architecture.md` template. If `ARCH=OTHER`, ask the user for a one-paragraph description and write a minimal stub capturing it. If `ARCH=FLAT`, don't write the file.
-  - **`LICENSE`** (Q11): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q11's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
-- **Conditional file writes**: `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` are written only if Q12 `CONTRIB=yes`. `LICENSE` is written only if Q11 `LICENSE != SKIP`. `.env.example` is written only if Q7 `ENV_VARS=yes` (skipped for purely static frontends, libraries, and other projects with no runtime config).
+  - **`AGENTS_USED`** (Q2): a set of one or more values from `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the per-tool adapter files — each adapter is written **only if** its tool is in the set. Always-written tool-agnostic files (`AGENTS.md`, `.agents/rules/*`, `.agents/bootstrap.json`) are independent of this flag. Adapter mapping:
+    - `CLAUDE` → `CLAUDE.md` (thin adapter pointing at `AGENTS.md`) + `.claude/settings.json` (gated additionally by Q3 `POSTURE ≠ N_A`).
+    - `CURSOR` → `.cursor/rules/agents.mdc`.
+    - `AIDER` → `.aider.conf.yml`.
+    - `CODEX` and `OPENCODE` → no adapter; both read `AGENTS.md` natively.
+    - `CONTINUE` → `.continue/config.json`.
+    - `WINDSURF` → `.windsurfrules`.
+    - `COPILOT` → `.github/copilot-instructions.md`.
+  - **`POSTURE`** (Q3): variants `CAUTIOUS`, `READONLY`, `TRUSTED_DEV`, `BYPASS` each have their own `.claude/settings.json` template. **Only asked / applied if `CLAUDE ∈ AGENTS_USED`**; otherwise set `POSTURE=N_A` and skip both the question and the settings file. `TRUSTED_DEV` is composed: write the base template, then append the language-specific allow entries from the table that follows the base, picking by Q4 `LANG`. For `LANG=Other / mixed` under `TRUSTED_DEV`, skip the language addendum and tell the user post-bootstrap to extend their `allow` list with their toolchain's commands. **Write `.claude/settings.json` first** (after creating directories, before any other file) so the chosen posture takes effect for the rest of the bootstrap's file writes.
+  - **`LANG`** (Q4): controls four template families — the `.gitignore` variant, the manifest + test-scaffold variant, the linter / formatter config variant, and the `Makefile` variant. Each family has Python / TypeScript-Node / Go / Rust / Fallback variants. Pick the variant matching the user's primary language across all four; they ship together. If mixed (e.g. fullstack monorepo), pick the dominant backend language and tell the user the frontend equivalents need adding separately.
+  - **`ARCH`** (Q5): variants `4_LAYER_DDD`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS` each have their own `layered-architecture.md` template. `MONOREPO` documents the top-level workspace layout (sub-projects pick their own internal architecture on add); `SERVERLESS` documents a handlers-first layout for FaaS codebases. If `ARCH=OTHER`, ask the user for a one-paragraph description and write a minimal stub capturing it. If `ARCH=FLAT`, don't write the file. If Q5 elicited a system-topology answer, run the disambiguation in Part 2 before settling on `ARCH`.
+  - **`LICENSE`** (Q12): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q12's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
+- **Conditional file writes**: `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` are written only if Q13 `CONTRIB=yes`. `LICENSE` is written only if Q12 `LICENSE != SKIP`. `.env.example` is written only if Q8 `ENV_VARS=yes` (skipped for purely static frontends, libraries, and other projects with no runtime config).
 - **Re-run policy** (re-run mode only): every file in the Part 3 decision matrix has a **Re-run** category — `Canon`, `Mixed`, or `Sacred`. For each file you would write in first-time mode, on re-run apply the category's behaviour:
   - **`Canon`** — versioned discipline; the bootstrap is the source of truth. Diff the would-write content against what's on disk. If different, **overwrite silently** (announce the change in the Step 8 report). If identical, no-op.
   - **`Mixed`** — user is expected to layer project-specific additions on top of the bootstrap baseline. Diff the would-write content against what's on disk. If different, **show the user a unified diff and ask**: *overwrite* (use the new bootstrap version, discarding their additions), *keep* (preserve the user's version unchanged), or *merge* (the agent attempts to add new entries from the bootstrap baseline without removing user additions — only viable for additive-only changes like new gitignore lines or new allow-list entries; ask the user to review the merged file before continuing). If identical, no-op.
@@ -93,20 +102,20 @@ Two writes here, in order:
 1. **Prompt file**. Per the `workflow.md` rule you just installed, every artifact-producing request gets a prompt file. The bootstrap is an artifact-producing request. Create:
 
    ```text
-   .claude/prompts/<unix-timestamp>.bootstrap_project.md
+   .docs/prompts/<unix-timestamp>.bootstrap_project.md
    ```
 
    Use `date +%s` for the timestamp. Use the standard prompt-file shape (described in `workflow.md`): three sections — `# Request`, `## Reasoning`, `## Output`. Be specific about what was written and which interview answers shaped the output. On re-run, the prompt file documents what *changed* in this re-bootstrap (which Canon files were refreshed, which Mixed files were merged/kept/overwritten, which new flags landed).
 
-2. **Persisted answers**. Write `.claude/bootstrap.json` with the captured interview answers (see Part 4 template). On first-time mode this is the initial write; on re-run mode it merges new answers with existing ones. This file is committed (project-shared) so future re-runs and other agent sessions can reuse it.
+2. **Persisted answers**. Write `.agents/bootstrap.json` with the captured interview answers (see Part 4 template). On first-time mode this is the initial write; on re-run mode it merges new answers with existing ones. This file is committed (project-shared) so future re-runs and other agent sessions can reuse it.
 
 ### Step 6. First commit
 
-- Stage explicitly: `git add CLAUDE.md .claude/ .docs/`. Never `git add -A` or `git add .`.
+- Stage explicitly: `git add AGENTS.md .agents/ .docs/` plus any per-tool adapters written based on `AGENTS_USED` — `CLAUDE.md` and `.claude/` (if `CLAUDE`), `.cursor/` (if `CURSOR`), `.aider.conf.yml` (if `AIDER`), `.continue/` (if `CONTINUE`), `.windsurfrules` (if `WINDSURF`), `.github/copilot-instructions.md` (if `COPILOT`), and any root-level config files written this run (`.gitignore`, `.editorconfig`, `Makefile`, manifest, linter configs, etc.). Never `git add -A` or `git add .`.
 - Commit message:
 
   ```text
-  Bootstrap project with Claude Code workflow conventions
+  Bootstrap project with agentic workflow conventions
   ```
 
 - Include a co-author trailer for your agent host (e.g. `Co-Authored-By: Claude <noreply@anthropic.com>`). The discipline is to *include one*; the exact string depends on which agent is running this.
@@ -120,21 +129,21 @@ Two writes here, in order:
 
 In one short paragraph:
 
-- **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), the natural next step — usually: open `CLAUDE.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`.docs/adrs/0001-<slug>.md`).
-- **Re-run mode**: which Canon files were refreshed, which Mixed files were merged / kept / overwritten / skipped (with per-file user decisions), which Sacred files were preserved untouched, which new interview keys landed in `.claude/bootstrap.json`. Also flag any Sacred files that were missing on disk (the user may want to re-scaffold from the template manually).
+- **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), which per-tool adapters were written (from `AGENTS_USED`), the natural next step — usually: open `AGENTS.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`.docs/adrs/0001-<slug>.md`).
+- **Re-run mode**: which Canon files were refreshed, which Mixed files were merged / kept / overwritten / skipped (with per-file user decisions), which Sacred files were preserved untouched, which new interview keys landed in `.agents/bootstrap.json`. Also flag any Sacred files that were missing on disk (the user may want to re-scaffold from the template manually).
 
 ### Update-mode quick reference
 
 What to remember about idempotent re-runs in practice:
 
 1. **Re-runs are safe to ask for.** Tell the user *"feel free to re-run this bootstrap whenever the file is updated — nothing user-owned will be touched."* That's the contract.
-2. **`.claude/bootstrap.json` is the answer cache.** Adding a new interview question in a future bootstrap version means existing projects will be asked *only* that new question on their next re-run.
+2. **`.agents/bootstrap.json` is the answer cache.** Adding a new interview question in a future bootstrap version means existing projects will be asked *only* that new question on their next re-run.
 3. **Canon vs Mixed vs Sacred is the contract on user-edits**:
    - Edited a Canon file (a rule, an ADR template, the security methodology)? Your edit is at risk of being silently overwritten on re-run. If the edit is load-bearing, **upstream the change into this bootstrap** instead of locally diverging — see Part 6.
    - Edited a Mixed file (settings.json, gitignore, Makefile, linter config)? The re-run will diff and ask. Your edit is safe unless you actively pick "overwrite".
-   - Edited a Sacred file (CLAUDE.md, README, code, real ADRs, todos)? Never touched on re-run, ever.
+   - Edited a Sacred file (AGENTS.md, CLAUDE.md, README, code, real ADRs, todos)? Never touched on re-run, ever.
 4. **Wipe-and-recreate is a separate flow.** The user can say *"treat this as first-time mode"* to force a clean rebuild — the agent backs up the existing config dirs before doing it. Don't assume re-run mode handles this case silently.
-5. **The persisted answers file is committed.** Team members re-running on a shared checkout reuse the same answers — they only get re-asked for newly-added interview keys. If a team member wants different per-machine settings, they layer them in `.claude/settings.local.json` (gitignored), not by changing `.claude/bootstrap.json`.
+5. **The persisted answers file is committed.** Team members re-running on a shared checkout reuse the same answers — they only get re-asked for newly-added interview keys. If a team member wants different per-machine settings, they layer them in `.claude/settings.local.json` (gitignored), not by changing `.agents/bootstrap.json`.
 
 ---
 
@@ -148,45 +157,61 @@ Questions are grouped into six tiers reflecting how they're used: **bootstrap be
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q1 | **Project name + one-line purpose.** "What's the project called, and what does it do in one sentence?" | `CLAUDE.md` title + purpose stub |
-| Q2 | **Claude Code permission posture?** "Single-pick controlling `.claude/settings.json` content. **Cautious** (`{}`): every action prompts; safest for shared / team / open-source projects. **Read-only autonomy**: pre-allow read-only Bash (ls, cat, grep, find, git status/log/diff/show); investigation friction-free, writes still prompt. **Trusted dev**: read-only + safe git workflow + language-specific build/test commands picked from Q3 `LANG` (`uv:*` / `npm:*` / `go:*` / `cargo:*`); daily dev no prompts; force-push / hard-reset / clean -f still require approval via `deny` patterns. **Full bypass**: `defaultMode: bypassPermissions`, no prompts ever; only safe in dedicated dev VMs / containers / trusted personal workspaces." Asked early so the chosen posture takes effect for the rest of the bootstrap's file writes. | `POSTURE` value in `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS}`. Picks the `.claude/settings.json` template variant. All variants pin `model: claude-opus-4-7`. |
+| Q1 | **Project name + one-line purpose.** "What's the project called, and what does it do in one sentence?" | `AGENTS.md` title + purpose stub. `{{PROJECT_NAME}}` also flows into every per-tool adapter that names the project. |
+| Q2 | **Which agentic coding assistants will work in this repo?** "Multi-pick. The bootstrap writes one tool-agnostic spine (`AGENTS.md` + `.agents/rules/`) plus thin per-tool adapter files for whichever assistants you pick. Pick at least one. **Claude Code** (`CLAUDE.md` adapter + `.claude/settings.json`); **Cursor** (`.cursor/rules/agents.mdc` adapter); **Aider** (`.aider.conf.yml` with `read:` list); **OpenAI Codex CLI** (reads `AGENTS.md` natively — no extra file); **OpenCode** (reads `AGENTS.md` natively — no extra file); **Continue.dev** (`.continue/config.json` rules entry); **Windsurf** (`.windsurfrules` adapter); **GitHub Copilot** (`.github/copilot-instructions.md` adapter)." Asked early — it gates Q3 and decides which adapters get written. | `AGENTS_USED` set — any subset of `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the conditional dispatch for every per-tool adapter file. |
+| Q3 | **Claude Code permission posture?** *(asked only if `CLAUDE ∈ AGENTS_USED`; otherwise skip — set `POSTURE=N_A` and don't write `.claude/settings.json`).* "Single-pick controlling `.claude/settings.json` content. **Cautious** (`{}`): every action prompts; safest for shared / team / open-source projects. **Read-only autonomy**: pre-allow read-only Bash (ls, cat, grep, find, git status/log/diff/show); investigation friction-free, writes still prompt. **Trusted dev**: read-only + safe git workflow + language-specific build/test commands picked from Q4 `LANG` (`uv:*` / `npm:*` / `go:*` / `cargo:*`); daily dev no prompts; force-push / hard-reset / clean -f still require approval via `deny` patterns. **Full bypass**: `defaultMode: bypassPermissions`, no prompts ever; only safe in dedicated dev VMs / containers / trusted personal workspaces." Asked early so the chosen posture takes effect for the rest of the bootstrap's file writes. | `POSTURE` value in `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS, N_A}`. Picks the `.claude/settings.json` template variant. `N_A` skips the file. All non-`N_A` variants pin `model: claude-opus-4-7`. |
 
 ### Project identity
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q3 | **Language / runtime.** "Python / TypeScript / Go / Rust / something else / mixed?" | `CLAUDE.md` run section, `best-practices.md` idioms. Drives the multi-variant dispatch for `.gitignore`, manifest + test scaffold, linter configs, `Makefile`, and the `POSTURE=TRUSTED_DEV` language-specific allow addendum. |
-| Q4 | **Architecture shape?** "What's the primary code organisation? Single-pick from: **4-Layer DDD** (presentation → application → domain ← infrastructure + shared — non-trivial backends with multiple I/O surfaces); **Classical 3-Tier** (presentation / business / data — simpler CRUD apps, Rails/Django/.NET-style); **SPA frontend** (components / pages / hooks / services / types — React/Vue/Svelte conventional layout); **Flat** (no layering, modules organised by topic — CLIs, libraries, small scripts). If none fits, say so — the agent will write a minimal stub capturing the user's own description for them to expand post-bootstrap." | `ARCH` flag — value in `{4_LAYER_DDD, 3_TIER, SPA, FLAT, OTHER}`. Derived `LAYERED` = (ARCH ≠ FLAT). Controls which `layered-architecture.md` template gets written and the CLAUDE.md / best-practices.md refs. |
+| Q4 | **Language / runtime.** "Python / TypeScript / Go / Rust / something else / mixed?" | `AGENTS.md` run section, `best-practices.md` idioms. Drives the multi-variant dispatch for `.gitignore`, manifest + test scaffold, linter configs, `Makefile`, and the `POSTURE=TRUSTED_DEV` language-specific allow addendum. |
+| Q5 | **Architecture shape?** "What's the primary *internal* code organisation of this codebase? Single-pick from: **4-Layer DDD** (presentation → application → domain ← infrastructure + shared — non-trivial backends with multiple I/O surfaces); **Classical 3-Tier** (presentation / business / data — simpler CRUD apps, Rails/Django/.NET-style); **SPA frontend** (components / pages / hooks / services / types — React/Vue/Svelte conventional layout); **Flat** (no layering, modules organised by topic — CLIs, libraries, small scripts). If none fits, say so — the agent will write a minimal stub capturing the user's own description for them to expand post-bootstrap. **If the user answers with a system-topology word instead** (microservices, serverless / FaaS, monorepo, modular monolith, distributed, SOA), drop into the disambiguation below before settling on `ARCH`." | `ARCH` flag — value in `{4_LAYER_DDD, 3_TIER, SPA, FLAT, MONOREPO, SERVERLESS, OTHER}`. Derived `LAYERED` = (ARCH ≠ FLAT). Controls which `layered-architecture.md` template gets written and the `AGENTS.md` / `best-practices.md` rule-ref lines. |
+
+#### Q5 disambiguation — when the user answers with system topology
+
+Q5 asks how code is organised *inside* this codebase. Topology answers — **microservices**, **serverless / FaaS**, **monorepo**, **modular monolith**, **distributed**, **SOA** — answer a different question. Don't silently coerce them into one of Q5's options; ask one follow-up to pick the scenario that actually fits, then route:
+
+| User's clarification | Route to |
+| --- | --- |
+| "This repo is one service among many (poly-repo, or a single microservice in a larger ecosystem)." | Re-ask Q5's normal options for **this service's** internal layering. From the bootstrap's POV the repo is just a single codebase; the surrounding ecosystem doesn't change what we write here. |
+| "This repo is a monorepo containing multiple sub-projects / services / apps." | `ARCH=MONOREPO`. Top-level `layered-architecture.md` documents the monorepo layout and the discipline for adding sub-projects; each sub-project picks its own internal architecture when added (re-run the bootstrap inside the sub-project, or capture the choice in an ADR). |
+| "Modular monolith — single deployable now, designed to be split into services later." | `ARCH=4_LAYER_DDD` (the layering that maps cleanest to bounded contexts). Note in the Step 5 prompt file that bounded-context boundaries are intentional and should be preserved when adding new code. |
+| "Serverless / functions / FaaS — handlers per route / event / schedule, no long-running service." | `ARCH=SERVERLESS`. A handlers-first template gets written. |
+| "I want microservices but haven't picked services yet" / "I just want clean separation of concerns." | Re-ask Q5's normal options. The likely fit is `4_LAYER_DDD` — a well-organised monolith with clear seams the user can split later. |
+| "None of the above — I want to describe it myself." | `ARCH=OTHER`. Capture the user's one-paragraph description as a minimal stub. |
+
+The disambiguation is one shot, not a tree. If the clarification still doesn't fit a row above, fall through to `OTHER` and capture the user's own description.
 
 ### Project shape properties
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q5 | **Web app?** "Does the project expose an HTTP surface (web app, REST/GraphQL API, OAuth, sessions, browser-rendered HTML)? Used to gate web-specific rubric sub-sections in the security methodology (auth, CSP, CSRF, output encoding, SQL parameterisation)." | `WEB` flag — gates `methodology.md` web sub-sections |
-| Q6 | **LLM in the request path?** "Does the project run an LLM, agent, or AI tool as part of serving requests (chat, RAG, agentic workflows, in-process model inference)? Used to gate LLM-specific rubric sub-sections (prompt injection, tool agency, model supply chain, unbounded consumption)." | `LLM` flag — gates `methodology.md` LLM sub-sections |
-| Q7 | **Uses env vars / runtime secrets?** "Does the project read configuration from environment variables, manage runtime secrets, or hold credentials (database URLs, API keys, OAuth credentials, session secrets)? **Yes** for most web apps / APIs / LLM-bearing projects / CLI tools calling external services. **No** for purely static frontends (plain HTML/CSS/JS), libraries that don't ship a runtime, or scripts with no external dependencies." | `ENV_VARS` flag — gates `.env.example` |
+| Q6 | **Web app?** "Does the project expose an HTTP surface (web app, REST/GraphQL API, OAuth, sessions, browser-rendered HTML)? Used to gate web-specific rubric sub-sections in the security methodology (auth, CSP, CSRF, output encoding, SQL parameterisation)." | `WEB` flag — gates `methodology.md` web sub-sections |
+| Q7 | **LLM in the request path?** "Does the project run an LLM, agent, or AI tool as part of serving requests (chat, RAG, agentic workflows, in-process model inference)? Used to gate LLM-specific rubric sub-sections (prompt injection, tool agency, model supply chain, unbounded consumption)." | `LLM` flag — gates `methodology.md` LLM sub-sections |
+| Q8 | **Uses env vars / runtime secrets?** "Does the project read configuration from environment variables, manage runtime secrets, or hold credentials (database URLs, API keys, OAuth credentials, session secrets)? **Yes** for most web apps / APIs / LLM-bearing projects / CLI tools calling external services. **No** for purely static frontends (plain HTML/CSS/JS), libraries that don't ship a runtime, or scripts with no external dependencies." | `ENV_VARS` flag — gates `.env.example` |
 
 ### Feature gates
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q8 | **Customer-visible surfaces?** "Does the project have public surfaces that describe the product (UI, marketing pages, public docs, public API reference)? If yes, a workflow rule will require keeping them in sync with code changes in the same commit." | `CHANGES` flag — controls `workflow-changes.md` |
-| Q9 | **UI component vocabulary?** "Does the project have a UI with reusable components worth cataloguing (buttons, cards, modals, dropdowns)?" | `UI_COMPONENTS` flag — controls `ui-components.md` |
-| Q10 | **Governed metrics?** "Does the project emit metering / observability events where names and labels matter (user analytics, billing-tied counters, cardinality-sensitive dashboards)?" | `METRICS` flag — controls `workflow-metrics.md` |
+| Q9 | **Customer-visible surfaces?** "Does the project have public surfaces that describe the product (UI, marketing pages, public docs, public API reference)? If yes, a workflow rule will require keeping them in sync with code changes in the same commit." | `CHANGES` flag — controls `workflow-changes.md` |
+| Q10 | **UI component vocabulary?** "Does the project have a UI with reusable components worth cataloguing (buttons, cards, modals, dropdowns)?" | `UI_COMPONENTS` flag — controls `ui-components.md` |
+| Q11 | **Governed metrics?** "Does the project emit metering / observability events where names and labels matter (user analytics, billing-tied counters, cardinality-sensitive dashboards)?" | `METRICS` flag — controls `workflow-metrics.md` |
 
 ### Repository metadata
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q11 | **License?** "Single-pick: **MIT** (permissive, most popular OSS), **Apache 2.0** (permissive + explicit patent grant — preferred for larger projects), **Proprietary** (all rights reserved, internal use only), **Skip** (no LICENSE file)." **If LICENSE ≠ SKIP**, also ask: *"Who is the copyright holder? (person name or organisation — used in the LICENSE file's copyright line.)"* | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
-| Q12 | **Accepting external contributions?** "yes / no. If yes, scaffold `CONTRIBUTING.md` with a stub covering dev setup, branch / PR conventions, code style pointer, and how to file issues. If no (internal / personal project), skip the file." | `CONTRIB` flag — controls `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
+| Q12 | **License?** "Single-pick: **MIT** (permissive, most popular OSS), **Apache 2.0** (permissive + explicit patent grant — preferred for larger projects), **Proprietary** (all rights reserved, internal use only), **Skip** (no LICENSE file)." **If LICENSE ≠ SKIP**, also ask: *"Who is the copyright holder? (person name or organisation — used in the LICENSE file's copyright line.)"* | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
+| Q13 | **Accepting external contributions?** "yes / no. If yes, scaffold `CONTRIBUTING.md` with a stub covering dev setup, branch / PR conventions, code style pointer, and how to file issues. If no (internal / personal project), skip the file." | `CONTRIB` flag — controls `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
 
 ### Free-form details
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q13 | **Run instructions.** "What's the command(s) to run locally? Any major system prerequisites (ffmpeg, postgres, GPU, …)?" | `CLAUDE.md` run section |
-| Q14 | **Anything else load-bearing for CLAUDE.md?** Persistence story, security notes, deployment, dependencies, model swap-points — anything top-of-mind the agent should re-read on every cold start. | `CLAUDE.md` extra sections |
+| Q14 | **Run instructions.** "What's the command(s) to run locally? Any major system prerequisites (ffmpeg, postgres, GPU, …)?" | `AGENTS.md` run section |
+| Q15 | **Anything else load-bearing for the brief?** Persistence story, security notes, deployment, dependencies, model swap-points — anything top-of-mind the agent should re-read on every cold start. | `AGENTS.md` extra sections |
 
 ---
 
@@ -201,37 +226,42 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 
 | File | Type | Trigger | Re-run |
 | --- | --- | --- | --- |
-| `CLAUDE.md` | Always | — | S |
-| `.claude/rules/workflow.md` | Always | — | C |
-| `.claude/rules/workflow-todos.md` | Always | — | C |
-| `.claude/rules/workflow-security.md` | Always | — | C |
-| `.claude/rules/best-practices.md` | Always | — | C |
+| `AGENTS.md` | Always | the primary cross-tool project brief — title, purpose, run, architecture map, rule pointers | S |
+| `.agents/rules/workflow.md` | Always | — | C |
+| `.agents/rules/workflow-todos.md` | Always | — | C |
+| `.agents/rules/workflow-security.md` | Always | — | C |
+| `.agents/rules/best-practices.md` | Always | — | C |
+| `.agents/bootstrap.json` | Always | persisted interview answers; written in Step 5 | C |
+| `CLAUDE.md` | Conditional | written if `CLAUDE ∈ AGENTS_USED`. Thin adapter pointing at `AGENTS.md` + `.agents/rules/`. | S |
+| `.claude/settings.json` | Conditional | written if `CLAUDE ∈ AGENTS_USED` **and** Q3 `POSTURE ≠ N_A`. Content variant picked by `POSTURE`. All non-`N_A` variants pin `model: claude-opus-4-7`. `TRUSTED_DEV` also dispatches on Q4 `LANG` for the language-specific allow addendum. | M |
+| `.cursor/rules/agents.mdc` | Conditional | written if `CURSOR ∈ AGENTS_USED`. Thin adapter (always-include glob) pointing at `AGENTS.md` + `.agents/rules/*`. | C |
+| `.aider.conf.yml` | Conditional | written if `AIDER ∈ AGENTS_USED`. Sets `read:` list to always include `AGENTS.md` + `.agents/rules/*.md`. | M |
+| `.continue/config.json` | Conditional | written if `CONTINUE ∈ AGENTS_USED`. Minimal config with a `rules` entry pointing at `AGENTS.md` + `.agents/rules/`. | M |
+| `.windsurfrules` | Conditional | written if `WINDSURF ∈ AGENTS_USED`. Thin adapter pointing at `AGENTS.md` + `.agents/rules/`. | C |
+| `.github/copilot-instructions.md` | Conditional | written if `COPILOT ∈ AGENTS_USED`. Thin adapter inlining the AGENTS.md pointer + rules summary (Copilot does not follow file refs). | C |
 | `.docs/adrs/README.md` | Always | — | M |
 | `.docs/adrs/0000-adr-template.md` | Always | — | C |
 | `.docs/todos/README.md` | Always | — | C |
 | `.docs/security/methodology.md` | Always | sub-sections gated by `WEB` and `LLM` flags | C |
-| `.gitignore` | Always | content variant picked by Q3 `LANG`; OS / editor sweep is universal | M |
-| `.env.example` | Opt-in | Q7 = yes (`ENV_VARS`). Skipped for purely static frontends, libraries, and scripts with no runtime config. | S |
+| `.gitignore` | Always | content variant picked by Q4 `LANG`; OS / editor sweep is universal | M |
+| `.env.example` | Opt-in | Q8 = yes (`ENV_VARS`). Skipped for purely static frontends, libraries, and scripts with no runtime config. | S |
 | `.editorconfig` | Always | universal | C |
 | `README.md` | Always | public-facing project intro; minimal stub | S |
-| `LICENSE` | Conditional | written if Q11 `LICENSE != SKIP`. Content variant picked by `LICENSE` value (MIT / APACHE_2_0 / PROPRIETARY). | S |
-| `AGENTS.md` | Always | cross-tool convention pointer to `CLAUDE.md` | C |
-| `.claude/settings.json` | Always | content variant picked by Q2 `POSTURE`. All variants pin `model: claude-opus-4-7`. `TRUSTED_DEV` also dispatches on Q3 `LANG` for the language-specific allow addendum. | M |
-| `.claude/bootstrap.json` | Always | persisted interview answers; written in Step 5 | C |
-| `<manifest>` + `tests/` scaffold | Always | manifest filename + test layout dispatched by Q3 `LANG` | S |
-| `<linter configs>` | Always | content variants picked by Q3 `LANG` (`ruff.toml` / `eslint.config.js` + `.prettierrc.json` / `.golangci.yml` / `rustfmt.toml` / skip) | M |
-| `Makefile` | Always | content variant picked by Q3 `LANG` | M |
+| `LICENSE` | Conditional | written if Q12 `LICENSE != SKIP`. Content variant picked by `LICENSE` value (MIT / APACHE_2_0 / PROPRIETARY). | S |
+| `<manifest>` + `tests/` scaffold | Always | manifest filename + test layout dispatched by Q4 `LANG` | S |
+| `<linter configs>` | Always | content variants picked by Q4 `LANG` (`ruff.toml` / `eslint.config.js` + `.prettierrc.json` / `.golangci.yml` / `rustfmt.toml` / skip) | M |
+| `Makefile` | Always | content variant picked by Q4 `LANG` | M |
 | `.pre-commit-config.yaml` | Always | universal (whitespace + YAML/JSON/TOML syntax + gitleaks); user layers language-specific hooks later | M |
 | `SECURITY.md` | Always | universal; private vulnerability disclosure | S |
 | `.gitattributes` | Always | universal; line-ending normalisation + binary detection + linguist hints | C |
 | `CHANGELOG.md` | Always | universal; Keep a Changelog format | S |
-| `CODE_OF_CONDUCT.md` | Opt-in | Q12 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
-| `CONTRIBUTING.md` | Opt-in | Q12 = yes (`CONTRIB`) | S |
-| `.claude/prompts/<ts>.bootstrap_project.md` | Always | written in Step 5 | N |
-| `.claude/rules/layered-architecture.md` | Opt-in | Q4 ≠ FLAT (`LAYERED` derived). Template variant picked by `ARCH` value. | C |
-| `.claude/rules/workflow-changes.md` | Opt-in | Q8 = yes (`CHANGES`) | C |
-| `.claude/rules/ui-components.md` | Opt-in | Q9 = yes (`UI_COMPONENTS`) | C |
-| `.claude/rules/workflow-metrics.md` | Opt-in | Q10 = yes (`METRICS`) | C |
+| `CODE_OF_CONDUCT.md` | Opt-in | Q13 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
+| `CONTRIBUTING.md` | Opt-in | Q13 = yes (`CONTRIB`) | S |
+| `.docs/prompts/<ts>.bootstrap_project.md` | Always | written in Step 5 | N |
+| `.agents/rules/layered-architecture.md` | Opt-in | Q5 ≠ FLAT (`LAYERED` derived). Template variant picked by `ARCH` value — `4_LAYER_DDD`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS`, or `OTHER` stub. | C |
+| `.agents/rules/workflow-changes.md` | Opt-in | Q9 = yes (`CHANGES`) | C |
+| `.agents/rules/ui-components.md` | Opt-in | Q10 = yes (`UI_COMPONENTS`) | C |
+| `.agents/rules/workflow-metrics.md` | Opt-in | Q11 = yes (`METRICS`) | C |
 
 ---
 
@@ -241,59 +271,42 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 ---
 
-### Template: `CLAUDE.md`
+### Template: `CLAUDE.md` *(written only if `CLAUDE ∈ AGENTS_USED`)*
+
+A thin Claude-specific adapter. The full brief — purpose, rules, run, architecture map — lives in `AGENTS.md`. Claude Code follows `@`-prefixed file references natively, so the rules under `.agents/rules/` get auto-loaded via the include below.
 
 ````markdown
-# {{PROJECT_NAME}}
+# {{PROJECT_NAME}} — Claude Code adapter
 
-{{ONE_LINE_PURPOSE}}
+This project's primary agent brief lives in [`AGENTS.md`](./AGENTS.md). Treat that file as the source of truth — title, purpose, run instructions, architecture map, rule pointers.
 
-## Purpose
+Always follow the rules under `.agents/rules/`:
 
-[Expand the one-line purpose into a paragraph the agent reads on every cold start — what this project IS, who it's for, the core concepts and vocabulary, the main external dependencies (libraries, models, services). Replace this stub during bootstrap or in a follow-up commit.]
+@AGENTS.md
+@.agents/rules/workflow.md
+@.agents/rules/workflow-todos.md
+@.agents/rules/workflow-security.md
+@.agents/rules/best-practices.md
+{{IF_LAYERED}}@.agents/rules/layered-architecture.md
+{{IF_CHANGES}}@.agents/rules/workflow-changes.md
+{{IF_UI_COMPONENTS}}@.agents/rules/ui-components.md
+{{IF_METRICS}}@.agents/rules/workflow-metrics.md
 
-## Rules
-
-Always follow the rules in `.claude/rules/`:
-
-- [`workflow.md`](.claude/rules/workflow.md) — every artifact-producing request gets a timestamped prompt file under `.claude/prompts/`, an optional new-or-updated ADR under `.docs/adrs/`, telemetry kept current (logs added/updated for new and changed code paths, at log levels that match each event's signal — DEBUG / INFO / WARNING / ERROR / CRITICAL — with sensitive-data redaction discipline covering credentials, PII, billing identifiers, and request bodies), a single git commit bundling the lot, and a push. Also defines how do-later ideas get captured proactively.
-- [`workflow-todos.md`](.claude/rules/workflow-todos.md) — the discipline for managing deferred ideas. Entries live as one file per idea under [`.docs/todos/`](.docs/todos/). Capture entries proactively when the user defers something ("for now / later / hold this"), sweep entries when a commit satisfies their *Revisit when* trigger, `git rm` rather than archive (git log is canonical).
-- [`workflow-security.md`](.claude/rules/workflow-security.md) — companion to `workflow.md` for security-sensitive changes. Before commit, walk the rubric in [`.docs/security/methodology.md`](.docs/security/methodology.md) for surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full audits live as dated sibling files under `.docs/security/<YYYY-MM-DD>-<slug>.md` and re-run on cadence.
-- [`best-practices.md`](.claude/rules/best-practices.md) — naming, dependency injection, repository / service patterns, language idioms, do/don't lists.
-{{IF_LAYERED}}- [`layered-architecture.md`](.claude/rules/layered-architecture.md) — `presentation → application → domain ← infrastructure`, plus `shared` available to all but depending on none. Inward dependencies only.
-{{IF_CHANGES}}- [`workflow-changes.md`](.claude/rules/workflow-changes.md) — companion to `workflow.md` for *product-affecting* changes. When a change alters anything a user can see, the surfaces that describe it must move in the same commit.
-{{IF_UI_COMPONENTS}}- [`ui-components.md`](.claude/rules/ui-components.md) — catalog of canonical UI affordances. Before adding a new affordance, check the catalog and clone the canonical file's shape; never invent a one-off variant inline.
-{{IF_METRICS}}- [`workflow-metrics.md`](.claude/rules/workflow-metrics.md) — companion to `workflow.md` for *metering* changes. Adding / modifying / removing a metered event must move surfaces in lockstep — constant, call site, catalog row, display side — all in the same commit. Cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable.
-
-Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
-
-## Run
-
-{{RUN_INSTRUCTIONS}}
-
-## Architecture map
-
-[Short pointer to where the main pieces live. Add an `ARCHITECTURE.md` at the repo root if the project grows enough to need its own tree + diagram.]
-
-## Conventions (summary)
-
-See [`.claude/rules/best-practices.md`](.claude/rules/best-practices.md) for full detail.
-
-{{ADDITIONAL_SECTIONS_FROM_INTERVIEW}}
+When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as a thin pointer rather than a parallel brief.
 ````
 
 ---
 
-### Template: `.claude/rules/workflow.md`
+### Template: `.agents/rules/workflow.md`
 
 ````markdown
 # Workflow
 
-This rule defines the naming, contents, and ordering of the per-request artifacts so `git log`, `ls .claude/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
+This rule defines the naming, contents, and ordering of the per-request artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
 
 Every user request that changes files in this repository produces, all bundled into a single commit and pushed:
 
-- A **prompt file** under `.claude/prompts/` capturing what was asked and why.
+- A **prompt file** under `.docs/prompts/` capturing what was asked and why.
 - **The code, config, or docs** the request produced.
 - When the change is architecturally significant — a new module, library, layer, or pattern, or a meaningful change to one — a **new or updated ADR** under `.docs/adrs/`.
 - **Telemetry** kept current — new behaviour gets new logs, changed behaviour gets existing logs updated, deleted behaviour gets its logs removed, at log levels that match each event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with sensitive-data redaction discipline (credentials, PII, request bodies — anything that shouldn't ride a wire to a third-party log service).
@@ -322,7 +335,7 @@ If a conversation starts as chitchat but later produces an artifact, the rule ki
 
 ## 1. Create a prompt file
 
-For each user request, write a file to `.claude/prompts/` using the pattern:
+For each user request, write a file to `.docs/prompts/` using the pattern:
 
 ```
 <unix-timestamp>.<snake_case_slug>.md
@@ -498,7 +511,7 @@ Security has its own companion rule: `workflow-security.md`. The short version: 
 
 Once the work is done, create a git commit that includes:
 
-- The prompt file (`.claude/prompts/<ts>.<slug>.md`).
+- The prompt file (`.docs/prompts/<ts>.<slug>.md`).
 - Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
 - Every other file produced or modified while handling the request.
 
@@ -537,7 +550,7 @@ Exception: if the push is destructive (force-push to a shared branch, rewriting 
 
 ## Why this rule exists
 
-The `.claude/prompts/` history doubles as a per-request decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of how the project evolved, and each prompt maps to exactly one commit so `git log` and `ls .claude/prompts/` stay aligned.
+The `.docs/prompts/` history doubles as a per-request decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of how the project evolved, and each prompt maps to exactly one commit so `git log` and `ls .docs/prompts/` stay aligned.
 
 The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what happened on day N?"*.
 
@@ -550,7 +563,7 @@ Default to new commits. Amending is acceptable only when fixing a commit that ha
 
 ---
 
-### Template: `.claude/rules/workflow-todos.md`
+### Template: `.agents/rules/workflow-todos.md`
 
 ````markdown
 # Workflow — Do-Later Ideas
@@ -611,7 +624,7 @@ The 3–5+-sentence minimum on **Context** is load-bearing. *AI agents satisfice
 **Cross-references** in `Refs` and `Context` use repo-relative paths from `.docs/todos/`:
 
 - ADRs: `../adrs/<NNNN>-<slug>.md`
-- Prompts: `../../.claude/prompts/<ts>.<slug>.md`
+- Prompts: `../../.docs/prompts/<ts>.<slug>.md`
 - Code: `../../<layer>/<path>.<ext>`
 - Sibling docs: `../<dir>/<file>.md`
 
@@ -655,7 +668,7 @@ The shape is the contract: every entry shows its back-story, its blocker, its tr
 
 ---
 
-### Template: `.claude/rules/workflow-security.md`
+### Template: `.agents/rules/workflow-security.md`
 
 ````markdown
 # Workflow: keeping security checks honest
@@ -736,7 +749,7 @@ Coupling the rubric to every security-relevant commit (lightweight, surface-scop
 
 ---
 
-### Template: `.claude/rules/best-practices.md`
+### Template: `.agents/rules/best-practices.md`
 
 ````markdown
 # Best Practices
@@ -747,7 +760,7 @@ Patterns and conventions established in this project. Apply them when adding new
 
 {{IF_LAYERED}}### Layered architecture
 {{IF_LAYERED}}
-{{IF_LAYERED}}Follow [`.claude/rules/layered-architecture.md`](./layered-architecture.md) for the project's layer names and dependency direction. Whatever the chosen shape (4-Layer DDD, 3-Tier, SPA, …), dependencies flow in one direction only; reverse imports break the layering. The architecture rule names the layers, the responsibilities of each, and the import arrows; this best-practices file just enforces *that you follow the rule*.
+{{IF_LAYERED}}Follow [`.agents/rules/layered-architecture.md`](./layered-architecture.md) for the project's layer names and dependency direction. Whatever the chosen shape (4-Layer DDD, 3-Tier, SPA, …), dependencies flow in one direction only; reverse imports break the layering. The architecture rule names the layers, the responsibilities of each, and the import arrows; this best-practices file just enforces *that you follow the rule*.
 {{IF_LAYERED}}
 
 ### Repository pattern
@@ -808,14 +821,14 @@ Business logic lives in services (classes, or module-level functions for genuine
 - Don't compute logic inside route handlers — delegate to application services.
 - Don't add comments that restate the code; only document non-obvious *why*.
 - Don't reach for a custom decorator/metaclass when a plain function or class fits.
-{{IF_LAYERED}}- Don't mix layers — see [`.claude/rules/layered-architecture.md`](./layered-architecture.md) for the project's dependency direction. Reverse imports break the layering.
+{{IF_LAYERED}}- Don't mix layers — see [`.agents/rules/layered-architecture.md`](./layered-architecture.md) for the project's dependency direction. Reverse imports break the layering.
 - Don't track build artifacts or virtual envs in git — gitignore them.
-- Don't bundle multiple unrelated changes in one commit; one prompt + one commit per request (see `.claude/rules/workflow.md`).
+- Don't bundle multiple unrelated changes in one commit; one prompt + one commit per request (see `.agents/rules/workflow.md`).
 ````
 
 ---
 
-### Template: `.claude/rules/layered-architecture.md` — variant for `ARCH=4_LAYER_DDD`
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=4_LAYER_DDD`
 
 ````markdown
 # Layered Architecture (4-Layer DDD)
@@ -828,7 +841,8 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 
 ```txt
 {project-folder}/
-├── .claude/                            # Agent config: rules, prompts, settings
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
 ├── .docs/                              # ADRs, todos, project docs
 ├── .python-version / .nvmrc / etc.     # Language/runtime version pin
 ├── .gitignore
@@ -909,7 +923,7 @@ If an import would break the arrows above, the layering is wrong — fix the dep
 
 ---
 
-### Template: `.claude/rules/layered-architecture.md` — variant for `ARCH=3_TIER`
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=3_TIER`
 
 ````markdown
 # Layered Architecture (Classical 3-Tier)
@@ -922,7 +936,8 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 
 ```txt
 {project-folder}/
-├── .claude/                            # Agent config: rules, prompts, settings
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
 ├── .docs/                              # ADRs, todos, project docs
 ├── .gitignore
 ├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
@@ -994,7 +1009,7 @@ When that happens, the project is outgrowing 3-Tier. The migration is mechanical
 
 ---
 
-### Template: `.claude/rules/layered-architecture.md` — variant for `ARCH=SPA`
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=SPA`
 
 ````markdown
 # Frontend Architecture (SPA)
@@ -1007,7 +1022,8 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 
 ```txt
 {project-folder}/
-├── .claude/                            # Agent config: rules, prompts, settings
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
 ├── .docs/                              # ADRs, todos, project docs
 ├── .gitignore
 ├── package.json
@@ -1094,7 +1110,144 @@ If an import would break the arrows above, the organization is wrong — refacto
 
 ---
 
-### Template: `.claude/rules/workflow-changes.md` *(opt-in, write only if `CHANGES`)*
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=MONOREPO`
+
+````markdown
+# Repository Architecture (Monorepo)
+
+This document describes the *top-level* layout of this monorepo and the discipline for adding sub-projects. **Internal** code organisation of each sub-project (4-Layer DDD, 3-Tier, SPA, Flat, Serverless, …) is **not** decided here — it's picked when the sub-project is added, captured in an ADR, and ideally has its own bootstrap re-run inside the sub-project directory.
+
+## Project Structure (Sample)
+
+Concrete entries are placeholders; rename / extend as the project takes shape.
+
+```txt
+{project-folder}/
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json (shared across sub-projects)
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED, shared across sub-projects)
+├── .docs/                              # ADRs, prompts, todos, project docs (cross-cutting)
+├── .gitignore
+├── README.md
+├── <workspace manifest>                # pnpm-workspace.yaml / package.json (workspaces) / Cargo.toml / go.work / turbo.json / nx.json
+│
+├── apps/                               # End-user-facing deployables (web apps, CLIs, mobile)
+│   └── <app-name>/
+│       ├── .agents/                    # Sub-project agent config (optional override of top-level)
+│       ├── <pkg manifest>
+│       └── …                           # Internal architecture decided per sub-project
+│
+├── services/                           # Backend / API / worker services (long-running deployables)
+│   └── <service-name>/
+│       ├── <pkg manifest>
+│       └── …                           # Internal architecture decided per sub-project
+│
+├── packages/ (or libs/)                # Shared libraries consumed by apps/ and services/
+│   └── <package-name>/
+│       ├── <pkg manifest>
+│       └── …
+│
+└── tools/                              # Build, deploy, codegen, CI helpers — not shipped to users
+```
+
+## Top-level rules
+
+- **Each sub-project owns its internal architecture.** When adding a new `apps/<name>` or `services/<name>`, re-run the bootstrap *inside* that directory, or capture the chosen layering (4-Layer DDD / 3-Tier / SPA / Flat / Serverless / Other) in an ADR under `.docs/adrs/`. Sub-projects do **not** silently inherit a top-level layering — the decision is explicit per sub-project.
+- **Dependency direction across the monorepo**: `apps/` and `services/` depend on `packages/`; `packages/` depend on each other in a DAG (no cycles); `tools/` may depend on anything (but is not depended on by anything that ships).
+- **Cross-cutting code lives in `packages/`**, never copy-pasted between sub-projects. If two sub-projects need the same helper, lift it to a package before the third user shows up.
+- **Per-sub-project deployability**. Each `apps/<name>` and `services/<name>` should be runnable and deployable on its own. Shared CI sequences sub-project pipelines but doesn't merge them.
+- **One ADR per significant cross-cutting decision** — workspace tool (npm / pnpm / yarn workspaces / nx / turborepo / cargo / go workspaces), shared linting strategy, release/versioning model (fixed vs independent), CI orchestration, cross-sub-project import boundaries. Capture in `.docs/adrs/` so the next sub-project's author understands the constraints they inherit.
+
+## When to consider promoting a sub-project out of the monorepo
+
+- Its release cadence diverges so much that monorepo CI becomes a bottleneck.
+- Its dependency graph isolates cleanly with zero `packages/` imports unique to it.
+- It needs different access control (open-source carve-out, tenant isolation, regulated workload).
+
+Capture the split as an ADR; the rest of the monorepo layout otherwise stays put.
+````
+
+---
+
+### Template: `.agents/rules/layered-architecture.md` — variant for `ARCH=SERVERLESS`
+
+````markdown
+# Serverless Architecture (Functions / FaaS)
+
+This document describes the file organisation of a serverless / function-per-handler codebase. There's no long-running server process: each handler is a leaf invoked by an HTTP route, event, queue message, or schedule. The discipline is to keep handlers **thin** (parse the platform event → call exactly one `lib/` service → format the response) and push all business and infrastructure logic into `lib/` so it's testable without standing up the platform runtime.
+
+## Project Structure (Sample)
+
+Concrete entries are placeholders; rename / extend as the project takes shape.
+
+```txt
+{project-folder}/
+├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
+├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
+├── .docs/                              # ADRs, todos, project docs
+├── .gitignore
+├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
+├── <deploy manifest>                   # serverless.yml / template.yaml (SAM) / main.tf / wrangler.toml / vercel.json
+│
+├── handlers/                           # Function entrypoints — one file per handler
+│   ├── http/                           # HTTP-triggered handlers (REST / GraphQL routes)
+│   │   └── <verb>_<resource>.<ext>
+│   ├── events/                         # Queue / topic / stream consumers
+│   │   └── <event_name>.<ext>
+│   └── scheduled/                      # Cron / timer triggers
+│       └── <task_name>.<ext>
+│
+├── lib/                                # The testable core — business + infra logic
+│   ├── services/                       # Use-case orchestrators called from handlers
+│   ├── domain/                         # Pure types / models (no I/O)
+│   ├── repositories/                   # Persistence adapters (DynamoDB / Firestore / SQL clients)
+│   └── clients/                        # External API wrappers
+│
+├── shared/                             # Cross-cutting utilities (logging, validation, errors)
+│
+└── tests/                              # Unit + integration tests against `lib/` (handlers stay thin enough to cover via lib)
+```
+
+## Handler responsibilities
+
+- **Parse + validate the platform event** (API Gateway request, SQS message, EventBridge payload, scheduled trigger). The handler unwraps the platform-specific shape; `lib/` services never see raw platform types.
+- **Call exactly one `lib/` service.** A handler that orchestrates multiple services is doing the service's job — push the orchestration down.
+- **Format the platform response.** Status codes, headers, error envelopes. Logging and tracing wrap the call.
+- **No business rules in the handler.** If a sentence like "users on the free tier can do X" appears in a handler, it belongs in a `lib/` service.
+
+## Why this matters
+
+Serverless platforms make handlers easy to add and *hard* to test directly (cold starts, runtime mocks, IAM). Keeping handlers thin means business logic stays in plain functions you can unit-test in milliseconds; integration tests against the platform are reserved for the handler ↔ platform boundary.
+
+## Dependency direction
+
+```
+handlers ──▶ lib/services ──▶ lib/domain
+                │                ▲
+                ├──▶ lib/repositories ──▶ (DB)
+                └──▶ lib/clients ──▶ (external APIs)
+
+shared ◀── (everyone — but no business logic in shared/)
+```
+
+- `handlers/` depend on `lib/` and `shared/`. Handlers do **not** import other handlers.
+- `lib/services/` depend on `lib/domain`, `lib/repositories`, `lib/clients`, `shared/`. Services do **not** import handlers.
+- `lib/domain` depends on nothing project-internal.
+- `lib/repositories` and `lib/clients` depend on `lib/domain` (to implement protocols / return domain types) and `shared/`.
+
+## The deploy manifest is part of the architecture
+
+The deploy manifest (`serverless.yml` / SAM template / Terraform / `wrangler.toml` / `vercel.json`) is **as load-bearing as the code**. Treat changes to it as architectural — they belong in ADRs when the change introduces a new trigger type, IAM scope, runtime version, network topology, or cold-start-sensitive setting.
+
+## What this rule does NOT cover
+
+- **Platform choice** (AWS Lambda / GCP Cloud Functions / Cloudflare Workers / Vercel / Netlify / Azure Functions) — that's an ADR-level decision; capture in `.docs/adrs/`.
+- **Local development story** (sam-local, serverless-offline, wrangler dev, miniflare) — document in `CLAUDE.md` Run section.
+- **State storage backend** (DynamoDB / Firestore / RDS / Postgres / KV) — ADR if it's load-bearing.
+````
+
+---
+
+### Template: `.agents/rules/workflow-changes.md` *(opt-in, write only if `CHANGES`)*
 
 ````markdown
 # Workflow: keeping product surfaces in sync
@@ -1173,7 +1326,7 @@ Documentation drift is slow and silent. A feature shipped without its surfaces u
 
 ---
 
-### Template: `.claude/rules/workflow-metrics.md` *(opt-in, write only if `METRICS`)*
+### Template: `.agents/rules/workflow-metrics.md` *(opt-in, write only if `METRICS`)*
 
 ````markdown
 # Workflow: keeping the metrics surface honest
@@ -1230,7 +1383,7 @@ Coupling the surfaces to one commit, locking the catalog as the canonical source
 
 ---
 
-### Template: `.claude/rules/ui-components.md` *(opt-in, write only if `UI_COMPONENTS`)*
+### Template: `.agents/rules/ui-components.md` *(opt-in, write only if `UI_COMPONENTS`)*
 
 ````markdown
 # UI Components
@@ -1290,7 +1443,7 @@ This directory holds the [Architecture Decision Records (ADRs)](https://cognitec
 | --- | --- | --- | --- |
 | [0000](./0000-adr-template.md) | ADR Template (do not cite) | Template | — |
 
-(Append new ADRs as `NNNN-<kebab-slug>.md` and add a row here in the same commit. See `.claude/rules/workflow.md` for when an ADR is required.)
+(Append new ADRs as `NNNN-<kebab-slug>.md` and add a row here in the same commit. See `.agents/rules/workflow.md` for when an ADR is required.)
 ````
 
 ---
@@ -1338,7 +1491,7 @@ Cross-link to related ADRs by number.
 
 This directory holds the project's deferred ideas — features the agent (or the user) suggested but didn't ship in the moment, follow-ups noted in commit messages or ADR consequence sections, scope cuts surfaced during implementation.
 
-The discipline for managing this directory is documented in `.claude/rules/workflow-todos.md`. The short version:
+The discipline for managing this directory is documented in `.agents/rules/workflow-todos.md`. The short version:
 
 - **One file per idea**, named `<kebab-case-slug>.md`. Flat — no subdirectories.
 - **Shape**: title + Area + Refs + Context (3–5+ sentences) + Deferred because + Revisit when.
@@ -1357,7 +1510,7 @@ The discipline for managing this directory is documented in `.claude/rules/workf
 
 This is the playbook for security reviews of this project. It defines the frameworks used, the order in which the codebase is walked, the severity rubric applied to findings, and the "best practice" checklist behind each check. It is intentionally evergreen: it should change only when the *approach* changes, not when a finding lands or gets fixed.
 
-Each individual audit lives in its own dated sibling file (`.docs/security/<YYYY-MM-DD>-<slug>.md`). Audit files cite this document for definitions and rubric so the findings can stay tight. The companion rule `.claude/rules/workflow-security.md` says *when* to consult this doc — both per-request (rubric pass on security-sensitive commits) and on cadence (full audits).
+Each individual audit lives in its own dated sibling file (`.docs/security/<YYYY-MM-DD>-<slug>.md`). Audit files cite this document for definitions and rubric so the findings can stay tight. The companion rule `.agents/rules/workflow-security.md` says *when* to consult this doc — both per-request (rubric pass on security-sensitive commits) and on cadence (full audits).
 
 ---
 
@@ -1903,7 +2056,7 @@ trim_trailing_whitespace = false
 
 ## Documentation
 
-- **For contributors and agents**: read [`CLAUDE.md`](./CLAUDE.md) — the cold-start brief covering architecture, conventions, and the rules under [`.claude/rules/`](./.claude/rules/).
+- **For contributors and agents**: read [`AGENTS.md`](./AGENTS.md) — the cold-start brief covering architecture, conventions, and the rules under [`.agents/rules/`](./.agents/rules/). Per-tool adapters (e.g. `CLAUDE.md`, `.cursor/rules/`, `.aider.conf.yml`) all point back to it.
 - **Architecture decisions**: see [`.docs/adrs/`](./.docs/adrs/) for the trade-offs behind structural choices.
 - **Security**: the rubric and methodology live at [`.docs/security/methodology.md`](./.docs/security/methodology.md). Dated audits are sibling files.
 
@@ -1953,7 +2106,7 @@ The agent fills `{{CURRENT_YEAR}}` from `date +%Y` and asks the user for `{{COPY
 
 ### Template: `LICENSE` — variant for `LICENSE=APACHE_2_0`
 
-Write the file with the populated header (using `{{CURRENT_YEAR}}` from `date +%Y` and `{{COPYRIGHT_HOLDER}}` from the Q11 follow-up prompt) followed by the canonical Apache 2.0 license text verbatim. The full file:
+Write the file with the populated header (using `{{CURRENT_YEAR}}` from `date +%Y` and `{{COPYRIGHT_HOLDER}}` from the Q12 follow-up prompt) followed by the canonical Apache 2.0 license text verbatim. The full file:
 
 ````text
 Copyright {{CURRENT_YEAR}} {{COPYRIGHT_HOLDER}}
@@ -2201,12 +2354,199 @@ FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 
 ### Template: `AGENTS.md`
 
+The primary, tool-agnostic agent brief. Every supported assistant (Claude Code via the `CLAUDE.md` adapter, Cursor via `.cursor/rules/`, Aider via `.aider.conf.yml`, OpenAI Codex CLI and OpenCode natively, Continue.dev via `.continue/config.json`, Windsurf via `.windsurfrules`, GitHub Copilot via `.github/copilot-instructions.md`) reads or transitively loads this file. Keep the brief here; let adapters point at it.
+
 ````markdown
-# Agent context
+# {{PROJECT_NAME}}
 
-This file exists for cross-tool compatibility — Cursor, OpenAI Codex CLI, Aider, and other agentic tools read `AGENTS.md` by convention. The canonical agent context for this project lives at [`CLAUDE.md`](./CLAUDE.md); read that file for the cold-start brief, the rules under [`.claude/rules/`](./.claude/rules/), and the architecture map.
+{{ONE_LINE_PURPOSE}}
 
-When this file and `CLAUDE.md` disagree, `CLAUDE.md` wins — keep `AGENTS.md` as a thin pointer rather than a duplicated brief.
+## Purpose
+
+[Expand the one-line purpose into a paragraph the agent reads on every cold start — what this project IS, who it's for, the core concepts and vocabulary, the main external dependencies (libraries, models, services). Replace this stub during bootstrap or in a follow-up commit.]
+
+## Rules
+
+Always follow the rules in `.agents/rules/`:
+
+- [`workflow.md`](.agents/rules/workflow.md) — every artifact-producing request gets a timestamped prompt file under `.docs/prompts/`, an optional new-or-updated ADR under `.docs/adrs/`, telemetry kept current (logs added/updated for new and changed code paths, at log levels that match each event's signal — DEBUG / INFO / WARNING / ERROR / CRITICAL — with sensitive-data redaction discipline covering credentials, PII, billing identifiers, and request bodies), a single git commit bundling the lot, and a push. Also defines how do-later ideas get captured proactively.
+- [`workflow-todos.md`](.agents/rules/workflow-todos.md) — the discipline for managing deferred ideas. Entries live as one file per idea under [`.docs/todos/`](.docs/todos/). Capture entries proactively when the user defers something ("for now / later / hold this"), sweep entries when a commit satisfies their *Revisit when* trigger, `git rm` rather than archive (git log is canonical).
+- [`workflow-security.md`](.agents/rules/workflow-security.md) — companion to `workflow.md` for security-sensitive changes. Before commit, walk the rubric in [`.docs/security/methodology.md`](.docs/security/methodology.md) for surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full audits live as dated sibling files under `.docs/security/<YYYY-MM-DD>-<slug>.md` and re-run on cadence.
+- [`best-practices.md`](.agents/rules/best-practices.md) — naming, dependency injection, repository / service patterns, language idioms, do/don't lists.
+{{IF_LAYERED}}- [`layered-architecture.md`](.agents/rules/layered-architecture.md) — `presentation → application → domain ← infrastructure`, plus `shared` available to all but depending on none. Inward dependencies only.
+{{IF_CHANGES}}- [`workflow-changes.md`](.agents/rules/workflow-changes.md) — companion to `workflow.md` for *product-affecting* changes. When a change alters anything a user can see, the surfaces that describe it must move in the same commit.
+{{IF_UI_COMPONENTS}}- [`ui-components.md`](.agents/rules/ui-components.md) — catalog of canonical UI affordances. Before adding a new affordance, check the catalog and clone the canonical file's shape; never invent a one-off variant inline.
+{{IF_METRICS}}- [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) — companion to `workflow.md` for *metering* changes. Adding / modifying / removing a metered event must move surfaces in lockstep — constant, call site, catalog row, display side — all in the same commit. Cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable.
+
+Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
+
+## Run
+
+{{RUN_INSTRUCTIONS}}
+
+## Architecture map
+
+[Short pointer to where the main pieces live. Add an `ARCHITECTURE.md` at the repo root if the project grows enough to need its own tree + diagram.]
+
+## Conventions (summary)
+
+See [`.agents/rules/best-practices.md`](.agents/rules/best-practices.md) for full detail.
+
+{{ADDITIONAL_SECTIONS_FROM_INTERVIEW}}
+````
+
+---
+
+### Template: `.cursor/rules/agents.mdc` *(written only if `CURSOR ∈ AGENTS_USED`)*
+
+A thin Cursor adapter. The frontmatter sets `alwaysApply: true` and a broad glob so Cursor includes this rule in every conversation across the workspace; the body points at `AGENTS.md` and the rules under `.agents/rules/`.
+
+````markdown
+---
+description: Cross-tool agent brief — see AGENTS.md
+globs: ["**/*"]
+alwaysApply: true
+---
+
+This project's primary agent brief lives in `AGENTS.md` at the repo root.
+
+Read these files at the start of any non-trivial task; they define the project's purpose, run instructions, architecture, and the workflow / security / best-practices rules every change must follow:
+
+- `AGENTS.md`
+- `.agents/rules/workflow.md`
+- `.agents/rules/workflow-todos.md`
+- `.agents/rules/workflow-security.md`
+- `.agents/rules/best-practices.md`
+{{IF_LAYERED}}- `.agents/rules/layered-architecture.md`
+{{IF_CHANGES}}- `.agents/rules/workflow-changes.md`
+{{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md`
+{{IF_METRICS}}- `.agents/rules/workflow-metrics.md`
+
+ADRs (architecture decisions) live under `.docs/adrs/` — read these before making structural changes. Do-later ideas live under `.docs/todos/`. Per-request prompt files live under `.docs/prompts/`.
+
+When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
+````
+
+---
+
+### Template: `.aider.conf.yml` *(written only if `AIDER ∈ AGENTS_USED`)*
+
+A minimal Aider config that always reads the brief + rule files into context. Users can layer their own model, lint, and edit-format preferences on top.
+
+````yaml
+# Aider config — keeps the cross-tool brief and rule files in context for every session.
+# See https://aider.chat/docs/config/aider_conf.html for the full option list.
+
+read:
+  - AGENTS.md
+  - .agents/rules/workflow.md
+  - .agents/rules/workflow-todos.md
+  - .agents/rules/workflow-security.md
+  - .agents/rules/best-practices.md
+{{IF_LAYERED}}  - .agents/rules/layered-architecture.md
+{{IF_CHANGES}}  - .agents/rules/workflow-changes.md
+{{IF_UI_COMPONENTS}}  - .agents/rules/ui-components.md
+{{IF_METRICS}}  - .agents/rules/workflow-metrics.md
+
+# Aider auto-commits by default; the workflow.md rule wants one commit per request
+# bundling the prompt file + ADR + code + telemetry. Leave auto-commit on, and let
+# the rule guide what goes into a single commit.
+# auto-commits: true
+
+# Add your preferred model + edit-format here, e.g.:
+# model: anthropic/claude-opus-4-7
+# edit-format: diff
+````
+
+---
+
+### Template: `.continue/config.json` *(written only if `CONTINUE ∈ AGENTS_USED`)*
+
+A minimal Continue.dev config with a `rules` block pointing at the canonical brief + rule files. Users layer their model providers and slash commands on top.
+
+````json
+{
+  "name": "{{PROJECT_NAME}}",
+  "rules": [
+    {
+      "name": "Agent brief",
+      "description": "Cross-tool project brief and workflow / best-practice rules.",
+      "globs": ["**/*"],
+      "rule": "Always read AGENTS.md and the files under .agents/rules/ before starting work. They define this project's purpose, run instructions, architecture, and the workflow / security / best-practices discipline every change must follow. ADRs live under .docs/adrs/ — consult before structural changes. Per-request prompt files go under .docs/prompts/. Do-later ideas go under .docs/todos/ as one file per entry."
+    }
+  ],
+  "context": [
+    { "provider": "file" },
+    { "provider": "code" },
+    { "provider": "diff" }
+  ],
+  "models": []
+}
+````
+
+---
+
+### Template: `.windsurfrules` *(written only if `WINDSURF ∈ AGENTS_USED`)*
+
+A thin Windsurf rules file. Windsurf reads `.windsurfrules` automatically; the body points at the canonical brief.
+
+````markdown
+# Windsurf rules — pointer to AGENTS.md
+
+This project's primary agent brief lives in `AGENTS.md` at the repo root. Read it (and the rule files it links to) before starting any non-trivial task.
+
+Always-loaded context:
+
+- `AGENTS.md` — purpose, run, architecture map, rule pointers.
+- `.agents/rules/workflow.md` — prompt file → ADR → telemetry → commit → push.
+- `.agents/rules/workflow-todos.md` — deferred ideas as one file per entry under `.docs/todos/`.
+- `.agents/rules/workflow-security.md` — security rubric pass before commit.
+- `.agents/rules/best-practices.md` — naming, DI, patterns, idioms.
+{{IF_LAYERED}}- `.agents/rules/layered-architecture.md` — layer responsibilities and dependency direction.
+{{IF_CHANGES}}- `.agents/rules/workflow-changes.md` — product-surface sync rule.
+{{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md` — canonical component vocabulary.
+{{IF_METRICS}}- `.agents/rules/workflow-metrics.md` — metering / cardinality rules.
+
+ADRs: `.docs/adrs/`. Per-request prompts: `.docs/prompts/`. Deferred ideas: `.docs/todos/`. Security audits: `.docs/security/`.
+
+When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
+````
+
+---
+
+### Template: `.github/copilot-instructions.md` *(written only if `COPILOT ∈ AGENTS_USED`)*
+
+GitHub Copilot reads `.github/copilot-instructions.md` automatically in repos but does *not* follow file references — it only sees what's inlined. The adapter therefore summarises the workflow + best-practice headlines directly and points to the canonical files for the agent (or human) to read on demand.
+
+````markdown
+# Copilot instructions — {{PROJECT_NAME}}
+
+This project follows the **agentic-bootstrap** workflow discipline. The canonical, full brief lives in [`AGENTS.md`](../AGENTS.md) and the rule files under [`.agents/rules/`](../.agents/rules/). Read those before any non-trivial change.
+
+## Workflow (summary — full text in `.agents/rules/workflow.md`)
+
+Every artifact-producing request bundles:
+
+1. A **prompt file** at `.docs/prompts/<unix-timestamp>.<slug>.md` capturing the request, reasoning, and output.
+2. A **new or updated ADR** under `.docs/adrs/` when the change is architecturally significant (new module / pattern / dependency / contract).
+3. **Telemetry kept current** — logs added/updated for new and changed code paths, at log levels matching the event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with no credentials / PII / billing IDs / request bodies in log output.
+4. A **single commit** bundling all of the above, with an explicit `git add` (never `git add -A`).
+5. A **push** to the remote when the commit succeeds.
+
+Deferred ideas go to `.docs/todos/` as one file per entry — never as inline TODO comments or undocumented promises.
+
+## Best practices (summary — full text in `.agents/rules/best-practices.md`)
+
+- Dependency injection at the composition root; never instantiate infrastructure inside business logic.
+- Repositories own data access; services own use cases; presentation orchestrates.
+- Names are intent-revealing; comments are reserved for non-obvious *why*, not *what*.
+- Tests cover behaviour at the right layer; mock at boundaries, not internals.
+
+## Security (summary — full text in `.agents/rules/workflow-security.md`)
+
+Before any security-sensitive commit, walk the rubric in [`.docs/security/methodology.md`](../.docs/security/methodology.md) for the surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full dated audits live as sibling files under `.docs/security/`.
+
+When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
 ````
 
 ---
@@ -2262,7 +2602,7 @@ Investigation (listing files, reading content, grepping, walking git history) is
 
 ### Template: `.claude/settings.json` — variant for `POSTURE=TRUSTED_DEV`
 
-Write the base template below; then append the language-specific allow entries (from the table that follows) matching Q3 `LANG` into the `permissions.allow` array before the closing bracket. If `LANG=Other / mixed`, skip the language addendum and tell the user post-bootstrap to add their toolchain's commands manually.
+Write the base template below; then append the language-specific allow entries (from the table that follows) matching Q4 `LANG` into the `permissions.allow` array before the closing bracket. If `LANG=Other / mixed`, skip the language addendum and tell the user post-bootstrap to add their toolchain's commands manually.
 
 **Base template** (all `TRUSTED_DEV` variants share this):
 
@@ -2307,7 +2647,7 @@ Write the base template below; then append the language-specific allow entries (
 }
 ````
 
-**Language-specific addenda** — append these strings to the `permissions.allow` array based on Q3 `LANG`:
+**Language-specific addenda** — append these strings to the `permissions.allow` array based on Q4 `LANG`:
 
 | `LANG` | Allow entries to append |
 | --- | --- |
@@ -2356,7 +2696,7 @@ No prompts. Ever. Every tool call auto-approved.
 
 ---
 
-### Template: `.claude/bootstrap.json`
+### Template: `.agents/bootstrap.json`
 
 Persisted interview answers. Committed (project-shared). Read on re-run (Step 0) so previously-answered questions aren't re-asked. Re-write at the end of every bootstrap (Step 5) with the merged set of old + newly-answered keys.
 
@@ -2568,7 +2908,7 @@ No manifest written. Tell the user post-bootstrap:
 ````markdown
 # Contributing to {{PROJECT_NAME}}
 
-Thanks for considering a contribution. This file covers the bare minimum to get a change landed; the deeper conventions live in [`CLAUDE.md`](./CLAUDE.md) and the rules under [`.claude/rules/`](./.claude/rules/).
+Thanks for considering a contribution. This file covers the bare minimum to get a change landed; the deeper conventions live in [`AGENTS.md`](./AGENTS.md) and the rules under [`.agents/rules/`](./.agents/rules/).
 
 ## Development setup
 
@@ -2583,7 +2923,7 @@ Thanks for considering a contribution. This file covers the bare minimum to get 
 
 ## Code style
 
-- Follow [`.claude/rules/best-practices.md`](./.claude/rules/best-practices.md) — naming, dependency injection, repository / service patterns, language idioms.
+- Follow [`.agents/rules/best-practices.md`](./.agents/rules/best-practices.md) — naming, dependency injection, repository / service patterns, language idioms.
 - Run the project's formatter and linter before opening the PR (`make lint`, `ruff check`, `eslint`, `gofmt`, `cargo fmt` — whichever applies).
 - Tests for new behaviour live next to the existing tests; the smoke test is the entry point.
 
@@ -2595,7 +2935,7 @@ Thanks for considering a contribution. This file covers the bare minimum to get 
 
 ## Architecture decisions
 
-Significant structural changes (a new library, a new layer, a new pattern, a shift in tier or pricing behaviour) need a new ADR under [`.docs/adrs/`](./.docs/adrs/) in the same PR. The discipline is described in [`.claude/rules/workflow.md`](./.claude/rules/workflow.md).
+Significant structural changes (a new library, a new layer, a new pattern, a shift in tier or pricing behaviour) need a new ADR under [`.docs/adrs/`](./.docs/adrs/) in the same PR. The discipline is described in [`.agents/rules/workflow.md`](./.agents/rules/workflow.md).
 ````
 
 ---
@@ -2641,7 +2981,7 @@ Out of scope:
 
 The project's overall security methodology, rubric, and the dated audit history live under [`.docs/security/`](./.docs/security/). See [`.docs/security/methodology.md`](./.docs/security/methodology.md) for the playbook reviewers follow.
 
-The companion workflow rule at [`.claude/rules/workflow-security.md`](./.claude/rules/workflow-security.md) describes how security-sensitive changes are reviewed during day-to-day development.
+The companion workflow rule at [`.agents/rules/workflow-security.md`](./.agents/rules/workflow-security.md) describes how security-sensitive changes are reviewed during day-to-day development.
 ````
 
 ---
@@ -2708,7 +3048,7 @@ All notable changes to this project will be documented in this file. The format 
 ## [0.1.0] — {{CURRENT_DATE_ISO}}
 
 ### Added
-- Initial project bootstrap. See `CLAUDE.md` and `.claude/rules/` for conventions.
+- Initial project bootstrap. See `AGENTS.md` and `.agents/rules/` for conventions.
 ````
 
 The agent fills `{{CURRENT_DATE_ISO}}` from `date +%Y-%m-%d`.
@@ -3125,14 +3465,15 @@ The bootstrap ships the universal hooks (whitespace, YAML/JSON/TOML syntax, secr
 
 After the agent finishes and pushes the first commit, here's what's worth doing next (not the agent — you):
 
-- **Open `CLAUDE.md`** and expand the *Purpose* paragraph. The interview gives the agent one sentence; the cold-start brief deserves a paragraph.
-- **Read the rules** under `.claude/rules/` once, end-to-end. They're load-bearing for every future request; knowing what's in there means you can tell when the agent is drifting.
+- **Open `AGENTS.md`** and expand the *Purpose* paragraph. The interview gives the agent one sentence; the cold-start brief deserves a paragraph.
+- **Read the rules** under `.agents/rules/` once, end-to-end. They're load-bearing for every future request; knowing what's in there means you can tell when the agent is drifting.
+- **Verify each picked adapter actually loads the brief in its tool.** Open the project in each assistant in `AGENTS_USED` and confirm it picks up `AGENTS.md` + the rule files — Claude follows the `@`-refs in `CLAUDE.md`, Cursor applies the `alwaysApply: true` rule in `.cursor/rules/agents.mdc`, Aider reads files listed in `.aider.conf.yml`'s `read:`, etc. If an adapter is silently ignored, that's a load-bearing gap.
 - **Write the first real ADR** (`0001-<slug>.md`) if the project starts with a load-bearing decision — framework choice, persistence story, deployment shape. Update the README index in the same commit.
 - **Schedule the first security audit.** The methodology at [`.docs/security/methodology.md`](.docs/security/methodology.md) is the playbook; the first dated audit (`.docs/security/<YYYY-MM-DD>-baseline.md`) is a useful pre-release baseline even on a small codebase. The rubric is also a usable pre-commit aid once the project has shipped its first security-sensitive surface.
-- **Grow `.claude/settings.json`** as the project's agent-host needs surface — hooks, permission allowlists, environment vars, model pin. The bootstrap leaves it as an empty `{}`; document each addition in an ADR.
+- **Grow `.claude/settings.json`** (if Claude is in `AGENTS_USED`) as the project's agent-host needs surface — hooks, permission allowlists, environment vars, model pin. The bootstrap leaves it as an empty `{}`; document each addition in an ADR.
 - **Add CI** for your hosting platform of choice — GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI, etc. The bootstrap intentionally skips CI (it's host-specific); the security methodology's "CVE scanner in CI" rubric stays aspirational until you wire one up.
 - **Lock dependencies** — run the language's lockfile generator (`uv lock`, `npm install` / `pnpm install`, `cargo build`, `go mod tidy`) and commit the resulting lockfile per `methodology.md §5.10`.
-- **Consider adding an `ARCHITECTURE.md`** at the repo root when the project grows enough to need a tree + diagram alongside CLAUDE.md.
+- **Consider adding an `ARCHITECTURE.md`** at the repo root when the project grows enough to need a tree + diagram alongside `AGENTS.md`.
 - **Update this file** (`AGENTIC_BOOTSTRAP.md`) whenever you discover a pattern worth standardising across future projects. The whole point is that the next `cd new-project && paste-this-file` reflects your latest thinking. See Part 6 for the maintenance checklist.
 
 ---
@@ -3149,7 +3490,7 @@ Every meaningful edit touches **four or five places**, in lockstep:
 1. **Part 3 (Decision matrix)** — the row that says whether the file is always-written or conditional, what triggers it, and its **Re-run policy** (Canon / Mixed / Sacred / New each run — see the legend at the top of Part 3).
 1. **Part 4 (Templates)** — the actual file content the agent writes.
 1. **Part 1 Step 4 (Dispatch)** — *only when a flag is multi-valued* (like `LANG`, `ARCH`, `LICENSE`, `POSTURE`): the dispatch paragraph that tells the agent how to pick the variant.
-1. **`.claude/bootstrap.json` template** (Part 4) — *only when a new flag / interview key is added*: extend the `answers` object so the new key gets persisted (and so existing projects know to re-ask it on next re-run, since the key is missing from their cached file).
+1. **`.agents/bootstrap.json` template** (Part 4) — *only when a new flag / interview key is added*: extend the `answers` object so the new key gets persisted (and so existing projects know to re-ask it on next re-run, since the key is missing from their cached file).
 
 Skipping any of these breaks the bootstrap: a template with no interview question is dead code; a question with no template is a dangling answer; a matrix row out of sync misleads the agent on whether to write the file; a missing Re-run policy means re-runs guess wrong about whether to overwrite or preserve user edits.
 
@@ -3162,30 +3503,30 @@ Skipping any of these breaks the bootstrap: a template with no interview questio
    - `M` (Mixed) — user expected to layer additions on top (gitignore, settings.json, Makefile, linter configs).
    - `S` (Sacred) — written once, then user-owned (README, SECURITY.md, CHANGELOG, manifests).
 2. Add the **Part 4** template (single block, no conditional wrappers).
-3. If the file is referenced from `CLAUDE.md`, add the reference line to that template (probably unconditional too).
+3. If the file is referenced from the primary brief, add the reference line to the **`AGENTS.md` template** (and to each per-tool adapter template that mirrors the rule list — `CLAUDE.md`, `.cursor/rules/agents.mdc`, `.aider.conf.yml`, `.windsurfrules`, `.github/copilot-instructions.md`). Adapters that load files transitively only need the rule path in `AGENTS.md`; adapters that inline their rule list (Copilot) need it inlined.
 4. No interview question needed.
 
 **Adding a new opt-in file** (e.g. another conventional file gated on existing flags):
 
-1. Pick or add the flag that gates it. If a new flag is needed, add an interview question (**Part 2**) AND extend the `.claude/bootstrap.json` `answers` object so existing projects re-ask it on next re-run.
+1. Pick or add the flag that gates it. If a new flag is needed, add an interview question (**Part 2**) AND extend the `.agents/bootstrap.json` `answers` object so existing projects re-ask it on next re-run.
 2. Add a row to **Part 3** marked `Opt-in`, citing the trigger and the Re-run policy.
 3. Add the **Part 4** template wrapped in `{{IF_FLAG}}` headers or labelled `*(opt-in, write only if FLAG)*`.
-4. Update the **CLAUDE.md template** rule-list block if the new file is a rule worth pointing at.
+4. Update the **`AGENTS.md` template** rule-list block if the new file is a rule worth pointing at — and mirror the addition into every per-tool adapter template that lists rules explicitly.
 
 **Adding a new multi-value flag variant** (e.g. another language for `LANG`):
 
-1. Update **Part 2 Q3** options if the new value is user-pickable (or document under "Other → fallback").
+1. Update **Part 2 Q4** options if the new value is user-pickable (or document under "Other → fallback").
 2. Update **Part 1 Step 4** dispatch description to mention the new value.
 3. Add **Part 4** template variants under the existing template (`### Template: X — variant for LANG=NewLang`).
 4. Make sure both the `.gitignore` and `manifest + test scaffold` variants exist for the new language — they ship together.
-5. The `LANG` key is already in `.claude/bootstrap.json`'s schema; the new value will be captured automatically.
+5. The `LANG` key is already in `.agents/bootstrap.json`'s schema; the new value will be captured automatically.
 
-**Adding a new opt-in rule under `.claude/rules/`**:
+**Adding a new opt-in rule under `.agents/rules/`**:
 
-1. Add an interview question in **Part 2** to gate it, AND extend `.claude/bootstrap.json`'s `answers` object with the new flag.
+1. Add an interview question in **Part 2** to gate it, AND extend `.agents/bootstrap.json`'s `answers` object with the new flag.
 2. Add a row to **Part 3** marked `Opt-in`, Re-run policy `C` (rules are always Canon).
 3. Add the **Part 4** template.
-4. Add a `{{IF_NEWFLAG}}` reference line to the **CLAUDE.md template** rule-list block.
+4. Add a `{{IF_NEWFLAG}}` reference line to the **`AGENTS.md` template** rule-list block, plus the matching `{{IF_NEWFLAG}}` line to each per-tool adapter template that lists rules (`CLAUDE.md`, `.cursor/rules/agents.mdc`, `.aider.conf.yml`, `.windsurfrules`, `.github/copilot-instructions.md`).
 
 **Editing an existing template**:
 

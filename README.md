@@ -1,27 +1,39 @@
 # Agentic Bootstrap
 
-**One markdown file. One agent. One command. Your repo grows the discipline a senior engineer would have set up on day one.**
+**One markdown file. One agent. One command. Your repo grows the discipline a Senior Engineer would have set up on day one.**
 
 *By [Alexandre Souza](https://github.com/AlexzSouz) · [MIT licensed](./LICENSE) · [github.com/sciensoft/agentic-bootstrap](https://github.com/sciensoft/agentic-bootstrap)*
 
-[AGENTIC_BOOTSTRAP.md](./AGENTIC_BOOTSTRAP.md) is a self-contained, project-agnostic scaffold. Hand it to your coding agent in any repo, say *"follow this bootstrap"*, and walk away with a Claude Code workflow, an ADR system, a security playbook, language-aware tooling, a first commit, and a permission posture matched to how you actually work.
+Every project grows good engineering habits eventually — usually after the third *"why did we do it that way?"*, the first security scare, the fifth time the agent re-derives the same context. **The bootstrap installs them on day one.**
+
+Hand [AGENTIC_BOOTSTRAP.md](./AGENTIC_BOOTSTRAP.md) to your coding agent, say *"follow this bootstrap"*, and walk away with the discipline most projects don't get for months: ADRs for load-bearing decisions, a prompt history that captures the *why*, a security rubric you actually walk, permissions matched to risk, a `CLAUDE.md` the agent re-reads on every cold start — all interactively tailored to your stack, your risk tolerance, and your project's shape.
 
 No templates to clone. No CLI to install. No external fetches. Just one file your agent reads end-to-end.
 
 ---
 
-## Why this exists
+## Engineering principles, on day one
 
-You start a new project. You know — from experience — what's coming. Within a month you'll wish you had:
+Every project grows these habits eventually. The third *"why did we do it that way?"* triggers ADRs. The first security scare triggers a review rubric. The fifth time the agent re-derives the same context triggers a `CLAUDE.md`. The fourth `git push --force` prompt triggers permission discipline.
 
-- A `CLAUDE.md` your agent re-reads on every cold start instead of relearning the project five times a week.
-- A prompt history so you can answer *"why did we do it that way?"* six months from now.
-- ADRs for the load-bearing decisions, not commit messages buried under refactors.
-- A security review rubric you can actually walk before merging anything risky.
-- A `.gitignore`, a `Makefile`, a linter config, a license, a `SECURITY.md` — the boring conventional files you always mean to add and never quite do.
-- Permission settings that match your risk tolerance, not the defaults.
+You'd get there in six months. The bootstrap gets you there in two minutes.
 
-You also know what you *don't* want:
+| Habit | What lands in your repo |
+| --- | --- |
+| **Decisions don't fade into commit messages.** | `.docs/adrs/` with a Nygard-format template. Every load-bearing decision gets its own file. |
+| **The *why* lives next to the *what*.** | `.claude/prompts/<ts>.<slug>.md` — every artifact-producing request leaves a prompt file. `git log` + prompts reconstruct the whole story. |
+| **Security gets a checklist, not a vibe.** | `.docs/security/methodology.md` — OWASP Top 10 + OWASP LLM Top 10 rubric you walk before merging anything risky. |
+| **Deferred ideas don't drown in a ticket backlog.** | `.docs/todos/` — one file per idea, each with a *Revisit when* trigger. Sweep when a commit satisfies it; `git rm` to retire. |
+| **Permissions match risk.** | Four `.claude/settings.json` postures with explicit deny-patterns for `git push --force`, `rm -rf`, `git reset --hard`. |
+| **The agent re-reads the project, not your last twelve messages.** | `CLAUDE.md` — cold-start brief, refreshed every session. |
+| **Boring conventional files exist from day one.** | `.gitignore`, `.editorconfig`, `Makefile`, linter configs, `SECURITY.md`, `CHANGELOG.md` — language-aware where it matters. |
+| **Re-runs never break what you own.** | The Canon / Mixed / Sacred [ownership model](#the-ownership-model-why-re-runs-are-safe) — the bootstrap evolves; your edits stay safe. |
+
+---
+
+## Why one file, not a template or CLI
+
+You've seen the alternatives. None of them stick:
 
 | You don't want | Because |
 | --- | --- |
@@ -219,4 +231,4 @@ If you've been doing this manually on every project, the bootstrap is the file t
 
 ---
 
-> **Try it now.** `cd` into any repo, paste [AGENTIC_BOOTSTRAP.md](./AGENTIC_BOOTSTRAP.md) into your agent, and say *"follow this bootstrap."* Two minutes to a scaffold you'd otherwise spend a week building piecemeal.
+> **Try it now.** `cd` into any repo, paste [AGENTIC_BOOTSTRAP.md](./AGENTIC_BOOTSTRAP.md) into your agent, and say *"follow this bootstrap."* Two minutes to the day-one discipline you'd otherwise grow over six months — one painful lesson at a time.
