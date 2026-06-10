@@ -9,6 +9,8 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+## [2026-06-11] — Per-tool permission posture fan-out + adoption scaffolding
+
 ### Added
 
 - Bootstrap version header + `BOOTSTRAP_CHANGELOG.md` + Step 8 upgrade narrative — re-runs now name the version delta and surface relevant changes.
@@ -17,6 +19,21 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 - `QUICKSTART.md` — 60-second human-readable quickstart, separate from the operational prompt.
 - 3 example projects under `examples/` — `python-4layer-ddd`, `typescript-vertical-slice`, `go-microservice`. Browseable proof of what the bootstrap produces.
 - `scripts/lint_bootstrap.py` + `.github/workflows/lint-bootstrap.yml` — consistency lint for `AGENTIC_BOOTSTRAP.md` with four checks (Q-numbers sequential, `{{IF_FLAG}}` references match `bootstrap.json` schema, decision-matrix rows point to existing Part 4 templates, version header matches latest dated changelog entry). Runs on every PR.
+- Per-tool permission-posture templates — Q3 `POSTURE` is now a single tool-agnostic intent that fans out into every tool's native permission config: `.claude/settings.json`, `.cursor/settings.json`, `.codex/config.toml`, `.windsurf/settings.json` (each in 4 variants), plus `IF_POSTURE_*` blocks in the existing `.aider.conf.yml` and `.continue/config.json` adapters. OpenCode and GitHub Copilot don't have file-based permission models; their adapters carry a posture-intent note for the user to apply manually.
+- SVG favicon + theme-color meta on the landing page matching the brand mark.
+- Landing-page "Adoption" section with linked cards (examples, quickstart, doctor mode), positioning table vs Cookiecutter / copier / hand-typed agent brief, trust signals (Star button, version badge linking to changelog, Contribute button, CI status badge).
+
+### Changed
+
+- **Q3 POSTURE is now unconditional and tool-agnostic.** Previously asked only if `CLAUDE ∈ AGENTS_USED` and the `N_A` value skipped `.claude/settings.json`. Now always asked, value drives a per-tool autonomy config for every assistant in `AGENTS_USED`. `POSTURE=N_A` is no longer a valid value.
+- `AGENTS.md` is now the primary cross-tool brief; `CLAUDE.md` is a thin Claude-specific adapter pointing at it.
+- Landing-page Postures section reframed agent-agnostic (no longer "For Claude Code, ...").
+- Landing-page + QUICKSTART positioning table renamed "Hand-typed CLAUDE.md" column to "Hand-typed agent brief" and added a row for the per-tool permission posture capability.
+- Landing-page prose `todo` / `todos` capitalized to `TODO` / `TODOs` (file paths kept lowercase).
+
+### Migration
+
+- Projects bootstrapped under the previous version where `CLAUDE ∉ AGENTS_USED` and `POSTURE=N_A`: on re-run, the agent re-asks Q3 to capture a real posture, then writes per-tool configs for the rest of the assistants in `AGENTS_USED`.
 
 ### Changed
 

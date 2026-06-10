@@ -67,7 +67,7 @@ You've seen the alternatives. None of them stick:
 
 The bootstrap is **a single file your agent reads and follows**. It interviews you, picks only the parts that match your project, and writes them. To evolve it, you edit the file. That's the whole tool.
 
-A side-by-side comparison vs Cookiecutter / copier / a hand-typed `CLAUDE.md` lives in [`QUICKSTART.md` § Why this, not Cookiecutter](./QUICKSTART.md).
+A side-by-side comparison vs Cookiecutter / copier / a hand-typed agent brief lives in [`QUICKSTART.md` § Why this, not Cookiecutter](./QUICKSTART.md).
 
 ## Works with
 

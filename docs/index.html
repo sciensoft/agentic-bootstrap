@@ -695,8 +695,7 @@
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Permission postures</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Trust on your terms.</h2>
           <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Pick how much autonomy your agent gets — from "ask for
-            everything" to "no prompts ever". Each assistant carries its own permission model; the bootstrap respects whichever one applies. For Claude Code specifically, the four postures map to a generated <span
-              class="font-mono text-zinc-200">.claude/settings.json</span>; for other assistants, the bootstrap writes the adapter file and the permission discipline lives in each tool's native config (Cursor settings, Aider config, Codex flags, etc.).</p>
+            everything" to "no prompts ever" — and the bootstrap fans that one intent out across every tool you picked. Claude gets a <span class="font-mono text-zinc-200">.claude/settings.json</span>; Cursor gets <span class="font-mono text-zinc-200">.cursor/settings.json</span>; Aider gets the matching keys in <span class="font-mono text-zinc-200">.aider.conf.yml</span>; Codex gets <span class="font-mono text-zinc-200">.codex/config.toml</span>; Continue.dev gets a tools-autonomy block in <span class="font-mono text-zinc-200">.continue/config.json</span>; Windsurf gets <span class="font-mono text-zinc-200">.windsurf/settings.json</span>. OpenCode and Copilot don't have file-based permission models — their adapters carry a posture-intent note you apply in the IDE.</p>
           <!-- IMAGE SLOT: optional illustration showing posture progression. Replace below. -->
           <div class="img-slot mt-8 rounded-xl h-44 grid place-items-center text-xs font-mono">
             image slot — posture spectrum
@@ -787,7 +786,7 @@
         <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/QUICKSTART.md" class="card rounded-2xl p-7 reveal block hover:no-underline">
           <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Quickstart</p>
           <h3 class="mt-2 font-semibold text-lg">60 seconds, three steps</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Drop the file, prompt the agent, get the scaffold + first commit. Includes the question-by-question reference and a side-by-side comparison vs Cookiecutter / copier / a hand-typed <span class="font-mono text-zinc-300">CLAUDE.md</span>.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Drop the file, prompt the agent, get the scaffold + first commit. Includes the question-by-question reference and a side-by-side comparison vs Cookiecutter / copier / a hand-typed agent brief.</p>
           <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Read QUICKSTART.md →</span>
         </a>
 
@@ -810,7 +809,7 @@
                 <th class="text-left py-3 pr-4 font-medium">&nbsp;</th>
                 <th class="text-left py-3 pr-4 font-medium text-zinc-100">This bootstrap</th>
                 <th class="text-left py-3 pr-4 font-medium">Cookiecutter / copier</th>
-                <th class="text-left py-3 pr-4 font-medium">Hand-typed CLAUDE.md</th>
+                <th class="text-left py-3 pr-4 font-medium">Hand-typed agent brief</th>
               </tr>
             </thead>
             <tbody class="text-zinc-400 divide-y divide-white/5">

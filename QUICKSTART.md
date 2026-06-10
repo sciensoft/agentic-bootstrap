@@ -19,7 +19,7 @@ The interview is 16 questions, grouped into six tiers. None are trick questions;
 
 - **Q1 — Project name + one-line purpose.** The cold-start brief title.
 - **Q2 — Which agentic assistants?** Multi-pick. Decides which adapter files get written.
-- **Q3 — Claude Code permission posture?** Only asked if Claude is in Q2. Cautious / read-only / trusted-dev / bypass.
+- **Q3 — Agent autonomy posture?** Cautious / read-only / trusted-dev / bypass. The chosen intent fans out into every tool's native permission config (`.claude/settings.json`, `.cursor/settings.json`, `.aider.conf.yml` autonomy keys, `.codex/config.toml`, `.continue/config.json` tools block, `.windsurf/settings.json`).
 - **Q4 — Language.** Python / TypeScript / Go / Rust / other. Drives the manifest, linter configs, test scaffold, and `Makefile`.
 - **Q5 — Architecture shape.** 9 options including 4-Layer DDD, Hexagonal, Microservice, Vertical Slice, Monorepo, Serverless. Drives the layered-architecture rule.
 - **Q6–Q8 — Project shape.** Web app? LLM in the request path? Env vars / secrets?
@@ -64,19 +64,20 @@ your-repo/
 
 Plus a `tests/` scaffold, language-specific manifest + lint configs + `Makefile`, and the workflow-rule files referenced from `AGENTS.md`.
 
-## Why this, not Cookiecutter / copier / a custom CLAUDE.md?
+## Why this, not Cookiecutter / copier / a hand-typed agent brief?
 
-| | This bootstrap | Cookiecutter / copier | Custom `CLAUDE.md` |
+| | This bootstrap | Cookiecutter / copier | Hand-typed agent brief |
 | --- | --- | --- | --- |
-| Output | A disciplined working repo + first commit | A working repo | A `CLAUDE.md` file |
-| Tool support | 8 agentic assistants out of the box | None (it's a templating tool) | One (Claude Code) |
-| Discipline encoded | Workflow + ADRs + tests + security + todos + telemetry | Whatever the template authored | Whatever you typed |
+| Output | A disciplined working repo + first commit | A working repo | A brief file for one tool (`AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` / `.aider.conf.yml` / …) |
+| Tool support | 8 agentic assistants out of the box, all in sync | None (it's a templating tool) | One — whichever brief you wrote |
+| Discipline encoded | Workflow + ADRs + tests + security + TODOs + telemetry | Whatever the template authored | Whatever you typed |
 | Architectures | 9, with diagram picker, ports/adapters family, microservice + vertical slice | Whatever the template authored | None |
 | Live best-practices | Refined from current web sources for your stack | Frozen at template-author time | Frozen at typing time |
+| Permission posture | One intent fans out to per-tool autonomy config (Claude / Cursor / Aider / Codex / Continue.dev / Windsurf) | Not addressed | Not addressed |
 | Onboarding cost | One file. One prompt. 60 seconds. | Install Cookiecutter, find a template, hope it's current. | Hours of typing, no proof. |
 | Re-runnable | Yes — idempotent; existing projects pick up new conventions on re-run | Usually no | No |
 
-Cookiecutter / copier solve a different problem (template engines for many use cases). This bootstrap is specifically about *making an AI-coding workflow a first-class artefact of the project* — and works across the eight major agentic tools, not just one. A custom `CLAUDE.md` is the closest comparison, but it doesn't bring the rules, the security rubric, the testing discipline, the ADR culture, the diagram picker, or the cross-tool adapter generation — you'd be reinventing all of that.
+Cookiecutter / copier solve a different problem (template engines for many use cases). This bootstrap is specifically about *making an AI-coding workflow a first-class artefact of the project* — and works across the eight major agentic tools, not just one. A hand-typed brief (whether you wrote it as `AGENTS.md`, `CLAUDE.md`, a `.cursor/rules/` file, an `.aider.conf.yml`, or anything else) is the closest comparison, but it doesn't bring the rules, the security rubric, the testing discipline, the ADR culture, the diagram picker, the cross-tool adapter generation, or the per-tool permission posture fan-out — you'd be reinventing all of that for each tool, in each tool's own dialect.
 
 ## Examples — see the output before running
 

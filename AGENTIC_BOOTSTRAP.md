@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD010 -->
 <!-- MD010 disabled: Makefile fenced blocks legitimately require hard tabs (POSIX make spec). -->
-<!-- bootstrap-version: 2026-06-10 -->
+<!-- bootstrap-version: 2026-06-11 -->
 <!-- Version is the ISO date this file was last meaningfully changed. -->
 <!-- Bumped manually on each notable change; the diff lives in BOOTSTRAP_CHANGELOG.md. -->
 
@@ -142,14 +142,24 @@ For each file you decided to write in Step 3:
   - `LAYERED` = `(ARCH != FLAT)`. True when Q5 picked any non-Flat shape; controls the architecture-rule ref lines in `AGENTS.md`, the `CLAUDE.md` adapter (if Claude in `AGENTS_USED`), each other per-tool adapter, and `best-practices.md`.
 - **Multi-value flag dispatch**: pick the template variant whose label matches the user's interview answer.
   - **`AGENTS_USED`** (Q2): a set of one or more values from `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the per-tool adapter files — each adapter is written **only if** its tool is in the set. Always-written tool-agnostic files (`AGENTS.md`, `.agents/rules/*`, `.agents/bootstrap.json`) are independent of this flag. Adapter mapping:
-    - `CLAUDE` → `CLAUDE.md` (thin adapter pointing at `AGENTS.md`) + `.claude/settings.json` (gated additionally by Q3 `POSTURE ≠ N_A`).
-    - `CURSOR` → `.cursor/rules/agents.mdc`.
-    - `AIDER` → `.aider.conf.yml`.
-    - `CODEX` and `OPENCODE` → no adapter; both read `AGENTS.md` natively.
-    - `CONTINUE` → `.continue/config.json`.
-    - `WINDSURF` → `.windsurfrules`.
-    - `COPILOT` → `.github/copilot-instructions.md`.
-  - **`POSTURE`** (Q3): variants `CAUTIOUS`, `READONLY`, `TRUSTED_DEV`, `BYPASS` each have their own `.claude/settings.json` template. **Only asked / applied if `CLAUDE ∈ AGENTS_USED`**; otherwise set `POSTURE=N_A` and skip both the question and the settings file. `TRUSTED_DEV` is composed: write the base template, then append the language-specific allow entries from the table that follows the base, picking by Q4 `LANG`. For `LANG=Other / mixed` under `TRUSTED_DEV`, skip the language addendum and tell the user post-bootstrap to extend their `allow` list with their toolchain's commands. **Write `.claude/settings.json` first** (after creating directories, before any other file) so the chosen posture takes effect for the rest of the bootstrap's file writes.
+    - `CLAUDE` → `CLAUDE.md` (thin adapter pointing at `AGENTS.md`) + `.claude/settings.json` (Q3 `POSTURE` variant).
+    - `CURSOR` → `.cursor/rules/agents.mdc` + `.cursor/settings.json` (Q3 `POSTURE` variant).
+    - `AIDER` → `.aider.conf.yml` (Q3 `POSTURE` extends it with autonomy keys).
+    - `CODEX` → `.codex/config.toml` (Q3 `POSTURE` variant); the brief is read from `AGENTS.md` natively.
+    - `OPENCODE` → no adapter; reads `AGENTS.md` natively. The posture intent is documented in the bootstrap's Step 8 report for the user to apply in OpenCode's own config.
+    - `CONTINUE` → `.continue/config.json` (Q3 `POSTURE` extends it with a `tools` autonomy block).
+    - `WINDSURF` → `.windsurfrules` + `.windsurf/settings.json` (Q3 `POSTURE` variant).
+    - `COPILOT` → `.github/copilot-instructions.md`; carries a posture intent note (no file-based control — user applies in the IDE).
+  - **`POSTURE`** (Q3): a single tool-agnostic intent — `CAUTIOUS`, `READONLY`, `TRUSTED_DEV`, or `BYPASS` — that the bootstrap fans out to every assistant in `AGENTS_USED`. Each tool has its own posture-config template, and the bootstrap writes the matching variant for every tool the user picked:
+    - **`CLAUDE`** → `.claude/settings.json` (4 variants). `TRUSTED_DEV` is composed: base template + language-specific allow addendum picked by Q4 `LANG` (`uv:*` / `npm:*` / `go:*` / `cargo:*`). For `LANG=Other / mixed`, skip the addendum and ask the user post-bootstrap to extend the `allow` list with their toolchain's commands.
+    - **`CURSOR`** → `.cursor/settings.json` (4 variants) tuning Cursor's auto-accept behaviour and Composer settings.
+    - **`AIDER`** → `.aider.conf.yml` already gets written for the brief; the posture extends it with `auto-commits` / `dirty-commits` / `yes-always` / `auto-test` / `auto-lint` keys per the variant.
+    - **`CODEX`** → `.codex/config.toml` (4 variants) setting the approval-mode and sandbox profile.
+    - **`CONTINUE`** → `.continue/config.json` already gets written for the rules entry; the posture extends it with a `tools` array gating which built-in tools are auto-approved per the variant.
+    - **`WINDSURF`** → `.windsurf/settings.json` (4 variants) tuning Cascade flow mode.
+    - **`OPENCODE`** and **`COPILOT`** don't have file-based permission models the bootstrap can write — their adapters carry a short note documenting the posture intent for the user to apply in each tool's own UI.
+
+    **Write all posture configs first** (after creating directories, before any other file) so the chosen autonomy level takes effect for the rest of the bootstrap's writes — especially the `BYPASS` and `TRUSTED_DEV` variants that pre-allow the build / git operations the bootstrap itself will run.
   - **`LANG`** (Q4): controls four template families — the `.gitignore` variant, the manifest + test-scaffold variant, the linter / formatter config variant, and the `Makefile` variant. Each family has Python / TypeScript-Node / Go / Rust / Fallback variants. Pick the variant matching the user's primary language across all four; they ship together. If mixed (e.g. fullstack monorepo), pick the dominant backend language and tell the user the frontend equivalents need adding separately.
   - **`ARCH`** (Q5): variants `4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS` each have their own `layered-architecture.md` template. `HEXAGONAL` covers the Hexagonal / Ports and Adapters / Clean Architecture / Onion Architecture family (single template, names all four traditions); `MICROSERVICE` documents one service in a larger ecosystem — internal layering plus cross-service conventions; `VERTICAL_SLICE` documents the feature-first layout where each slice owns its own thin layers; `MONOREPO` documents the top-level workspace layout (sub-projects pick their own internal architecture on add); `SERVERLESS` documents a handlers-first layout for FaaS codebases. If `ARCH=OTHER`, ask the user for a one-paragraph description and write a minimal stub capturing it. If `ARCH=FLAT`, don't write the file. If Q5 elicited a system-topology answer that doesn't directly map (serverless / FaaS / monorepo / modular monolith / SOA), a vocabulary-alias answer (hexagonal / ports and adapters / clean / onion), or bare *DDD*, run the disambiguation in Part 2 before settling on `ARCH`.
   - **`LICENSE`** (Q13): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q13's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
@@ -261,7 +271,7 @@ Questions are grouped into six tiers reflecting how they're used: **bootstrap be
 | --- | --- | --- |
 | Q1 | **Project name + one-line purpose.** "What's the project called, and what does it do in one sentence?" | `AGENTS.md` title + purpose stub. `{{PROJECT_NAME}}` also flows into every per-tool adapter that names the project. |
 | Q2 | **Which agentic coding assistants will work in this repo?** "Multi-pick. The bootstrap writes one tool-agnostic spine (`AGENTS.md` + `.agents/rules/`) plus thin per-tool adapter files for whichever assistants you pick. Pick at least one. **Claude Code** (`CLAUDE.md` adapter + `.claude/settings.json`); **Cursor** (`.cursor/rules/agents.mdc` adapter); **Aider** (`.aider.conf.yml` with `read:` list); **OpenAI Codex CLI** (reads `AGENTS.md` natively — no extra file); **OpenCode** (reads `AGENTS.md` natively — no extra file); **Continue.dev** (`.continue/config.json` rules entry); **Windsurf** (`.windsurfrules` adapter); **GitHub Copilot** (`.github/copilot-instructions.md` adapter)." Asked early — it gates Q3 and decides which adapters get written. | `AGENTS_USED` set — any subset of `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the conditional dispatch for every per-tool adapter file. |
-| Q3 | **Claude Code permission posture?** *(asked only if `CLAUDE ∈ AGENTS_USED`; otherwise skip — set `POSTURE=N_A` and don't write `.claude/settings.json`).* "Single-pick controlling `.claude/settings.json` content. **Cautious** (`{}`): every action prompts; safest for shared / team / open-source projects. **Read-only autonomy**: pre-allow read-only Bash (ls, cat, grep, find, git status/log/diff/show); investigation friction-free, writes still prompt. **Trusted dev**: read-only + safe git workflow + language-specific build/test commands picked from Q4 `LANG` (`uv:*` / `npm:*` / `go:*` / `cargo:*`); daily dev no prompts; force-push / hard-reset / clean -f still require approval via `deny` patterns. **Full bypass**: `defaultMode: bypassPermissions`, no prompts ever; only safe in dedicated dev VMs / containers / trusted personal workspaces." Asked early so the chosen posture takes effect for the rest of the bootstrap's file writes. | `POSTURE` value in `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS, N_A}`. Picks the `.claude/settings.json` template variant. `N_A` skips the file. All non-`N_A` variants pin `model: claude-opus-4-7`. |
+| Q3 | **Agent autonomy posture?** "Single-pick capturing how much autonomy you grant every assistant in `AGENTS_USED` by default. **Cautious**: every action prompts for approval; safest for shared / team / open-source projects. **Read-only autonomy**: pre-allow safe read-only operations (file reads, searches, `git status/log/diff`); writes / edits / shell commands still prompt. **Trusted dev**: read-only + safe git workflow + language-specific build / test commands (`uv:*` / `npm:*` / `go:*` / `cargo:*` picked from Q4 `LANG`); daily dev friction-free; force-push / hard-reset / `clean -f` still require approval. **Full bypass**: no prompts at all; only safe in dedicated dev VMs / containers / trusted personal workspaces." Asked early so the chosen posture takes effect for the rest of the bootstrap's file writes. The bootstrap maps this one intent into each picked tool's native permission config — see Part 1 multi-value dispatch for the per-tool mapping. | `POSTURE` value in `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS}`. Drives the per-tool permission config written for every entry in `AGENTS_USED` (Claude `.claude/settings.json`, Cursor `.cursor/settings.json`, Aider keys in `.aider.conf.yml`, Codex `.codex/config.toml`, Continue.dev keys in `.continue/config.json`, Windsurf `.windsurf/settings.json`). OpenCode and GitHub Copilot don't have file-based permission models the bootstrap can write; their adapters carry a short note documenting the posture intent for the user to apply manually in each tool's own UI. |
 
 ### Project identity
 
@@ -345,12 +355,15 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `.agents/rules/best-practices.md` | Always | — | C |
 | `.agents/bootstrap.json` | Always | persisted interview answers; written in Step 5 | C |
 | `CLAUDE.md` | Conditional | written if `CLAUDE ∈ AGENTS_USED`. Thin adapter pointing at `AGENTS.md` + `.agents/rules/`. | S |
-| `.claude/settings.json` | Conditional | written if `CLAUDE ∈ AGENTS_USED` **and** Q3 `POSTURE ≠ N_A`. Content variant picked by `POSTURE`. All non-`N_A` variants pin `model: claude-opus-4-7`. `TRUSTED_DEV` also dispatches on Q4 `LANG` for the language-specific allow addendum. | M |
+| `.claude/settings.json` | Conditional | written if `CLAUDE ∈ AGENTS_USED`. Content variant picked by Q3 `POSTURE`. All variants pin `model: claude-opus-4-7`. `TRUSTED_DEV` also dispatches on Q4 `LANG` for the language-specific allow addendum. | M |
 | `.cursor/rules/agents.mdc` | Conditional | written if `CURSOR ∈ AGENTS_USED`. Thin adapter (always-include glob) pointing at `AGENTS.md` + `.agents/rules/*`. | C |
-| `.aider.conf.yml` | Conditional | written if `AIDER ∈ AGENTS_USED`. Sets `read:` list to always include `AGENTS.md` + `.agents/rules/*.md`. | M |
-| `.continue/config.json` | Conditional | written if `CONTINUE ∈ AGENTS_USED`. Minimal config with a `rules` entry pointing at `AGENTS.md` + `.agents/rules/`. | M |
+| `.cursor/settings.json` | Conditional | written if `CURSOR ∈ AGENTS_USED`. Content variant picked by Q3 `POSTURE` — tunes Composer / Agent acceptance mode + tool auto-approval. | M |
+| `.aider.conf.yml` | Conditional | written if `AIDER ∈ AGENTS_USED`. Sets `read:` list to always include `AGENTS.md` + `.agents/rules/*.md`; **also** sets `auto-commits` / `dirty-commits` / `yes-always` / `auto-test` / `auto-lint` keys per Q3 `POSTURE`. | M |
+| `.codex/config.toml` | Conditional | written if `CODEX ∈ AGENTS_USED`. Content variant picked by Q3 `POSTURE` — sets approval-mode and sandbox profile. | M |
+| `.continue/config.json` | Conditional | written if `CONTINUE ∈ AGENTS_USED`. Config with a `rules` entry pointing at `AGENTS.md` + `.agents/rules/`; **also** sets a `tools` array gating which built-in tools are auto-approved per Q3 `POSTURE`. | M |
 | `.windsurfrules` | Conditional | written if `WINDSURF ∈ AGENTS_USED`. Thin adapter pointing at `AGENTS.md` + `.agents/rules/`. | C |
-| `.github/copilot-instructions.md` | Conditional | written if `COPILOT ∈ AGENTS_USED`. Thin adapter inlining the AGENTS.md pointer + rules summary (Copilot does not follow file refs). | C |
+| `.windsurf/settings.json` | Conditional | written if `WINDSURF ∈ AGENTS_USED`. Content variant picked by Q3 `POSTURE` — tunes Cascade flow mode. | M |
+| `.github/copilot-instructions.md` | Conditional | written if `COPILOT ∈ AGENTS_USED`. Thin adapter inlining the AGENTS.md pointer + rules summary (Copilot does not follow file refs). Carries a posture note (no file-based control; user applies the intent in the IDE). | C |
 | `.docs/adrs/README.md` | Always | — | M |
 | `.docs/adrs/0000-adr-template.md` | Always | — | C |
 | `.docs/todos/README.md` | Always | — | C |
@@ -3341,7 +3354,7 @@ When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
 
 ### Template: `.aider.conf.yml` *(written only if `AIDER ∈ AGENTS_USED`)*
 
-A minimal Aider config that always reads the brief + rule files into context. Users can layer their own model, lint, and edit-format preferences on top.
+Aider config that always reads the brief + rule files into context, **plus** posture-driven autonomy keys picked from Q3 `POSTURE`. Users can layer their own model + edit-format preferences on top.
 
 ````yaml
 # Aider config — keeps the cross-tool brief and rule files in context for every session.
@@ -3359,10 +3372,24 @@ read:
 {{IF_METRICS}}  - .agents/rules/workflow-metrics.md
 {{IF_TESTING}}  - .agents/rules/workflow-testing.md
 
-# Aider auto-commits by default; the workflow.md rule wants one commit per request
-# bundling the prompt file + ADR + code + telemetry. Leave auto-commit on, and let
-# the rule guide what goes into a single commit.
-# auto-commits: true
+# --- Q3 POSTURE-driven autonomy keys -----------------------------------------
+# CAUTIOUS  — every edit and shell command prompts; auto-commit off.
+# READONLY  — same as CAUTIOUS for writes; reads / searches don't prompt.
+# TRUSTED_DEV — auto-commit + auto-test + auto-lint; destructive ops still prompt.
+# BYPASS    — yes-always on; no prompts.
+{{IF_POSTURE_CAUTIOUS}}auto-commits: false
+{{IF_POSTURE_CAUTIOUS}}dirty-commits: false
+{{IF_POSTURE_CAUTIOUS}}yes-always: false
+{{IF_POSTURE_READONLY}}auto-commits: false
+{{IF_POSTURE_READONLY}}dirty-commits: false
+{{IF_POSTURE_READONLY}}yes-always: false
+{{IF_POSTURE_TRUSTED_DEV}}auto-commits: true
+{{IF_POSTURE_TRUSTED_DEV}}dirty-commits: true
+{{IF_POSTURE_TRUSTED_DEV}}auto-test: true
+{{IF_POSTURE_TRUSTED_DEV}}auto-lint: true
+{{IF_POSTURE_BYPASS}}auto-commits: true
+{{IF_POSTURE_BYPASS}}dirty-commits: true
+{{IF_POSTURE_BYPASS}}yes-always: true
 
 # Add your preferred model + edit-format here, e.g.:
 # model: anthropic/claude-opus-4-7
@@ -3373,7 +3400,7 @@ read:
 
 ### Template: `.continue/config.json` *(written only if `CONTINUE ∈ AGENTS_USED`)*
 
-A minimal Continue.dev config with a `rules` block pointing at the canonical brief + rule files. Users layer their model providers and slash commands on top.
+A Continue.dev config with the `rules` block pointing at the canonical brief + rule files **and** a `tools` block gating which built-in tools auto-approve per Q3 `POSTURE`. Users layer their model providers and slash commands on top.
 
 ````json
 {
@@ -3391,9 +3418,19 @@ A minimal Continue.dev config with a `rules` block pointing at the canonical bri
     { "provider": "code" },
     { "provider": "diff" }
   ],
+  "tools": {
+    "_comment_": "Posture intent from Q3: CAUTIOUS=nothing auto; READONLY=reads auto; TRUSTED_DEV=most auto except destructive; BYPASS=all auto.",
+{{IF_POSTURE_CAUTIOUS}}    "autoApprove": []
+{{IF_POSTURE_READONLY}}    "autoApprove": ["read_file", "search", "view_diff"]
+{{IF_POSTURE_TRUSTED_DEV}}    "autoApprove": ["read_file", "search", "view_diff", "edit_file", "run_terminal"],
+{{IF_POSTURE_TRUSTED_DEV}}    "denyPatterns": ["rm -rf", "git push --force", "git reset --hard"]
+{{IF_POSTURE_BYPASS}}    "autoApprove": ["*"]
+  },
   "models": []
 }
 ````
+
+**Continue.dev config note.** The `tools` schema and key names (`autoApprove`, `denyPatterns`) have varied across Continue.dev versions. The intent is preserved across releases — auto-approve nothing / reads / most-with-guards / everything. If the keys in your version differ, the posture intent is the load-bearing thing; map it onto whatever the current schema calls them.
 
 ---
 
@@ -3462,6 +3499,15 @@ Before any security-sensitive commit, walk the rubric in [`.docs/security/method
 {{IF_TESTING}}
 {{IF_TESTING}}Every artifact-producing change ships with its tests in the same commit. Pyramid shape: unit-heavy, integration-light, e2e-thin. Mock at boundaries (HTTP, clock, randomness, third-party SDKs) — never internals. Bug fixes start with a failing regression test. TDD is encouraged but not mandated; the hard rule is *tests + code in the same commit*. Coverage is tracked, not gated by a percentage. Flaky tests are P1 — fix or quarantine with a dated entry under `.docs/todos/`.
 {{IF_TESTING}}
+## Autonomy posture (intent — apply manually in Copilot's IDE settings)
+
+GitHub Copilot does not have a file-based permission model the bootstrap can write. The project's chosen autonomy posture is **`{{POSTURE}}`**, which translates to Copilot behaviour as follows — set the matching preferences in your IDE's Copilot settings:
+
+{{IF_POSTURE_CAUTIOUS}}- **Cautious** — disable Copilot Chat / Workspace auto-apply; review every suggestion; never accept multi-file changes without confirmation.
+{{IF_POSTURE_READONLY}}- **Read-only** — Copilot may suggest and explain freely; disable auto-apply for edits; never let it run terminal commands without prompt.
+{{IF_POSTURE_TRUSTED_DEV}}- **Trusted dev** — Copilot Workspace auto-applies edits; review terminal commands before running. Treat force-push / hard-reset / `rm -rf` as off-limits regardless.
+{{IF_POSTURE_BYPASS}}- **Bypass** — only in sandboxed personal workspaces; auto-apply everything Copilot proposes.
+
 When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
 ````
 
@@ -3612,6 +3658,208 @@ No prompts. Ever. Every tool call auto-approved.
 
 ---
 
+### Template: `.cursor/settings.json` — variant for `POSTURE=CAUTIOUS`
+
+Cursor's Composer / Agent requires per-edit confirmation; built-in tools must be approved before each call.
+
+````json
+{
+  "cursor.composer.autoAccept": false,
+  "cursor.agent.autoRunTools": false,
+  "cursor.agent.terminal.requireConfirmation": true
+}
+````
+
+---
+
+### Template: `.cursor/settings.json` — variant for `POSTURE=READONLY`
+
+Auto-accept the read-only investigation tools (file reads, codebase search, web search); writes / terminal / Composer edits still confirm.
+
+````json
+{
+  "cursor.composer.autoAccept": false,
+  "cursor.agent.autoRunTools": true,
+  "cursor.agent.terminal.requireConfirmation": true,
+  "cursor.agent.tools.allow": [
+    "read",
+    "search_codebase",
+    "search_web",
+    "list_dir"
+  ]
+}
+````
+
+---
+
+### Template: `.cursor/settings.json` — variant for `POSTURE=TRUSTED_DEV`
+
+Composer auto-accepts edits; terminal commands auto-run; destructive operations (anything looking like `rm -rf`, `git push --force`, `git reset --hard`) still require confirmation.
+
+````json
+{
+  "cursor.composer.autoAccept": true,
+  "cursor.agent.autoRunTools": true,
+  "cursor.agent.terminal.requireConfirmation": false,
+  "cursor.agent.terminal.denyPatterns": [
+    "rm -rf",
+    "git push --force",
+    "git reset --hard",
+    "git clean -f"
+  ]
+}
+````
+
+---
+
+### Template: `.cursor/settings.json` — variant for `POSTURE=BYPASS`
+
+Auto-accept everything. Only safe in sandboxed personal workspaces.
+
+````json
+{
+  "cursor.composer.autoAccept": true,
+  "cursor.agent.autoRunTools": true,
+  "cursor.agent.terminal.requireConfirmation": false
+}
+````
+
+**Cursor settings note.** Cursor's settings schema evolves rapidly; the keys above reflect current widely-used names. After the bootstrap writes the file, open it in Cursor's settings UI to confirm each key still maps to the intended behaviour, and adjust if the schema has shifted. The intent — *auto-accept / confirm everything / read-only / dev-trusted* — is what matters; the exact key names are second-order.
+
+---
+
+### Template: `.codex/config.toml` — variant for `POSTURE=CAUTIOUS`
+
+OpenAI Codex CLI prompts for approval on every action; reads still need confirmation.
+
+````toml
+# Codex CLI config — Cautious posture
+approval_mode = "manual"
+sandbox = "read-write"
+
+[shell]
+require_confirmation = true
+````
+
+---
+
+### Template: `.codex/config.toml` — variant for `POSTURE=READONLY`
+
+Codex CLI runs in suggest-only mode: it can read and propose changes, but won't apply edits or run shell commands without confirmation.
+
+````toml
+# Codex CLI config — Read-only posture
+approval_mode = "suggest"
+sandbox = "read-only"
+
+[shell]
+require_confirmation = true
+````
+
+---
+
+### Template: `.codex/config.toml` — variant for `POSTURE=TRUSTED_DEV`
+
+Codex CLI auto-applies edits and runs commands; force-push / hard-reset / `rm -rf` still gated.
+
+````toml
+# Codex CLI config — Trusted-dev posture
+approval_mode = "auto-edit"
+sandbox = "workspace-write"
+
+[shell]
+require_confirmation = false
+deny_patterns = [
+  "rm -rf",
+  "git push --force",
+  "git reset --hard",
+  "git clean -f"
+]
+````
+
+---
+
+### Template: `.codex/config.toml` — variant for `POSTURE=BYPASS`
+
+`full-auto` — no confirmation prompts. Sandboxed environments only.
+
+````toml
+# Codex CLI config — Bypass posture
+approval_mode = "full-auto"
+sandbox = "danger-full-access"
+
+[shell]
+require_confirmation = false
+````
+
+**Codex CLI config note.** The Codex CLI config format and key names have changed across releases. The values above reflect the common shape — approval-mode + sandbox profile + shell confirmation. If the syntax has shifted in your version, the intent (*manual / suggest / auto-edit / full-auto*) is what to preserve; map the bootstrap's posture intent onto whatever keys your installed CLI version expects.
+
+---
+
+### Template: `.windsurf/settings.json` — variant for `POSTURE=CAUTIOUS`
+
+Windsurf Cascade defaults to Chat (read-only) mode; Write mode requires explicit invocation.
+
+````json
+{
+  "cascade.defaultFlow": "chat",
+  "cascade.write.autoConfirm": false,
+  "cascade.terminal.autoRun": false
+}
+````
+
+---
+
+### Template: `.windsurf/settings.json` — variant for `POSTURE=READONLY`
+
+Chat (read-only) mode default; transitions to Write require confirmation.
+
+````json
+{
+  "cascade.defaultFlow": "chat",
+  "cascade.write.autoConfirm": false,
+  "cascade.terminal.autoRun": false,
+  "cascade.readTools.autoApprove": true
+}
+````
+
+---
+
+### Template: `.windsurf/settings.json` — variant for `POSTURE=TRUSTED_DEV`
+
+Write mode default with auto-confirm; destructive operations still gated.
+
+````json
+{
+  "cascade.defaultFlow": "write",
+  "cascade.write.autoConfirm": true,
+  "cascade.terminal.autoRun": true,
+  "cascade.terminal.denyPatterns": [
+    "rm -rf",
+    "git push --force",
+    "git reset --hard"
+  ]
+}
+````
+
+---
+
+### Template: `.windsurf/settings.json` — variant for `POSTURE=BYPASS`
+
+Full auto-confirm in Write mode; no gates.
+
+````json
+{
+  "cascade.defaultFlow": "write",
+  "cascade.write.autoConfirm": true,
+  "cascade.terminal.autoRun": true
+}
+````
+
+**Windsurf settings note.** Like Cursor, Windsurf's settings schema is still evolving. The keys above are the conventional names at time of writing; verify against the current Windsurf docs and adjust if needed.
+
+---
+
 ### Template: `.agents/bootstrap.json`
 
 Persisted interview answers. Committed (project-shared). Read on re-run (Step 0) so previously-answered questions aren't re-asked. Re-write at the end of every bootstrap (Step 5) with the merged set of old + newly-answered keys.
@@ -3652,7 +3900,7 @@ Shape:
 
 - `bootstrap_version` — the timestamp from this bootstrap file's header (or `date +%Y-%m-%d` at write time if no header timestamp is tracked). Lets a future re-run report "you're upgrading from `<old>` to `<new>`".
 - `last_run_at` — `date -Iseconds` at the moment of write; updated every re-run.
-- `answers` — every flag from the interview. **Yes/no flags** are JSON booleans (`true` / `false`, no quotes). **String flags** (POSTURE, LANG, ARCH, LICENSE, LAYOUT) are JSON strings. **Set flags** (`AGENTS_USED`) are JSON arrays of uppercase strings — e.g. `["CLAUDE", "CURSOR", "AIDER"]`. Free-form text (PROJECT_NAME, ONE_LINE_PURPOSE, RUN_INSTRUCTIONS, ADDITIONAL_SECTIONS_FROM_INTERVIEW, COPYRIGHT_HOLDER) are JSON strings; escape newlines as `\n`. If `LICENSE=SKIP`, `COPYRIGHT_HOLDER` stays as the empty string. `POSTURE=N_A` is reserved for projects where `CLAUDE ∉ AGENTS_USED` (no Claude settings file written). `LAYOUT` is `"agents"` (canonical, files under `.agents/rules/`) or `"legacy_claude"` (pre-multi-tool projects where the user picked "leave in place" during the Step 0 migration prompt — see the legacy-layout migration note in Part 1). `BEST_PRACTICES_REFINED` is set by Step 4b: `true` after a successful web-search-driven refinement of `.agents/rules/best-practices.md`, `false` when the stub variant was written. The same flag is independently verifiable by reading the marker comment at the top of the file (single source of truth); the bootstrap.json mirror exists so re-runs can decide cheaply without opening the file.
+- `answers` — every flag from the interview. **Yes/no flags** are JSON booleans (`true` / `false`, no quotes). **String flags** (POSTURE, LANG, ARCH, LICENSE, LAYOUT) are JSON strings. **Set flags** (`AGENTS_USED`) are JSON arrays of uppercase strings — e.g. `["CLAUDE", "CURSOR", "AIDER"]`. Free-form text (PROJECT_NAME, ONE_LINE_PURPOSE, RUN_INSTRUCTIONS, ADDITIONAL_SECTIONS_FROM_INTERVIEW, COPYRIGHT_HOLDER) are JSON strings; escape newlines as `\n`. If `LICENSE=SKIP`, `COPYRIGHT_HOLDER` stays as the empty string. `POSTURE` is always one of `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS}` — the bootstrap fans it out into each tool's permission config per the Part 1 dispatch. `LAYOUT` is `"agents"` (canonical, files under `.agents/rules/`) or `"legacy_claude"` (pre-multi-tool projects where the user picked "leave in place" during the Step 0 migration prompt — see the legacy-layout migration note in Part 1). `BEST_PRACTICES_REFINED` is set by Step 4b: `true` after a successful web-search-driven refinement of `.agents/rules/best-practices.md`, `false` when the stub variant was written. The same flag is independently verifiable by reading the marker comment at the top of the file (single source of truth); the bootstrap.json mirror exists so re-runs can decide cheaply without opening the file.
 - Omit any key the current bootstrap version doesn't know about. On re-run, **missing keys** are exactly what the agent re-asks the user.
 - **No secrets in this file**. Free-form fields capture user intent, not credentials. If the user accidentally includes a secret in `RUN_INSTRUCTIONS` or `ADDITIONAL_SECTIONS_FROM_INTERVIEW`, the agent should flag and ask before persisting.
 
