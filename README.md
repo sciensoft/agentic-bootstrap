@@ -23,7 +23,7 @@ curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENT
 # 2. Tell your agent
 > follow AGENTIC_BOOTSTRAP.md to bootstrap this repo
 
-# 3. Answer 16 questions
+# 3. Answer 17 questions
 # 4. Get a disciplined, tool-agnostic scaffold + first commit
 ```
 
@@ -86,16 +86,16 @@ The tool-agnostic spine (`AGENTS.md` + `.agents/rules/`) is written every time; 
 
 ## The interview
 
-Sixteen questions, six tiers. The full list is in [`AGENTIC_BOOTSTRAP.md` Part 2](./AGENTIC_BOOTSTRAP.md); the highlights:
+Seventeen questions, six tiers. The full list is in [`AGENTIC_BOOTSTRAP.md` Part 2](./AGENTIC_BOOTSTRAP.md); the highlights:
 
 | Tier | Questions | What it controls |
 | --- | --- | --- |
-| **Bootstrap behaviour** | Q1 name, Q2 `AGENTS_USED`, Q3 Claude posture | `AGENTS.md` title; which per-tool adapters get written; `.claude/settings.json` variant |
+| **Bootstrap behaviour** | Q1 name, Q2 `AGENTS_USED`, Q3 autonomy posture | `AGENTS.md` title; which per-tool adapters get written; per-tool permission-posture configs |
 | **Project identity** | Q4 language, Q5 architecture | `.gitignore` / manifest / linter / `Makefile` family; `layered-architecture.md` variant (one of 9) |
 | **Project shape** | Q6 web surface, Q7 LLM in request path, Q8 env vars | Security rubric sub-sections; `.env.example` |
-| **Feature gates** | Q9 customer-visible surfaces, Q10 UI components, Q11 governed metrics, Q12 testing | Opt-in workflow rules |
-| **Repository metadata** | Q13 license, Q14 contributions | `LICENSE` variant; `CONTRIBUTING.md` + `CODE_OF_CONDUCT.md` |
-| **Free-form** | Q15 run instructions, Q16 anything else | `AGENTS.md` extra sections |
+| **Feature gates** | Q9 customer-visible surfaces, Q10 UI components, Q11 governed metrics, Q12 testing, Q13 shared-frontend propagation | Opt-in workflow rules |
+| **Repository metadata** | Q14 license, Q15 contributions | `LICENSE` variant; `CONTRIBUTING.md` + `CODE_OF_CONDUCT.md` |
+| **Free-form** | Q16 run instructions, Q17 anything else | `AGENTS.md` extra sections |
 
 ## Architectures supported
 
@@ -159,7 +159,7 @@ These shape every decision in the artifact:
 | Part | What it contains |
 | --- | --- |
 | **1. Operator playbook** | Steps 0–8 the agent follows: detect run mode → sanity check → interview → decide → write → refine best practices → prompt + persist → commit → push → report. |
-| **2. Interview** | 16 questions across 6 tiers, plus a Q5 disambiguation table. |
+| **2. Interview** | 17 questions across 6 tiers, plus a Q5 disambiguation table. |
 | **3. Decision matrix** | 40+ files with Type / Trigger / Re-run policy. |
 | **4. File templates** | Embedded templates for every file, including 9 architecture variants, 5 language variants × 4 template families, 4 permission posture variants, 3 license variants, 5 per-tool adapter variants. |
 | **5. Post-bootstrap checklist** | User-facing next steps. |

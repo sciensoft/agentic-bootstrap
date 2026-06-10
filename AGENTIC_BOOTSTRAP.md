@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD010 -->
 <!-- MD010 disabled: Makefile fenced blocks legitimately require hard tabs (POSIX make spec). -->
-<!-- bootstrap-version: 2026-06-11 -->
+<!-- bootstrap-version: 2026-06-12 -->
 <!-- Version is the ISO date this file was last meaningfully changed. -->
 <!-- Bumped manually on each notable change; the diff lives in BOOTSTRAP_CHANGELOG.md. -->
 
@@ -44,7 +44,7 @@ Both modes share the same playbook from this point on, with these behavioural di
 | | First-time mode | Re-run / update mode |
 | --- | --- | --- |
 | Step 1 collision check | Stop on any of `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/` | Expected to exist; no abort |
-| Step 2 interview | Ask all 16 questions | Ask only questions whose flag is **missing** from `.agents/bootstrap.json` |
+| Step 2 interview | Ask all 17 questions | Ask only questions whose flag is **missing** from `.agents/bootstrap.json` |
 | Step 4 file writes | Write every applicable file from scratch | Apply the per-file **re-run policy** (Canon / Mixed / Sacred — see Part 3 matrix) |
 | Step 6 commit message | `Bootstrap project with agentic workflow conventions` | `Re-bootstrap: <one-line summary of what changed>` (e.g. *"refresh rules to `<date>` bootstrap version"*) |
 
@@ -162,8 +162,8 @@ For each file you decided to write in Step 3:
     **Write all posture configs first** (after creating directories, before any other file) so the chosen autonomy level takes effect for the rest of the bootstrap's writes — especially the `BYPASS` and `TRUSTED_DEV` variants that pre-allow the build / git operations the bootstrap itself will run.
   - **`LANG`** (Q4): controls four template families — the `.gitignore` variant, the manifest + test-scaffold variant, the linter / formatter config variant, and the `Makefile` variant. Each family has Python / TypeScript-Node / Go / Rust / Fallback variants. Pick the variant matching the user's primary language across all four; they ship together. If mixed (e.g. fullstack monorepo), pick the dominant backend language and tell the user the frontend equivalents need adding separately.
   - **`ARCH`** (Q5): variants `4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS` each have their own `layered-architecture.md` template. `HEXAGONAL` covers the Hexagonal / Ports and Adapters / Clean Architecture / Onion Architecture family (single template, names all four traditions); `MICROSERVICE` documents one service in a larger ecosystem — internal layering plus cross-service conventions; `VERTICAL_SLICE` documents the feature-first layout where each slice owns its own thin layers; `MONOREPO` documents the top-level workspace layout (sub-projects pick their own internal architecture on add); `SERVERLESS` documents a handlers-first layout for FaaS codebases. If `ARCH=OTHER`, ask the user for a one-paragraph description and write a minimal stub capturing it. If `ARCH=FLAT`, don't write the file. If Q5 elicited a system-topology answer that doesn't directly map (serverless / FaaS / monorepo / modular monolith / SOA), a vocabulary-alias answer (hexagonal / ports and adapters / clean / onion), or bare *DDD*, run the disambiguation in Part 2 before settling on `ARCH`.
-  - **`LICENSE`** (Q13): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q13's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
-- **Conditional file writes**: `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` are written only if Q14 `CONTRIB=yes`. `LICENSE` is written only if Q13 `LICENSE != SKIP`. `.env.example` is written only if Q8 `ENV_VARS=yes` (skipped for purely static frontends, libraries, and other projects with no runtime config).
+  - **`LICENSE`** (Q14): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q14's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
+- **Conditional file writes**: `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` are written only if Q15 `CONTRIB=yes`. `LICENSE` is written only if Q14 `LICENSE != SKIP`. `.env.example` is written only if Q8 `ENV_VARS=yes` (skipped for purely static frontends, libraries, and other projects with no runtime config).
 - **Re-run policy** (re-run mode only): every file in the Part 3 decision matrix has a **Re-run** category — `Canon`, `Mixed`, or `Sacred`. For each file you would write in first-time mode, on re-run apply the category's behaviour:
   - **`Canon`** — versioned discipline; the bootstrap is the source of truth. Diff the would-write content against what's on disk. If different, **overwrite silently** (announce the change in the Step 8 report). If identical, no-op.
   - **`Mixed`** — user is expected to layer project-specific additions on top of the bootstrap baseline. Diff the would-write content against what's on disk. If different, **show the user a unified diff and ask**: *overwrite* (use the new bootstrap version, discarding their additions), *keep* (preserve the user's version unchanged), or *merge* (the agent attempts to add new entries from the bootstrap baseline without removing user additions — only viable for additive-only changes like new gitignore lines or new allow-list entries; ask the user to review the merged file before continuing). If identical, no-op.
@@ -186,7 +186,7 @@ Then act:
 
 - **If web access is available**, run a small fan-out of targeted queries in parallel with the rest of Step 4's file writes — don't block other writes on this. Search for:
   - `"<LANG> best practices <CURRENT_YEAR>"` (general)
-  - `"<LANG> <primary framework from Q14/Q15> idioms"` (framework-specific — extract framework names from the user's run instructions, dependencies, or free-form notes)
+  - `"<LANG> <primary framework from Q15/Q16> idioms"` (framework-specific — extract framework names from the user's run instructions, dependencies, or free-form notes)
   - `"<LANG> testing patterns"` (if `TESTING=yes`, to feed the file's testing-discipline cross-refs)
   - `"<LANG> <ARCH lowercase, e.g. ddd / 3-tier / spa>"` (architecture-specific)
   - One or two follow-up fetches against authoritative sources surfaced by the searches (official framework docs, well-regarded style guides — prefer first-party sources over blog posts).
@@ -320,20 +320,21 @@ The disambiguation is one shot, not a tree. If the clarification still doesn't f
 | Q10 | **UI component vocabulary?** "Does the project have a UI with reusable components worth cataloguing (buttons, cards, modals, dropdowns)?" | `UI_COMPONENTS` flag — controls `ui-components.md` |
 | Q11 | **Governed metrics?** "Does the project emit metering / observability events where names and labels matter (user analytics, billing-tied counters, cardinality-sensitive dashboards)?" | `METRICS` flag — controls `workflow-metrics.md` |
 | Q12 | **Testing discipline?** "Should every artifact-producing change ship with the tests that prove its behaviour? **Yes** (recommended for anything that will live longer than a weekend) installs `workflow-testing.md` — the pyramid (unit-heavy / integration-light / e2e-thin), mock at boundaries not internals, regression-first for bug fixes, TDD encouraged but not mandated, coverage tracked without a hard floor, tests bundled into the same commit as the change they cover. **No** skips the rule (sensible for throwaway scripts, one-off prototypes, repos where you'll add tests later)." | `TESTING` flag — controls `workflow-testing.md` |
+| Q13 | **Shared-frontend propagation discipline?** "Does the project have UI / frontend code with shared components, hooks, types, or styling tokens reused across pages? **Yes** installs `workflow-frontend.md` — the *touch-source-sweep-consumers* rule: before patching a consumer, find the canonical source; edit there; list every consumer that imports it; fix or call out behavioural regressions in the same commit; never duplicate to make a local tweak. Removes the friction of having to re-request the same fix across pages. **No** skips the rule (sensible for backend-only projects, pure CLI tools, libraries with no UI, or projects where frontend code is genuinely page-local)." | `FRONTEND` flag — controls `workflow-frontend.md` |
 
 ### Repository metadata
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q13 | **License?** "Single-pick: **MIT** (permissive, most popular OSS), **Apache 2.0** (permissive + explicit patent grant — preferred for larger projects), **Proprietary** (all rights reserved, internal use only), **Skip** (no LICENSE file)." **If LICENSE ≠ SKIP**, also ask: *"Who is the copyright holder? (person name or organisation — used in the LICENSE file's copyright line.)"* | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
-| Q14 | **Accepting external contributions?** "yes / no. If yes, scaffold `CONTRIBUTING.md` with a stub covering dev setup, branch / PR conventions, code style pointer, and how to file issues. If no (internal / personal project), skip the file." | `CONTRIB` flag — controls `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
+| Q14 | **License?** "Single-pick: **MIT** (permissive, most popular OSS), **Apache 2.0** (permissive + explicit patent grant — preferred for larger projects), **Proprietary** (all rights reserved, internal use only), **Skip** (no LICENSE file)." **If LICENSE ≠ SKIP**, also ask: *"Who is the copyright holder? (person name or organisation — used in the LICENSE file's copyright line.)"* | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
+| Q15 | **Accepting external contributions?** "yes / no. If yes, scaffold `CONTRIBUTING.md` with a stub covering dev setup, branch / PR conventions, code style pointer, and how to file issues. If no (internal / personal project), skip the file." | `CONTRIB` flag — controls `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
 
 ### Free-form details
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q15 | **Run instructions.** "What's the command(s) to run locally? Any major system prerequisites (ffmpeg, postgres, GPU, …)?" | `AGENTS.md` run section |
-| Q16 | **Anything else load-bearing for the brief?** Persistence story, security notes, deployment, dependencies, model swap-points — anything top-of-mind the agent should re-read on every cold start. | `AGENTS.md` extra sections |
+| Q16 | **Run instructions.** "What's the command(s) to run locally? Any major system prerequisites (ffmpeg, postgres, GPU, …)?" | `AGENTS.md` run section |
+| Q17 | **Anything else load-bearing for the brief?** Persistence story, security notes, deployment, dependencies, model swap-points — anything top-of-mind the agent should re-read on every cold start. | `AGENTS.md` extra sections |
 
 ---
 
@@ -372,7 +373,7 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `.env.example` | Opt-in | Q8 = yes (`ENV_VARS`). Skipped for purely static frontends, libraries, and scripts with no runtime config. | S |
 | `.editorconfig` | Always | universal | C |
 | `README.md` | Always | public-facing project intro; minimal stub | S |
-| `LICENSE` | Conditional | written if Q13 `LICENSE != SKIP`. Content variant picked by `LICENSE` value (MIT / APACHE_2_0 / PROPRIETARY). | S |
+| `LICENSE` | Conditional | written if Q14 `LICENSE != SKIP`. Content variant picked by `LICENSE` value (MIT / APACHE_2_0 / PROPRIETARY). | S |
 | `<manifest>` + `tests/` scaffold | Always | manifest filename + test layout dispatched by Q4 `LANG` | S |
 | `<linter configs>` | Always | content variants picked by Q4 `LANG` (`ruff.toml` / `eslint.config.js` + `.prettierrc.json` / `.golangci.yml` / `rustfmt.toml` / skip) | M |
 | `Makefile` | Always | content variant picked by Q4 `LANG` | M |
@@ -380,14 +381,15 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `SECURITY.md` | Always | universal; private vulnerability disclosure | S |
 | `.gitattributes` | Always | universal; line-ending normalisation + binary detection + linguist hints | C |
 | `CHANGELOG.md` | Always | universal; Keep a Changelog format | S |
-| `CODE_OF_CONDUCT.md` | Opt-in | Q14 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
-| `CONTRIBUTING.md` | Opt-in | Q14 = yes (`CONTRIB`) | S |
+| `CODE_OF_CONDUCT.md` | Opt-in | Q15 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
+| `CONTRIBUTING.md` | Opt-in | Q15 = yes (`CONTRIB`) | S |
 | `.docs/prompts/<ts>.bootstrap_project.md` | Always | written in Step 5 | N |
 | `.agents/rules/layered-architecture.md` | Opt-in | Q5 ≠ FLAT (`LAYERED` derived). Template variant picked by `ARCH` value — `4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS`, or `OTHER` stub. | C |
 | `.agents/rules/workflow-changes.md` | Opt-in | Q9 = yes (`CHANGES`) | C |
 | `.agents/rules/ui-components.md` | Opt-in | Q10 = yes (`UI_COMPONENTS`) | C |
 | `.agents/rules/workflow-metrics.md` | Opt-in | Q11 = yes (`METRICS`) | C |
 | `.agents/rules/workflow-testing.md` | Opt-in | Q12 = yes (`TESTING`) | C |
+| `.agents/rules/workflow-frontend.md` | Opt-in | Q13 = yes (`FRONTEND`) | C |
 
 ---
 
@@ -418,6 +420,7 @@ Always follow the rules under `.agents/rules/`:
 {{IF_UI_COMPONENTS}}@.agents/rules/ui-components.md
 {{IF_METRICS}}@.agents/rules/workflow-metrics.md
 {{IF_TESTING}}@.agents/rules/workflow-testing.md
+{{IF_FRONTEND}}@.agents/rules/workflow-frontend.md
 
 When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as a thin pointer rather than a parallel brief.
 ````
@@ -816,6 +819,7 @@ Once the work is done, create a git commit that includes:
 - The prompt file (`.docs/prompts/<ts>.<slug>.md`).
 - Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
 {{IF_TESTING}}- The tests that cover the change (per [`workflow-testing.md`](./workflow-testing.md) — same commit as the behaviour they prove; bug fixes start with a failing regression test).
+{{IF_FRONTEND}}- For shared frontend changes: every consumer update that follows from the change (per [`workflow-frontend.md`](./workflow-frontend.md) — touch source, sweep consumers, no inline duplication).
 - Every other file produced or modified while handling the request.
 
 Commit message conventions:
@@ -1075,7 +1079,7 @@ This is not a verbatim template — it's the contract the agent follows when pro
 
 **Required sections** (in this order; expand each from current research for the user's specific stack):
 
-1. `# Best Practices` — H1 title plus a one-paragraph orientation that names the stack ({{LANG}} + main framework(s) detected from Q14/Q15) and the date of the research pass.
+1. `# Best Practices` — H1 title plus a one-paragraph orientation that names the stack ({{LANG}} + main framework(s) detected from Q15/Q16) and the date of the research pass.
 2. `## Architecture` — language- and framework-specific notes on the chosen `ARCH`. If `LAYERED`, cross-reference [`layered-architecture.md`](./layered-architecture.md) and keep the architecture-rule as the source of truth on layer names / arrows; this file adds *language-idiomatic* layering notes (e.g. for Python+FastAPI: dependency-injection via `Depends`; for Go: interface segregation at package boundaries; for TS+Next.js: server vs client component split).
 3. `## Repository pattern` — current idioms for the chosen language's ORM / data layer. Cite the ORM's own docs.
 4. `## Service pattern` — orchestration conventions, with the chosen framework's lifecycle / DI primitives named.
@@ -2246,6 +2250,140 @@ The cost of writing the test now is small. The cost of *not* writing it — the 
 
 ---
 
+### Template: `.agents/rules/workflow-frontend.md` *(opt-in, write only if `FRONTEND`)*
+
+````markdown
+# Workflow: keeping shared frontend code in sync
+
+This rule supplements [`workflow.md`](./workflow.md) for changes that touch **shared / reusable frontend code** — components, hooks / composables, types, styling tokens, layout primitives. When a request says *"fix component `X` on page `Y`"* or *"add a variant to component `X`"*, the discipline below ensures the fix lives at the source and every other consumer benefits in the same commit — instead of patching one usage and leaving the others stale.
+
+The underlying principle applies to any shared code (a backend repository class reused across services has the same dynamics), but the friction is sharpest on the frontend because shared UI shows up visibly across many pages, and a missed consumer is a regression a user will notice.
+
+## When this rule applies
+
+- The change touches a file under `components/`, `hooks/`, `pages/components/`, `lib/ui/`, `src/shared/`, or whichever directory the project uses for shared frontend code (see [`layered-architecture.md`](./layered-architecture.md) for the exact paths).
+- The change affects a shared type, interface, prop signature, or styling token (Tailwind theme value, CSS custom property, design token, theme file entry).
+- The user request mentions a specific page or consumer, but the underlying fix lives in shared code that other pages also import.
+- The change adds, removes, renames, or changes the default behaviour of a shared affordance.
+
+## When this rule does NOT apply
+
+- The change is genuinely page-local — a one-off layout for a specific route, a content edit, route-specific business logic, a page-only style override.
+- The change is to a leaf component that's used in exactly one place AND is unlikely to be reused (delete it and inline the markup if simpler).
+- The change is to a generated file (auto-generated routes, generated GraphQL types, etc.) — fix the generator, not the artefact.
+
+## The discipline — Touch source, sweep consumers
+
+For any shared-frontend change, walk this five-step check before staging files:
+
+### 1. Find the source of truth
+
+Before editing anything, identify the canonical file the request actually wants changed:
+
+```bash
+# Component named in the request
+grep -rE '<ComponentName[ />]' src/
+grep -r "from .*components/component-name" src/
+
+# Hook
+grep -r "useComponentBehaviour" src/
+
+# Type / interface
+grep -r ": *ComponentNameProps" src/
+```
+
+If the component or hook exists in **multiple files** (you've duplicated it across consumers — either by inlining or by failing to lift), **stop**: lift to the shared location first as its own commit, then make the requested change against the lifted source. Don't patch one copy and walk away.
+
+### 2. Edit the source — never the consumer
+
+Make the requested change in the canonical file. **Do not patch a consumer with a local copy of the fix**; that's the moment drift starts and a future contributor finds two versions of the same component with the same bug-with-fix-in-only-one.
+
+The only exception: when the consumer genuinely needs different behaviour the shared component shouldn't take on. In that case, add a prop to the shared component (and document the intended use) — never branch the implementation inline at the call site.
+
+### 3. List every consumer
+
+Capture the full consumer list — every file that imports the shared thing being changed:
+
+```bash
+grep -rln "from .*components/component-name" src/ | sort
+```
+
+The list goes in the prompt file's *Reasoning* section so reviewers can verify the sweep was actually walked. For type / styling-token changes, the consumer list includes every file that references the type or token, not just direct imports.
+
+### 4. Sweep for regressions
+
+For each consumer in the list, ask: *Does this change visually or behaviourally break it?*
+
+- **If yes**, fix the consumer in the same commit. The fix may be trivial (e.g. accept a new required prop) or substantive (e.g. update the consumer's tests to match the new behaviour). Either way, it lands here.
+- **If no**, note it briefly in the prompt file so reviewers can verify (e.g. *"checkout.tsx unaffected — uses default props; the change only adds a new optional prop"*).
+
+For visual changes, this includes opening each consumer's story (Storybook / Histoire) or running the dev server and clicking through every affected route. Don't skip the visual check — type-checking catches API shape but not pixel regressions.
+
+### 5. Sweep for opportunities
+
+For each consumer, also ask: *Would this change benefit it too?*
+
+- A new optional prop that improves UX → consider applying to consumers that would benefit.
+- A more accessible default → propagate when feasible.
+- A new variant of a styling token → apply where the old, less-correct token was used.
+
+The opportunities sweep is softer — it's about leaving the codebase a little tidier than you found it, not exhaustively. Capture the verdict in the prompt file: *"Applied to checkout.tsx and profile.tsx; left settings.tsx untouched because the old behaviour is still preferred there"*.
+
+## Same-commit rule
+
+Per [`workflow.md`](./workflow.md), every artifact-producing request bundles its prompt, ADR (when relevant), tests, telemetry, and code into one commit. With this rule installed, the same commit ALSO bundles:
+
+- The shared-code change.
+- Every consumer update that follows from it (regression fixes + opportunity updates).
+- Updates to any shared-component test or story (`*.stories.tsx`, `*.test.tsx`).
+- Any updated type definitions and the consumer-side type fixes they cascade into.
+
+The prompt file's *Reasoning* section names the consumer sweep explicitly so a future reader can reconstruct what was checked:
+
+```markdown
+## Reasoning
+- Shared change: `<Button>` gained an optional `loading` prop (default `false`)
+- Consumers swept: `pages/checkout.tsx`, `pages/profile/settings.tsx`, `components/forms/submit-button.tsx`
+- Applied to `pages/checkout.tsx` (place-order action shows a spinner now)
+- `components/forms/submit-button.tsx` already had its own spinner — flagged as a candidate for retirement (added to `.docs/todos/`)
+- `pages/profile/settings.tsx` unaffected — submit happens synchronously
+```
+
+## Anti-patterns to call out
+
+These are the moments the discipline breaks down — flag them when reviewing PRs, prompt-files, or your own work in progress:
+
+- **"Quick fix" inline at the call site.** Copying a component into a consumer to tweak it is the moment drift starts. If the consumer genuinely needs a variant, add a prop to the shared component or split into related shared components — never inline a copy.
+- **Patching the symptom on the visible page.** If page `Y` has a visual bug coming from a shared component, the fix lives at the shared component, not at page `Y`. The agent's first move should be `grep` to find where the affordance was actually defined.
+- **Leaving stale consumers.** Renaming a component, changing a prop signature, or removing a deprecated API without updating all call sites in the same commit. Type-checking catches some of this; the consumer sweep catches the rest.
+- **Hard-coding what should be a token.** Using a literal colour, spacing, font size, or border-radius in a component when the project has a design-token / theme system. The token is the source of truth; hard-coded values become drift sources.
+- **Forking the shared component into "v2" alongside "v1".** The temptation is to leave the old version untouched and add a new one. Resist: do the migration or accept that you're carrying technical debt. If migration is genuinely too big for one PR, capture the migration plan in an ADR and add a TODO with the *Revisit when* trigger.
+- **Skipping the consumer-sweep documentation.** If the prompt file doesn't list the consumers checked, the discipline didn't happen — even if the change itself is correct.
+
+## Tooling that helps
+
+Different stacks have different tools, but the principle holds:
+
+- **TypeScript / React / Vue / Svelte**: `tsc --noEmit` catches type-signature drift across consumers. ESLint rules like `react/no-deprecated`, `import/no-unused-modules`, `@typescript-eslint/no-unused-vars` catch common issues. `madge` or `dependency-cruiser` visualise the import graph so you can see all consumers at a glance. Storybook / Histoire makes the visual sweep cheap — every consumer gets a story.
+- **CSS / Tailwind / styling tokens**: Keep design tokens (colours, spacings, radii, font sizes) in one source — Tailwind config, CSS custom properties, or a dedicated theme file. Linting rules can ban hard-coded values where a token exists.
+- **Component library extraction**: When the shared-component count grows past ~30, consider extracting them into a workspace package with its own published types. The boundary forces the discipline by making consumers go through a public API.
+
+## Cross-references
+
+- **[`workflow.md`](./workflow.md)** for the per-request bundle (prompt → ADR → telemetry → commit → push). This rule extends the bundle with the consumer sweep.
+- **[`workflow-testing.md`](./workflow-testing.md)** (if installed) for the testing layer: shared-component changes get unit + integration test updates; consumer regressions need their own regression tests when the bug was visible-only.
+- **[`ui-components.md`](./ui-components.md)** (if installed) for the canonical UI affordance catalog. The catalog tells you *what* exists; this rule tells you *how* to change it without breaking the consumers that already use it.
+- **[`layered-architecture.md`](./layered-architecture.md)** for where shared code actually lives in this project's structure.
+
+## Why this rule exists
+
+In frontend codebases especially, the cost of NOT propagating a shared change is invisible at first and painful later. The agent fixes page `Y`, the user closes the request, and three weeks later someone notices pages `Z`, `W`, and `Q` have the same bug — because the fix was applied to the symptom, not the source. Every re-request is the agent doing work that should have happened the first time, and a vote of low confidence from the user that the discipline holds.
+
+This rule turns the agent's reflex from *"fix the requested file"* into a slightly larger reflex: *"fix the source AND sweep consumers."* The marginal cost per request is small — usually a `grep` and a clear note in the prompt file. The cumulative savings over a year — fewer regressions, fewer re-requests, less consumer drift — are large and quiet, which is why teams don't notice the value until they've lived without it.
+````
+
+---
+
 ### Template: `.agents/rules/ui-components.md` *(opt-in, write only if `UI_COMPONENTS`)*
 
 ````markdown
@@ -3027,7 +3165,7 @@ The agent fills `{{CURRENT_YEAR}}` from `date +%Y` and asks the user for `{{COPY
 
 ### Template: `LICENSE` — variant for `LICENSE=APACHE_2_0`
 
-Write the file with the populated header (using `{{CURRENT_YEAR}}` from `date +%Y` and `{{COPYRIGHT_HOLDER}}` from the Q13 follow-up prompt) followed by the canonical Apache 2.0 license text verbatim. The full file:
+Write the file with the populated header (using `{{CURRENT_YEAR}}` from `date +%Y` and `{{COPYRIGHT_HOLDER}}` from the Q14 follow-up prompt) followed by the canonical Apache 2.0 license text verbatim. The full file:
 
 ````text
 Copyright {{CURRENT_YEAR}} {{COPYRIGHT_HOLDER}}
@@ -3299,6 +3437,7 @@ Always follow the rules in `.agents/rules/`:
 {{IF_UI_COMPONENTS}}- [`ui-components.md`](.agents/rules/ui-components.md) — catalog of canonical UI affordances. Before adding a new affordance, check the catalog and clone the canonical file's shape; never invent a one-off variant inline.
 {{IF_METRICS}}- [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) — companion to `workflow.md` for *metering* changes. Adding / modifying / removing a metered event must move surfaces in lockstep — constant, call site, catalog row, display side — all in the same commit. Cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable.
 {{IF_TESTING}}- [`workflow-testing.md`](.agents/rules/workflow-testing.md) — companion to `workflow.md` for testing discipline. Every artifact-producing change ships with the tests that prove its behaviour, in the same commit. Pyramid-shaped (unit-heavy / integration-light / e2e-thin), mock at boundaries not internals, bug fixes start with a failing regression test, TDD encouraged but not mandated, coverage tracked without a hard floor.
+{{IF_FRONTEND}}- [`workflow-frontend.md`](.agents/rules/workflow-frontend.md) — companion to `workflow.md` for shared frontend code. Touch the source, sweep the consumers: before patching a consumer, find the canonical source; edit there; list every importer; fix or call out behavioural regressions in the same commit; never duplicate to make a local tweak. Removes the friction of having to re-request the same fix across pages.
 
 Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
 
@@ -3344,6 +3483,7 @@ Read these files at the start of any non-trivial task; they define the project's
 {{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md`
 {{IF_METRICS}}- `.agents/rules/workflow-metrics.md`
 {{IF_TESTING}}- `.agents/rules/workflow-testing.md`
+{{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md`
 
 ADRs (architecture decisions) live under `.docs/adrs/` — read these before making structural changes. Do-later ideas live under `.docs/todos/`. Per-request prompt files live under `.docs/prompts/`.
 
@@ -3371,6 +3511,7 @@ read:
 {{IF_UI_COMPONENTS}}  - .agents/rules/ui-components.md
 {{IF_METRICS}}  - .agents/rules/workflow-metrics.md
 {{IF_TESTING}}  - .agents/rules/workflow-testing.md
+{{IF_FRONTEND}}  - .agents/rules/workflow-frontend.md
 
 # --- Q3 POSTURE-driven autonomy keys -----------------------------------------
 # CAUTIOUS  — every edit and shell command prompts; auto-commit off.
@@ -3455,6 +3596,7 @@ Always-loaded context:
 {{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md` — canonical component vocabulary.
 {{IF_METRICS}}- `.agents/rules/workflow-metrics.md` — metering / cardinality rules.
 {{IF_TESTING}}- `.agents/rules/workflow-testing.md` — testing pyramid + regression-first + same-commit test gate.
+{{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md` — shared frontend code: touch source, sweep consumers, no inline duplication.
 
 ADRs: `.docs/adrs/`. Per-request prompts: `.docs/prompts/`. Deferred ideas: `.docs/todos/`. Security audits: `.docs/security/`.
 
@@ -3499,6 +3641,10 @@ Before any security-sensitive commit, walk the rubric in [`.docs/security/method
 {{IF_TESTING}}
 {{IF_TESTING}}Every artifact-producing change ships with its tests in the same commit. Pyramid shape: unit-heavy, integration-light, e2e-thin. Mock at boundaries (HTTP, clock, randomness, third-party SDKs) — never internals. Bug fixes start with a failing regression test. TDD is encouraged but not mandated; the hard rule is *tests + code in the same commit*. Coverage is tracked, not gated by a percentage. Flaky tests are P1 — fix or quarantine with a dated entry under `.docs/todos/`.
 {{IF_TESTING}}
+{{IF_FRONTEND}}## Shared frontend (summary — full text in `.agents/rules/workflow-frontend.md`)
+{{IF_FRONTEND}}
+{{IF_FRONTEND}}When a request says *"fix component X on page Y"*, find the canonical source first (`grep -r` for the import), edit there, and list every consumer in the prompt file. Sweep each consumer for regressions and opportunities; fold the consumer updates into the same commit. Never patch a consumer with a local copy of the fix — that's how drift starts. Anti-patterns: forking components into v2, hard-coding values where a token exists, leaving stale consumers after a prop rename.
+{{IF_FRONTEND}}
 ## Autonomy posture (intent — apply manually in Copilot's IDE settings)
 
 GitHub Copilot does not have a file-based permission model the bootstrap can write. The project's chosen autonomy posture is **`{{POSTURE}}`**, which translates to Copilot behaviour as follows — set the matching preferences in your IDE's Copilot settings:
@@ -3886,6 +4032,7 @@ Shape:
     "UI_COMPONENTS": {{UI_COMPONENTS}},
     "METRICS": {{METRICS}},
     "TESTING": {{TESTING}},
+    "FRONTEND": {{FRONTEND}},
     "BEST_PRACTICES_REFINED": {{BEST_PRACTICES_REFINED}},
     "LICENSE": "{{LICENSE}}",
     "COPYRIGHT_HOLDER": "{{COPYRIGHT_HOLDER}}",

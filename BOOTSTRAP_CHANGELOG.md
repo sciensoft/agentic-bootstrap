@@ -9,6 +9,22 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+## [2026-06-12] — Shared-frontend propagation rule + landing-page contribute section
+
+### Added
+
+- **Q13 `FRONTEND` feature gate.** New opt-in interview question installing `.agents/rules/workflow-frontend.md` — the *touch-source-sweep-consumers* discipline for shared frontend code. When a request says *"fix component X on page Y"*, the rule forces the agent to find the canonical source via `grep`, edit there (not the consumer), list every importer in the prompt file, sweep each consumer for regressions and opportunities, and fold the consumer updates into the same commit. Anti-patterns called out: inline "quick fix" copies, forking shared components into `v2` variants, leaving stale consumers after a prop rename, hard-coding values where a design token exists. Removes the friction of engineers having to re-request the same fix across multiple pages.
+- Landing-page **Contribute / feedback section** before the CTA — three linked cards (Bug report → Issues, Discussion → Discussions, Pull request → Compare) with copy that names what to include in each.
+
+### Changed
+
+- Interview count bumped from 16 to 17. Previous Q13–Q16 (LICENSE / CONTRIB / RUN_INSTRUCTIONS / ADDITIONAL) renumbered to Q14–Q17. `bootstrap.json` schema gains the `FRONTEND` boolean key. AGENTS.md template + Claude / Cursor / Aider / Windsurf / Copilot adapters all carry a new `{{IF_FRONTEND}}` reference so the rule is loaded automatically when the gate is on.
+- `workflow.md` commit checklist gains a `{{IF_FRONTEND}}` line: *"For shared frontend changes: every consumer update that follows from the change."*
+
+### Migration
+
+- Existing projects pick up the new question on next re-run. If the project has a UI surface, answer `yes` to install the rule; otherwise `no` and re-run is idempotent.
+
 ## [2026-06-11] — Per-tool permission posture fan-out + adoption scaffolding
 
 ### Added
