@@ -235,11 +235,14 @@
         clusterBorder: 'rgba(167, 139, 250, 0.35)',
         edgeLabelBackground: '#0a0a0b',
         fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-        fontSize: '15px'
+        fontSize: '18px'
       },
       flowchart: {
         curve: 'basis',
-        padding: 14
+        padding: 24,
+        htmlLabels: true,
+        nodeSpacing: 60,
+        rankSpacing: 80
       }
     });
   </script>
@@ -806,32 +809,12 @@
         <h2 class="mt-3 text-3xl md:text-4xl font-bold tracking-tight">Small input. Disciplined output.</h2>
         <p class="mt-4 text-zinc-400 text-lg">Three stages, one prompt. The asymmetry is the point — a single markdown file plus a 16-question interview becomes a disciplined working repo.</p>
       </div>
-      <div class="mermaid-surface rounded-2xl p-6 md:p-10 overflow-x-auto reveal">
+      <div class="mermaid-surface rounded-2xl p-8 md:p-14 overflow-x-auto reveal">
         <div class="mermaid">
 flowchart LR
-  subgraph hand["Hand it over"]
-    direction TB
-    file["AGENTIC_BOOTSTRAP.md"]
-    prompt["one prompt"]
-    stack["your stack &amp; agent of choice"]
-  end
-  subgraph interview["Interview"]
-    direction TB
-    q["16 questions"]
-    defaults["smart defaults"]
-    dispatch["Q4 LANG / Q5 ARCH<br/>dispatch"]
-  end
-  subgraph grow["Grow the discipline"]
-    direction TB
-    rules["workflow rules"]
-    adrs["ADR culture"]
-    tests["testing pyramid"]
-    tele["telemetry"]
-    sec["security rubric"]
-    todos["TODO discipline"]
-    adapters["per-tool adapters"]
-    commit["one focused commit"]
-  end
+  hand["<b>Hand it over</b><br/><br/>AGENTIC_BOOTSTRAP.md<br/>one prompt<br/>your stack &amp; agent"]
+  interview["<b>Interview</b><br/><br/>16 questions<br/>smart defaults<br/>Q4 LANG · Q5 ARCH dispatch"]
+  grow["<b>Grow the discipline</b><br/><br/>workflow rules<br/>ADR culture<br/>testing pyramid<br/>telemetry<br/>security rubric<br/>TODO discipline<br/>per-tool adapters<br/>one focused commit"]
   hand --> interview --> grow
         </div>
       </div>
