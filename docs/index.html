@@ -4,17 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agentic Bootstrap — Fresh repo to Claude-Code-ready in one prompt</title>
+  <title>Agentic Bootstrap — Fresh repo to Agent-ready in one prompt</title>
   <meta name="description"
-    content="One file. Hand it to an agent in any repo. It interviews you, scaffolds the rules, ADRs, prompts, and todo discipline, then commits the lot. Opinionated. Project-agnostic.">
+    content="One file. Hand it to any agentic coding assistant (Claude Code, Cursor, Aider, Codex, OpenCode, Continue.dev, Windsurf, Copilot) in any repo. It interviews you, scaffolds the rules, ADRs, prompts, todos, and the testing pyramid — then bundles every change into a single disciplined git commit. Opinionated. Project-agnostic. Tool-agnostic.">
   <meta property="og:title" content="Agentic Bootstrap">
-  <meta property="og:description" content="From fresh repo to Claude-Code-ready, in one prompt.">
+  <meta property="og:description" content="From fresh repo to agent-ready, in one prompt. Works with Claude Code, Cursor, Aider, Codex, OpenCode, Continue.dev, Windsurf, and Copilot.">
   <meta property="og:type" content="website">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
 
   <!-- Google tag (gtag.js) -->
@@ -167,15 +167,21 @@
       transform: translateY(0);
     }
 
-    /* Subtle button shine */
+    /* Primary CTA — violet pill, light white text with a sharp black shadow-line */
     .btn-primary {
-      background: linear-gradient(180deg, #c4b5fd 0%, #8b5cf6 100%);
-      color: #18181b;
-      box-shadow: 0 8px 28px -8px rgba(139, 92, 246, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+      background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+      color: #ffffff;
+      font-weight: 300;
+      letter-spacing: 0.015em;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.75);
+      box-shadow:
+        0 8px 24px -8px rgba(124, 58, 237, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      transition: filter 120ms ease;
     }
 
     .btn-primary:hover {
-      filter: brightness(1.06);
+      filter: brightness(1.1);
     }
 
     /* Nav blur backdrop */
@@ -234,17 +240,16 @@
           <div
             class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
             <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-            Workflow discipline · for AI coding
+            Workflow discipline · for AI coding · tool-agnostic
           </div>
           <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-            Fresh repo to
-            <span class="text-gradient">Claude-Code-ready</span>,
-            in one prompt.
+            <span class="block">Fresh repo to</span>
+            <span class="block text-gradient">Agent-ready,</span>
+            <span class="block">in one prompt.</span>
           </h1>
           <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-            Hand <span class="font-mono text-zinc-200">AGENTIC_BOOTSTRAP.md</span> to an agent. It interviews you,
-            scaffolds the rules, ADRs, prompts, and todo discipline — then commits the lot. Opinionated.
-            Project-agnostic. <span class="text-zinc-200 font-medium">One file.</span>
+            Hand <span class="font-mono text-zinc-200">AGENTIC_BOOTSTRAP.md</span> to your favourite agentic coding
+            assistant. It interviews you, scaffolds the rules, ADRs, prompts, todo discipline, and the testing pyramid — then bundles every change into <span class="text-zinc-200 font-medium">one focused git commit</span>: prompt, ADR, tests, telemetry, code. Opinionated. Project-agnostic. <span class="text-zinc-200 font-medium">One file. Every agent.</span>
           </p>
           <div class="mt-9 flex flex-wrap items-center gap-3">
             <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENTIC_BOOTSTRAP.md"
@@ -286,6 +291,29 @@
                 <polyline points="20 6 9 17 4 12" />
               </svg> One file</span>
           </div>
+
+          <!-- Works-with strip -->
+          <div class="mt-10 pt-6 border-t border-white/5">
+            <p class="text-xs font-semibold tracking-wide uppercase text-zinc-500">Works with</p>
+            <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-zinc-300">
+              <span class="font-medium">Claude Code</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">Cursor</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">Aider</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">OpenAI Codex CLI</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">OpenCode</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">Continue.dev</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">Windsurf</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">GitHub Copilot</span>
+            </div>
+            <p class="mt-2 text-xs text-zinc-500">One tool-agnostic spine — <span class="font-mono text-zinc-400">AGENTS.md</span> + <span class="font-mono text-zinc-400">.agents/rules/</span> — plus a thin adapter file per assistant you pick.</p>
+          </div>
         </div>
 
         <div class="lg:col-span-5">
@@ -301,19 +329,19 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
                 <span class="ml-3 text-xs text-zinc-500">~/my-new-project</span>
               </div>
-              <div><span class="tk-m">$</span> <span class="tk-d">claude</span></div>
+              <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · aider · codex · …</span></div>
               <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md to bootstrap this repo</div>
               <div class="mt-3 text-zinc-400">
                 <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude, Cursor, Aider</span><br>
                 <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
                 <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
-                <span class="tk-k">▸</span> Permission posture? <span class="tk-s">Trusted dev</span><br>
-                <span class="tk-c">… 10 more questions, one commit later …</span>
+                <span class="tk-c">… 11 more questions, one commit later …</span>
               </div>
               <div class="mt-3">
                 <span class="tk-c"># Scaffold written:</span><br>
-                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.claude/rules/</span>
-                <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span> <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.cursor/rules/</span> <span class="tk-c">·</span> <span class="tk-p">.aider.conf.yml</span> <span class="tk-c"># adapters</span><br>
                 <span class="tk-c">+ first commit recording the bootstrap itself</span>
               </div>
             </div>
@@ -355,7 +383,7 @@
               class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">02</span>
             <h3 class="text-lg font-semibold">Tell the agent</h3>
           </div>
-          <p class="text-zinc-400 leading-relaxed">Hand it to Claude Code (or any capable agent) with one prompt.</p>
+          <p class="text-zinc-400 leading-relaxed">Hand it to your assistant of choice — Claude Code, Cursor, Aider, Codex, Continue.dev, Windsurf, Copilot — with one prompt.</p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs">
             <span class="tk-c">› follow AGENTIC_BOOTSTRAP.md</span><br>
             <span class="tk-c">&nbsp;&nbsp;to bootstrap this repo</span>
@@ -368,11 +396,11 @@
               class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">03</span>
             <h3 class="text-lg font-semibold">Get the scaffold</h3>
           </div>
-          <p class="text-zinc-400 leading-relaxed">14 questions, smart defaults, then the agent writes the rules, ADR
-            index, prompt log, and first commit.</p>
+          <p class="text-zinc-400 leading-relaxed">16 questions, smart defaults, then the agent writes the rules, ADR
+            index, prompt log, per-tool adapters, the test scaffold — and bundles it all into one disciplined commit.</p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs">
-            <span class="tk-c"># 23 files written</span><br>
-            <span class="tk-c"># [main] chore: bootstrap project</span>
+            <span class="tk-c"># 28 files written · tests/ scaffolded</span><br>
+            <span class="tk-c"># [main] chore: bootstrap project (1 commit)</span>
           </div>
         </div>
       </div>
@@ -390,10 +418,10 @@
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">What you get</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">A repo that knows its own rules.</h2>
           <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Every artifact has a reason. <span
-              class="text-zinc-200">CLAUDE.md</span> is the cold-start brief. <span
-              class="text-zinc-200">.claude/rules/</span> holds the durable workflow rules. <span
+              class="text-zinc-200">AGENTS.md</span> is the primary cross-tool brief. <span
+              class="text-zinc-200">.agents/rules/</span> holds the durable workflow rules. <span
               class="text-zinc-200">.docs/</span> grows with the project — ADRs, timestamped prompts, deferred todos,
-            security audits.</p>
+            security audits. Per-tool adapters (<span class="font-mono text-zinc-300">CLAUDE.md</span>, <span class="font-mono text-zinc-300">.cursor/rules/</span>, <span class="font-mono text-zinc-300">.aider.conf.yml</span>, …) are thin pointers.</p>
 
           <ul class="mt-8 space-y-4 text-zinc-300">
             <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
@@ -410,6 +438,10 @@
             <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
                   class="text-zinc-100 font-medium">Security rubric</span> — OWASP-aligned methodology plus LLM-specific
                 sub-rubric. Dated audits on cadence.</span></li>
+            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
+                  class="text-zinc-100 font-medium">Tests ship with the code</span> — pyramid-shaped, mocks at boundaries only, bug fixes start with a failing regression test. Tests bundled into the same commit as the behaviour they prove.</span></li>
+            <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
+                  class="text-zinc-100 font-medium">One commit per request</span> — prompt + ADR + tests + telemetry + code, staged explicitly by path. <span class="font-mono text-zinc-400">git log</span> is the project's story; no <span class="font-mono text-zinc-400">git add -A</span> ever.</span></li>
           </ul>
         </div>
 
@@ -417,18 +449,27 @@
           <!-- IMAGE SLOT (optional): replace this codeblock with a real screenshot of a bootstrapped repo. -->
           <div class="codeblock rounded-2xl p-6 font-mono text-[13px] leading-7 overflow-x-auto">
             <pre><span class="tk-p">your-repo/</span>
-├── <span class="tk-k">CLAUDE.md</span>                       <span class="tk-c"># cold-start brief — rules, run, architecture</span>
-├── <span class="tk-k">AGENTS.md</span>                       <span class="tk-c"># cross-tool pointer to CLAUDE.md</span>
+├── <span class="tk-k">AGENTS.md</span>                       <span class="tk-c"># primary cross-tool brief — title, purpose, run, architecture</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
-├── <span class="tk-p">.claude/</span>
+│
+├── <span class="tk-p">.agents/</span>                        <span class="tk-c"># tool-agnostic spine</span>
 │   ├── <span class="tk-p">rules/</span>
-│   │   ├── <span class="tk-k">workflow.md</span>             <span class="tk-c"># prompt → ADR → commit → push</span>
+│   │   ├── <span class="tk-k">workflow.md</span>             <span class="tk-c"># prompt → ADR → telemetry → commit → push</span>
 │   │   ├── <span class="tk-k">workflow-todos.md</span>       <span class="tk-c"># how do-later ideas are captured</span>
 │   │   ├── <span class="tk-k">workflow-security.md</span>    <span class="tk-c"># per-request security checks</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>       <span class="tk-c"># code-style + idioms</span>
 │   │   └── <span class="tk-k">layered-architecture.md</span> <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   ├── <span class="tk-k">settings.json</span>               <span class="tk-c"># permission posture (cautious → bypass)</span>
 │   └── <span class="tk-k">bootstrap.json</span>              <span class="tk-c"># interview answers — re-runnable</span>
+│
+│   <span class="tk-c"># Per-tool adapters — only the ones you picked get written:</span>
+├── <span class="tk-k">CLAUDE.md</span>                       <span class="tk-c"># Claude Code adapter (@-includes the brief)</span>
+├── <span class="tk-p">.claude/</span><span class="tk-k">settings.json</span>          <span class="tk-c"># Claude permission posture (cautious → bypass)</span>
+├── <span class="tk-p">.cursor/rules/</span><span class="tk-k">agents.mdc</span>      <span class="tk-c"># Cursor adapter (alwaysApply: true)</span>
+├── <span class="tk-k">.aider.conf.yml</span>                 <span class="tk-c"># Aider read: list</span>
+├── <span class="tk-p">.continue/</span><span class="tk-k">config.json</span>         <span class="tk-c"># Continue.dev rules entry</span>
+├── <span class="tk-k">.windsurfrules</span>                  <span class="tk-c"># Windsurf adapter</span>
+├── <span class="tk-p">.github/</span><span class="tk-k">copilot-instructions.md</span> <span class="tk-c"># Copilot adapter (rules inlined)</span>
+│
 └── <span class="tk-p">.docs/</span>
     ├── <span class="tk-p">prompts/</span>                    <span class="tk-c"># timestamped, one per request</span>
     ├── <span class="tk-p">adrs/</span>                       <span class="tk-c"># slim Nygard format, indexed</span>
@@ -462,7 +503,7 @@
             </svg>
           </div>
           <h3 class="font-semibold text-lg">Interview-driven</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">14 targeted questions. Smart defaults. Re-runnable — adding a
+          <p class="mt-2 text-zinc-400 leading-relaxed">15 targeted questions. Smart defaults. Re-runnable — adding a
             new question only asks existing projects that one.</p>
         </div>
 
@@ -474,9 +515,8 @@
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
           </div>
-          <h3 class="font-semibold text-lg">Workflow discipline</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Every artifact-producing request gets a prompt file + telemetry
-            pass + one commit. <span class="font-mono text-zinc-300">git log</span> tells the story.</p>
+          <h3 class="font-semibold text-lg">One request, one commit</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Every artifact-producing request bundles prompt file + ADR (when it matters) + tests + telemetry + code into a single focused commit. No drive-by changes. No half-finished branches. <span class="font-mono text-zinc-300">git log</span> reads as the project's story.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -535,6 +575,34 @@
           <h3 class="font-semibold text-lg">Multi-language, multi-arch</h3>
           <p class="mt-2 text-zinc-400 leading-relaxed">Python · TypeScript · Go · Rust. 4-Layer DDD · 3-Tier · SPA ·
             Flat · Monorepo · Serverless. The right scaffold for the shape you pick.</p>
+        </div>
+
+        <div class="card rounded-2xl p-7 reveal">
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 12l2 2 4-4" />
+              <path d="M21 12c0 1.7-1.3 3-3 3h-1m-12 0H4c-1.7 0-3-1.3-3-3s1.3-3 3-3h1" />
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-lg">Tests ship with the code</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Pyramid-shaped: unit-heavy, integration-light, e2e-thin. Mock at boundaries, never at internals. Bug fixes start with a failing regression test that becomes the bug's tombstone. TDD encouraged but not mandated — the hard rule is <span class="text-zinc-100 font-medium">tests + code land in the same commit</span>, always. Coverage tracked, never gated by a percentage.</p>
+        </div>
+
+        <div class="card rounded-2xl p-7 reveal">
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-400/20 to-accent-600/10 grid place-items-center mb-4 border border-accent-400/20">
+            <svg class="w-5 h-5 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <path d="M8 11h6M11 8v6" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-lg">Best practices, live-refined</h3>
+          <p class="mt-2 text-zinc-400 leading-relaxed">If your agent has web search, the bootstrap probes current sources for your specific language + framework and synthesises a stack-specific <span class="font-mono text-zinc-300">best-practices.md</span> with inline citations. If not, you get a sensible generic baseline plus a per-agent enablement matrix — never blocked, never empty.</p>
         </div>
 
       </div>
@@ -627,9 +695,9 @@
         <div class="lg:col-span-5 reveal">
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Permission postures</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Trust on your terms.</h2>
-          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Pick how much autonomy the agent gets — from "ask for
+          <p class="mt-5 text-zinc-400 text-lg leading-relaxed">For Claude Code, pick how much autonomy the agent gets — from "ask for
             everything" to "no prompts ever" — and the bootstrap writes the right <span
-              class="font-mono text-zinc-200">.claude/settings.json</span>.</p>
+              class="font-mono text-zinc-200">.claude/settings.json</span>. Other assistants use their own permission models; the bootstrap respects each one's adapter conventions.</p>
           <!-- IMAGE SLOT: optional illustration showing posture progression. Replace below. -->
           <div class="img-slot mt-8 rounded-xl h-44 grid place-items-center text-xs font-mono">
             image slot — posture spectrum

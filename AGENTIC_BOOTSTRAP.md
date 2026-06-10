@@ -39,7 +39,7 @@ Both modes share the same playbook from this point on, with these behavioural di
 | | First-time mode | Re-run / update mode |
 | --- | --- | --- |
 | Step 1 collision check | Stop on any of `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/` | Expected to exist; no abort |
-| Step 2 interview | Ask all 15 questions | Ask only questions whose flag is **missing** from `.agents/bootstrap.json` |
+| Step 2 interview | Ask all 16 questions | Ask only questions whose flag is **missing** from `.agents/bootstrap.json` |
 | Step 4 file writes | Write every applicable file from scratch | Apply the per-file **re-run policy** (Canon / Mixed / Sacred — see Part 3 matrix) |
 | Step 6 commit message | `Bootstrap project with agentic workflow conventions` | `Re-bootstrap: <one-line summary of what changed>` (e.g. *"refresh rules to `<date>` bootstrap version"*) |
 
@@ -86,14 +86,46 @@ For each file you decided to write in Step 3:
   - **`POSTURE`** (Q3): variants `CAUTIOUS`, `READONLY`, `TRUSTED_DEV`, `BYPASS` each have their own `.claude/settings.json` template. **Only asked / applied if `CLAUDE ∈ AGENTS_USED`**; otherwise set `POSTURE=N_A` and skip both the question and the settings file. `TRUSTED_DEV` is composed: write the base template, then append the language-specific allow entries from the table that follows the base, picking by Q4 `LANG`. For `LANG=Other / mixed` under `TRUSTED_DEV`, skip the language addendum and tell the user post-bootstrap to extend their `allow` list with their toolchain's commands. **Write `.claude/settings.json` first** (after creating directories, before any other file) so the chosen posture takes effect for the rest of the bootstrap's file writes.
   - **`LANG`** (Q4): controls four template families — the `.gitignore` variant, the manifest + test-scaffold variant, the linter / formatter config variant, and the `Makefile` variant. Each family has Python / TypeScript-Node / Go / Rust / Fallback variants. Pick the variant matching the user's primary language across all four; they ship together. If mixed (e.g. fullstack monorepo), pick the dominant backend language and tell the user the frontend equivalents need adding separately.
   - **`ARCH`** (Q5): variants `4_LAYER_DDD`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS` each have their own `layered-architecture.md` template. `MONOREPO` documents the top-level workspace layout (sub-projects pick their own internal architecture on add); `SERVERLESS` documents a handlers-first layout for FaaS codebases. If `ARCH=OTHER`, ask the user for a one-paragraph description and write a minimal stub capturing it. If `ARCH=FLAT`, don't write the file. If Q5 elicited a system-topology answer, run the disambiguation in Part 2 before settling on `ARCH`.
-  - **`LICENSE`** (Q12): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q12's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
-- **Conditional file writes**: `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` are written only if Q13 `CONTRIB=yes`. `LICENSE` is written only if Q12 `LICENSE != SKIP`. `.env.example` is written only if Q8 `ENV_VARS=yes` (skipped for purely static frontends, libraries, and other projects with no runtime config).
+  - **`LICENSE`** (Q13): variants `MIT`, `APACHE_2_0`, `PROPRIETARY` each have their own `LICENSE` template. If `LICENSE=SKIP`, don't write the file. All non-SKIP variants need `{{COPYRIGHT_HOLDER}}` (captured during Q13's follow-up prompt) and `{{CURRENT_YEAR}}` (from `date +%Y`). If you reach the LICENSE write step without `COPYRIGHT_HOLDER`, ask the user before writing — don't substitute a placeholder.
+- **Conditional file writes**: `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` are written only if Q14 `CONTRIB=yes`. `LICENSE` is written only if Q13 `LICENSE != SKIP`. `.env.example` is written only if Q8 `ENV_VARS=yes` (skipped for purely static frontends, libraries, and other projects with no runtime config).
 - **Re-run policy** (re-run mode only): every file in the Part 3 decision matrix has a **Re-run** category — `Canon`, `Mixed`, or `Sacred`. For each file you would write in first-time mode, on re-run apply the category's behaviour:
   - **`Canon`** — versioned discipline; the bootstrap is the source of truth. Diff the would-write content against what's on disk. If different, **overwrite silently** (announce the change in the Step 8 report). If identical, no-op.
   - **`Mixed`** — user is expected to layer project-specific additions on top of the bootstrap baseline. Diff the would-write content against what's on disk. If different, **show the user a unified diff and ask**: *overwrite* (use the new bootstrap version, discarding their additions), *keep* (preserve the user's version unchanged), or *merge* (the agent attempts to add new entries from the bootstrap baseline without removing user additions — only viable for additive-only changes like new gitignore lines or new allow-list entries; ask the user to review the merged file before continuing). If identical, no-op.
   - **`Sacred`** — user-owned; the bootstrap never touches it on re-run. Skip silently. If the file is missing entirely (the user deleted it), ask the user whether to re-scaffold from the bootstrap template before proceeding — don't recreate without consent.
 
   After applying the policy file-by-file, summarise the touched / skipped / asked counts in the Step 8 report.
+
+### Step 4b. Refine `best-practices.md` from current web sources (capability-gated, failure-safe)
+
+`best-practices.md` is the one rule file whose value depends sharply on the *current* state of the user's chosen language + framework ecosystem. A generic stub is fine; a stack-specific synthesis of current idioms is far better. This step tries to produce the better version *when the running agent host has web search / web fetch*, and falls back to the generic stub otherwise.
+
+**The hard rule for this step:** `best-practices.md` MUST end the bootstrap as a written, committed file. Web search failures, capability gaps, timeout errors, parse problems — none of them block the bootstrap. The stub is the safety net.
+
+Decide which path to take by **probing your own capability**, not by asking the user:
+
+1. **Capability probe.** Attempt a small, low-cost web action — a single `WebSearch` query for `"<LANG> best practices <CURRENT_YEAR>"`, or a `WebFetch` of a known stable URL (e.g. the chosen language's official docs root). If the call returns content within ~10 seconds, treat web access as **available**. If the call errors, prompts for permission you can't satisfy, times out, or returns empty, treat web access as **unavailable**.
+2. **Self-configure if the gap is just permissions, not capability.** If the probe failed because your host's permission model gated the call (Claude Code with a missing `WebFetch` / `WebSearch` allow-entry; an MCP web-tool the user hasn't enabled), and you have write access to the host's settings file (e.g. `.claude/settings.json` you're about to write anyway), add the minimum entry needed to unblock the search, then re-probe once. **Do not** invent capabilities your host doesn't ship — adding a permission only works if the underlying tool exists.
+
+Then act:
+
+- **If web access is available**, run a small fan-out of targeted queries in parallel with the rest of Step 4's file writes — don't block other writes on this. Search for:
+  - `"<LANG> best practices <CURRENT_YEAR>"` (general)
+  - `"<LANG> <primary framework from Q14/Q15> idioms"` (framework-specific — extract framework names from the user's run instructions, dependencies, or free-form notes)
+  - `"<LANG> testing patterns"` (if `TESTING=yes`, to feed the file's testing-discipline cross-refs)
+  - `"<LANG> <ARCH lowercase, e.g. ddd / 3-tier / spa>"` (architecture-specific)
+  - One or two follow-up fetches against authoritative sources surfaced by the searches (official framework docs, well-regarded style guides — prefer first-party sources over blog posts).
+
+  Then synthesise the results into `best-practices.md` following the structural skeleton in the **refined-variant** template (Part 4). Each significant claim cites its source inline (URL + accessed date). Drop the top-of-file marker `<!-- best-practices: refined · sources: [...] · accessed: <YYYY-MM-DD> -->` so re-runs can detect refinement status without re-running web searches.
+
+- **If web access is unavailable** (probe failed and self-configure didn't unstick it, or fan-out searches errored, or synthesis produced an empty / malformed result), write the **stub-variant** template (Part 4) verbatim. The stub carries the top-of-file marker `<!-- best-practices: stub · refinement deferred · reason: <one-line> -->` and a prominent **"How to enable refinement"** section that names the host-specific knobs (see the stub template for the per-agent matrix). Set `BEST_PRACTICES_REFINED=false` in `bootstrap.json`.
+
+**Re-run behaviour.** On re-run, read the marker line at the top of the existing `best-practices.md`:
+
+- Marker says `refined` → leave the file untouched (it's user-owned now even though it sits in the Canon category). Note in the Step 8 report.
+- Marker says `stub` → attempt the refinement again from scratch (capability may have changed since the last run — a permission was added, an MCP server got enabled, the user switched hosts). If still unavailable, overwrite with a fresh stub carrying an updated reason line.
+- Marker is missing entirely (pre-refinement bootstrap) → treat as stub and attempt refinement.
+
+**Failure handling.** Any error during refinement — HTTP failure on every search, model confusion synthesising, JSON parse error, anything — falls back silently to the stub. Log the failure cause in the stub's marker reason line so the user can see why refinement didn't happen. The bootstrap continues. Never block on this step.
 
 ### Step 5. Write the bootstrap prompt file and persist the answers
 
@@ -131,6 +163,9 @@ In one short paragraph:
 
 - **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), which per-tool adapters were written (from `AGENTS_USED`), the natural next step — usually: open `AGENTS.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`.docs/adrs/0001-<slug>.md`).
 - **Re-run mode**: which Canon files were refreshed, which Mixed files were merged / kept / overwritten / skipped (with per-file user decisions), which Sacred files were preserved untouched, which new interview keys landed in `.agents/bootstrap.json`. Also flag any Sacred files that were missing on disk (the user may want to re-scaffold from the template manually).
+- **Best-practices refinement status** (always — call this out explicitly so the user notices). Two outcomes:
+  - *Refined*: name the sources cited (one-line summary), the accessed date, and that the file is now user-owned (re-runs won't touch it).
+  - *Stubbed*: name the one-line failure reason (probe error / permission gated / no capability), point at `§ Enable refinement` in `best-practices.md` for the per-agent remediation matrix, and offer: *"Want me to try self-configuring your host's web access now?"* if the host gap appears to be permissions (not capability).
 
 ### Update-mode quick reference
 
@@ -198,20 +233,21 @@ The disambiguation is one shot, not a tree. If the clarification still doesn't f
 | Q9 | **Customer-visible surfaces?** "Does the project have public surfaces that describe the product (UI, marketing pages, public docs, public API reference)? If yes, a workflow rule will require keeping them in sync with code changes in the same commit." | `CHANGES` flag — controls `workflow-changes.md` |
 | Q10 | **UI component vocabulary?** "Does the project have a UI with reusable components worth cataloguing (buttons, cards, modals, dropdowns)?" | `UI_COMPONENTS` flag — controls `ui-components.md` |
 | Q11 | **Governed metrics?** "Does the project emit metering / observability events where names and labels matter (user analytics, billing-tied counters, cardinality-sensitive dashboards)?" | `METRICS` flag — controls `workflow-metrics.md` |
+| Q12 | **Testing discipline?** "Should every artifact-producing change ship with the tests that prove its behaviour? **Yes** (recommended for anything that will live longer than a weekend) installs `workflow-testing.md` — the pyramid (unit-heavy / integration-light / e2e-thin), mock at boundaries not internals, regression-first for bug fixes, TDD encouraged but not mandated, coverage tracked without a hard floor, tests bundled into the same commit as the change they cover. **No** skips the rule (sensible for throwaway scripts, one-off prototypes, repos where you'll add tests later)." | `TESTING` flag — controls `workflow-testing.md` |
 
 ### Repository metadata
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q12 | **License?** "Single-pick: **MIT** (permissive, most popular OSS), **Apache 2.0** (permissive + explicit patent grant — preferred for larger projects), **Proprietary** (all rights reserved, internal use only), **Skip** (no LICENSE file)." **If LICENSE ≠ SKIP**, also ask: *"Who is the copyright holder? (person name or organisation — used in the LICENSE file's copyright line.)"* | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
-| Q13 | **Accepting external contributions?** "yes / no. If yes, scaffold `CONTRIBUTING.md` with a stub covering dev setup, branch / PR conventions, code style pointer, and how to file issues. If no (internal / personal project), skip the file." | `CONTRIB` flag — controls `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
+| Q13 | **License?** "Single-pick: **MIT** (permissive, most popular OSS), **Apache 2.0** (permissive + explicit patent grant — preferred for larger projects), **Proprietary** (all rights reserved, internal use only), **Skip** (no LICENSE file)." **If LICENSE ≠ SKIP**, also ask: *"Who is the copyright holder? (person name or organisation — used in the LICENSE file's copyright line.)"* | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
+| Q14 | **Accepting external contributions?** "yes / no. If yes, scaffold `CONTRIBUTING.md` with a stub covering dev setup, branch / PR conventions, code style pointer, and how to file issues. If no (internal / personal project), skip the file." | `CONTRIB` flag — controls `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
 
 ### Free-form details
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q14 | **Run instructions.** "What's the command(s) to run locally? Any major system prerequisites (ffmpeg, postgres, GPU, …)?" | `AGENTS.md` run section |
-| Q15 | **Anything else load-bearing for the brief?** Persistence story, security notes, deployment, dependencies, model swap-points — anything top-of-mind the agent should re-read on every cold start. | `AGENTS.md` extra sections |
+| Q15 | **Run instructions.** "What's the command(s) to run locally? Any major system prerequisites (ffmpeg, postgres, GPU, …)?" | `AGENTS.md` run section |
+| Q16 | **Anything else load-bearing for the brief?** Persistence story, security notes, deployment, dependencies, model swap-points — anything top-of-mind the agent should re-read on every cold start. | `AGENTS.md` extra sections |
 
 ---
 
@@ -247,7 +283,7 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `.env.example` | Opt-in | Q8 = yes (`ENV_VARS`). Skipped for purely static frontends, libraries, and scripts with no runtime config. | S |
 | `.editorconfig` | Always | universal | C |
 | `README.md` | Always | public-facing project intro; minimal stub | S |
-| `LICENSE` | Conditional | written if Q12 `LICENSE != SKIP`. Content variant picked by `LICENSE` value (MIT / APACHE_2_0 / PROPRIETARY). | S |
+| `LICENSE` | Conditional | written if Q13 `LICENSE != SKIP`. Content variant picked by `LICENSE` value (MIT / APACHE_2_0 / PROPRIETARY). | S |
 | `<manifest>` + `tests/` scaffold | Always | manifest filename + test layout dispatched by Q4 `LANG` | S |
 | `<linter configs>` | Always | content variants picked by Q4 `LANG` (`ruff.toml` / `eslint.config.js` + `.prettierrc.json` / `.golangci.yml` / `rustfmt.toml` / skip) | M |
 | `Makefile` | Always | content variant picked by Q4 `LANG` | M |
@@ -255,13 +291,14 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `SECURITY.md` | Always | universal; private vulnerability disclosure | S |
 | `.gitattributes` | Always | universal; line-ending normalisation + binary detection + linguist hints | C |
 | `CHANGELOG.md` | Always | universal; Keep a Changelog format | S |
-| `CODE_OF_CONDUCT.md` | Opt-in | Q13 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
-| `CONTRIBUTING.md` | Opt-in | Q13 = yes (`CONTRIB`) | S |
+| `CODE_OF_CONDUCT.md` | Opt-in | Q14 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
+| `CONTRIBUTING.md` | Opt-in | Q14 = yes (`CONTRIB`) | S |
 | `.docs/prompts/<ts>.bootstrap_project.md` | Always | written in Step 5 | N |
 | `.agents/rules/layered-architecture.md` | Opt-in | Q5 ≠ FLAT (`LAYERED` derived). Template variant picked by `ARCH` value — `4_LAYER_DDD`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS`, or `OTHER` stub. | C |
 | `.agents/rules/workflow-changes.md` | Opt-in | Q9 = yes (`CHANGES`) | C |
 | `.agents/rules/ui-components.md` | Opt-in | Q10 = yes (`UI_COMPONENTS`) | C |
 | `.agents/rules/workflow-metrics.md` | Opt-in | Q11 = yes (`METRICS`) | C |
+| `.agents/rules/workflow-testing.md` | Opt-in | Q12 = yes (`TESTING`) | C |
 
 ---
 
@@ -291,6 +328,7 @@ Always follow the rules under `.agents/rules/`:
 {{IF_CHANGES}}@.agents/rules/workflow-changes.md
 {{IF_UI_COMPONENTS}}@.agents/rules/ui-components.md
 {{IF_METRICS}}@.agents/rules/workflow-metrics.md
+{{IF_TESTING}}@.agents/rules/workflow-testing.md
 
 When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as a thin pointer rather than a parallel brief.
 ````
@@ -414,19 +452,187 @@ Skip Mermaid when:
 - The change is a single isolated tweak (a copy edit, a config flag, a renaming).
 - The prose alone makes the picture obvious in a sentence.
 
-A minimal example for a layered-architecture-style decision:
+### Diagram-type picker
+
+Don't default to `flowchart` for everything. **Mermaid supports many diagram types — the table below is a guide, not a closed list.** If the decision's shape fits a type not listed here (e.g. a `gantt` for a release schedule, a `quadrantChart` for a 2×2 strategic positioning, a `sankey-beta` for flow volumes), use it. The full type reference is at <https://mermaid.js.org/intro/> — consult it whenever the listed types don't quite fit. The agent should scan this table before drawing and choose deliberately, but the *underlying rule* is "pick whatever Mermaid type makes the shape easiest to grasp" — including types not enumerated below.
+
+| Decision shape | Mermaid type | Why |
+| --- | --- | --- |
+| Layered architecture / dependency direction / module boundaries | `flowchart LR` (or `TB` for vertical hierarchy) with `subgraph` grouping | Shows the import arrows; subgraphs visually group layers / bounded contexts. |
+| Request flow / call sequence / inter-service interaction over time | `sequenceDiagram` | Captures *order* and *participant* explicitly; activation bars show synchronous spans. |
+| Entity lifecycle / process states / retry / circuit-breaker logic | `stateDiagram-v2` | Names states and transitions; supports nested composite states for sub-machines. |
+| Data model / schema / relations between entities | `erDiagram` | Captures cardinality (`1:N`, `N:M`) and attribute lists; reads as a soft schema. |
+| Class / type hierarchy / interface implementation | `classDiagram` | Shows inheritance + composition + interface satisfaction in one view. |
+| System context — which services / users / externals touch this codebase | `C4Context` (or `C4Container` for one level deeper) | The C4 model's top levels make boundaries obvious without zooming into code. |
+| Component breakdown inside a service | `C4Component` | Bridges between a `C4Container` and the actual codebase modules. |
+| Deployment topology / nodes + their hosted containers | `C4Deployment` | Names physical / cloud nodes and what runs on each — the right level for infra ADRs. |
+| Runtime collaboration that needs sequence + context together | `C4Dynamic` | Numbered sequence overlaid on the container/component view — useful when *where* and *when* matter equally. |
+| Branching strategy / release model / git workflow | `gitGraph` | The only Mermaid type that natively models commits, branches, and merges. |
+| Project plan / multi-track timeline with dependencies and durations | `gantt` | Tasks-with-bars + dependencies; right level for migration plans, multi-team rollouts. |
+| Time-anchored milestones without dependency arrows | `timeline` | A horizontal time axis with grouped milestones; simpler than `gantt` when durations don't matter. |
+| User journey / cross-functional workflow with subjective scoring | `journey` | Stages × actors × satisfaction; useful for UX-shaped decisions. |
+| Concept map / brainstorm of related ideas | `mindmap` | Hub-and-spoke; good for early-stage decisions where the structure isn't a graph yet. |
+| Categorical share / breakdown by percentage | `pie` | When the decision hinges on proportion (capacity allocation, traffic split). |
+| Volume flow between sources, intermediaries, and sinks | `sankey-beta` | Widths encode magnitude; the right type for "where does our throughput go?" ADRs. |
+| Quantitative chart embedded in an ADR (latency over time, cost projection) | `xychart-beta` | Line / bar charts inline; sufficient for the small charts that belong in an ADR. |
+| 2×2 strategic positioning (effort vs. impact, build vs. buy) | `quadrantChart` | Forces the trade-off conversation onto two axes; good for option-comparison ADRs. |
+| Multi-attribute comparison across options (radar / spider) | `radar` | When 5+ attributes matter and you want shape-at-a-glance comparison. |
+| Requirement graph — requirement → satisfied-by → verified-by | `requirementDiagram` | The only built-in type for requirement traceability in safety / compliance contexts. |
+| Block layout — boxes-and-connections without flowchart auto-layout | `block-beta` | When you want explicit grid control over a system diagram (rare; use sparingly). |
+| Cloud / infra topology — hosts, networks, services | `architecture-beta` | Newer type aimed at infra diagrams; sometimes clearer than `C4Deployment` for cloud-native shapes. |
+| Process / work board with columns and cards | `kanban` | When the ADR documents a workflow-board structure (release pipeline, intake queue). |
+| Network packet structure / on-the-wire byte layout | `packet-beta` | Protocol design ADRs — header field sizes and offsets. |
+| Hierarchical proportional breakdown (cost-by-service, capacity-by-tier) | `treemap` | When the shape is "what's the share of each child within each parent?" |
+
+If the decision needs *two* views (e.g., a context diagram for boundaries + a sequence diagram for the request flow), put both diagrams in the ADR — one shouldn't crowd out the other. A single ADR with one too-busy diagram is worse than the same ADR with two focused ones.
+
+> **Beta / experimental diagrams.** Mermaid marks several types `-beta` (e.g. `block-beta`, `sankey-beta`, `xychart-beta`, `packet-beta`, `architecture-beta`) and C4 support is still flagged experimental. They render on GitHub and on `mermaid.js.org`; some IDE Markdown previews fall back to showing the source. Use them when the audience views ADRs on a Mermaid-aware viewer; for hostile environments fall back to a labelled `flowchart` with `subgraph` boundaries.
+
+### Worked examples
+
+Use these as starting points to riff on — copy, adjust labels, add nodes.
+
+**Layered architecture** (`flowchart LR` with subgraphs):
 
 ```mermaid
-graph LR
-  presentation --> application
-  application --> domain
-  infrastructure --> domain
-  shared -.-> presentation
-  shared -.-> application
-  shared -.-> infrastructure
+flowchart LR
+  subgraph Presentation
+    routes[routes/]
+    templates[templates/]
+  end
+  subgraph Application
+    services[services/]
+  end
+  subgraph Domain
+    models[models/]
+    protocols[interfaces/]
+  end
+  subgraph Infrastructure
+    repos[repositories/]
+    clients[external clients/]
+  end
+  routes --> services
+  services --> protocols
+  models -.-> services
+  repos -.implements.-> protocols
+  clients -.-> repos
 ```
 
-GitHub renders Mermaid blocks inline; other Markdown viewers fall back to showing the source — both readable.
+**Request flow** (`sequenceDiagram`):
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant API as API route
+  participant S as Order service
+  participant R as Order repository
+  participant DB as Postgres
+  U->>API: POST /orders
+  API->>S: create(order_payload)
+  S->>R: insert(order)
+  R->>DB: BEGIN; INSERT; COMMIT
+  DB-->>R: order_id
+  R-->>S: Order
+  S-->>API: Order
+  API-->>U: 201 Created
+```
+
+**Entity lifecycle** (`stateDiagram-v2`):
+
+```mermaid
+stateDiagram-v2
+  [*] --> Draft
+  Draft --> PendingReview: submit
+  PendingReview --> Approved: approve
+  PendingReview --> Draft: reject
+  Approved --> Published: publish
+  Published --> Archived: archive (after 90d)
+  Archived --> [*]
+```
+
+**Data model** (`erDiagram`):
+
+```mermaid
+erDiagram
+  USER ||--o{ ORDER : places
+  ORDER ||--|{ ORDER_ITEM : contains
+  PRODUCT ||--o{ ORDER_ITEM : "appears in"
+  USER {
+    uuid id PK
+    string email UK
+    timestamp created_at
+  }
+  ORDER {
+    uuid id PK
+    uuid user_id FK
+    string status
+    timestamp placed_at
+  }
+  ORDER_ITEM {
+    uuid order_id FK
+    uuid product_id FK
+    int qty
+  }
+```
+
+**System context** (`C4Context`):
+
+```mermaid
+C4Context
+  Person(customer, "Customer", "Places orders via web or mobile")
+  System(api, "Order Service", "Accepts and fulfils orders")
+  System_Ext(stripe, "Stripe", "Payment processor")
+  System_Ext(warehouse, "Warehouse API", "Inventory + fulfilment")
+  SystemDb_Ext(postgres, "Postgres", "Primary store")
+  Rel(customer, api, "Places orders", "HTTPS / JSON")
+  Rel(api, stripe, "Authorises charges", "HTTPS")
+  Rel(api, warehouse, "Reserves stock", "HTTPS")
+  Rel(api, postgres, "Reads / writes", "TCP")
+```
+
+**Branching strategy** (`gitGraph`):
+
+```mermaid
+gitGraph
+  commit id: "main"
+  branch develop
+  commit
+  branch feature/checkout
+  commit
+  commit
+  checkout develop
+  merge feature/checkout
+  checkout main
+  merge develop tag: "v0.2.0"
+```
+
+**Migration timeline** (`timeline`):
+
+```mermaid
+timeline
+  title Postgres → cluster migration
+  2026-Q1 : Shadow writes to new cluster
+          : Read-side dual-checks
+  2026-Q2 : Cutover for non-critical reads
+          : Stress-test on 10% traffic
+  2026-Q3 : Full cutover for writes
+          : Legacy decommissioning
+```
+
+### Readability conventions
+
+A diagram earns its place by being *faster to grasp than the prose*. The following keep that bar:
+
+- **Direction matches mental model.** `LR` for flow (left-to-right reads as "from input to output"); `TB` for hierarchy (top-down reads as "from broad to specific"). Don't mix.
+- **Cap soft size at ~12 nodes per diagram.** Beyond that, the diagram becomes a wall of text. Split into two focused diagrams instead — one zoomed-out, one zoomed-in.
+- **Group by `subgraph`** when the diagram has 2+ clear regions (layers, bounded contexts, deployment tiers). The visual grouping does work the labels can't.
+- **Name nodes by *role*, not by class name.** `Order service` beats `OrderServiceImpl`. Diagrams capture intent; class names belong in code.
+- **Label edges when the relationship isn't obvious.** `A -->|publishes events| B` is worth typing; `A --> B` is fine when both sides are the same kind of thing.
+- **Use solid arrows for required edges, dotted for "uses by composition / sometimes touches".** `A --> B` is "A always calls B"; `A -.-> B` is "A may consult B; the dependency exists but isn't load-bearing in every path."
+- **Caption every diagram with one sentence above or below.** The sentence states what the reader should take away — "Reads flow through the cache; writes go straight to the primary." A diagram without a caption is a puzzle.
+- **Stay monochrome by default.** Mermaid's auto-styling is fine; reach for `classDef` colours only when you need to distinguish two genuinely-different *kinds* of node (e.g., internal vs external systems) and a label wouldn't be enough.
+
+GitHub renders Mermaid blocks inline; some IDE Markdown previews fall back to showing the source. Both are readable — write Mermaid as if the rendered version *and* the raw text both need to be intelligible.
 
 ### File contents
 
@@ -513,6 +719,7 @@ Once the work is done, create a git commit that includes:
 
 - The prompt file (`.docs/prompts/<ts>.<slug>.md`).
 - Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
+{{IF_TESTING}}- The tests that cover the change (per [`workflow-testing.md`](./workflow-testing.md) — same commit as the behaviour they prove; bug fixes start with a failing regression test).
 - Every other file produced or modified while handling the request.
 
 Commit message conventions:
@@ -749,10 +956,60 @@ Coupling the rubric to every security-relevant commit (lightweight, surface-scop
 
 ---
 
-### Template: `.agents/rules/best-practices.md`
+### Template: `.agents/rules/best-practices.md` — two variants, picked by the Step 4b capability probe
+
+`best-practices.md` is the one rule file whose value depends sharply on the *current* state of the chosen language + framework ecosystem. Step 4b in Part 1 decides which variant to write based on whether the running agent host has web access.
+
+- **Refined variant** (write when web access is available) — a generation contract the agent follows. The agent fan-outs searches against current sources, then produces a stack-specific file that mirrors the structural skeleton below, with inline citations and a `refined` marker.
+- **Stub variant** (write when web access is unavailable) — a static, language-agnostic baseline with a `stub` marker and a *How to enable refinement* matrix so the user knows what knobs to flip per agent host.
+
+Both variants ALWAYS end with the same set of sections so downstream rule cross-references (from `workflow.md`, `workflow-testing.md`, `layered-architecture.md`) keep working regardless of which variant landed.
+
+---
+
+#### Variant A: Refined (generation contract, used when Step 4b's probe succeeds)
+
+This is not a verbatim template — it's the contract the agent follows when producing the refined file. The output is markdown the agent writes from research; the structure below names the required sections, their goals, and the source-citation expectations.
+
+**Top-of-file marker (mandatory, literal):**
+
+```markdown
+<!-- best-practices: refined · sources: [<comma-separated source labels>] · accessed: <YYYY-MM-DD> · lang: <LANG> · arch: <ARCH> -->
+```
+
+**Required sections** (in this order; expand each from current research for the user's specific stack):
+
+1. `# Best Practices` — H1 title plus a one-paragraph orientation that names the stack ({{LANG}} + main framework(s) detected from Q14/Q15) and the date of the research pass.
+2. `## Architecture` — language- and framework-specific notes on the chosen `ARCH`. If `LAYERED`, cross-reference [`layered-architecture.md`](./layered-architecture.md) and keep the architecture-rule as the source of truth on layer names / arrows; this file adds *language-idiomatic* layering notes (e.g. for Python+FastAPI: dependency-injection via `Depends`; for Go: interface segregation at package boundaries; for TS+Next.js: server vs client component split).
+3. `## Repository pattern` — current idioms for the chosen language's ORM / data layer. Cite the ORM's own docs.
+4. `## Service pattern` — orchestration conventions, with the chosen framework's lifecycle / DI primitives named.
+5. `## Dependency Injection & Inversion` — the language's idiomatic DI primitives, container libraries (if any), constructor injection patterns. Avoid recommending a heavy DI framework if the language's primitives are sufficient.
+6. `## Code style` — idiomatic style for the specific language + framework. Cover: import organisation, async / concurrency primitives, privacy markers, date / timezone handling, immutability where idiomatic, type system usage, validation at boundaries, error model. Cite the official style guide where one exists (PEP 8 + ruff defaults for Python, Effective Go, TS handbook, official Rust style guide, framework-specific conventions).
+7. `## File & Naming Conventions` — language-idiomatic naming (module casing, class casing, file layout). Cite the language's convention doc.
+8. `## Data & Formatting` — locale-aware formatting libraries the language ecosystem provides, current best practice for serialisation (orjson vs json, Jackson vs serde_json, etc.).
+9. `## Testing notes` *(include only if `TESTING=yes`)* — the language's current test runner conventions (pytest fixtures vs unittest; vitest vs jest; `go test` vs testify; cargo test conventions). Defer the *discipline* itself to [`workflow-testing.md`](./workflow-testing.md); this section adds the *idiomatic mechanics* (how to structure fixtures, how to parametrise, how to use the language's mocking library).
+10. `## What NOT to do` — known anti-patterns in this specific stack, sourced from current community discussion (e.g. "don't use `requirements.txt` for new Python projects in 2026" if that's the consensus at the time of research). Be concrete; abstract anti-patterns belong in `workflow.md`.
+11. `## References` — bullet list of all sources cited inline, in the form `- <Title> — <URL> (accessed <YYYY-MM-DD>)`. First-party sources first (official docs, language style guides), then well-regarded secondary sources (popular framework guides, widely-cited blog posts from recognised authors). Skip random blog posts.
+
+**Inline citations.** Every significant claim ("FastAPI dependency injection via `Depends`", "use `orjson` for high-throughput JSON in Python") carries an inline citation like `([FastAPI docs](https://fastapi.tiangolo.com/tutorial/dependencies/))`. Don't pile up citations on uncontentious statements — cite where the recommendation matters and where the user might want to verify.
+
+**Quality bar.** Refined content is concrete, opinionated, and dated. If the research surfaces conflicting recommendations (a 2023 blog post vs the 2026 official docs), prefer the more recent first-party source and note the divergence. If a section can't be filled with stack-specific guidance from current sources, write the generic baseline for that section only (don't fail the whole refinement) and note the gap inline.
+
+**Cross-references to preserve verbatim:**
+
+- `[layered-architecture.md](./layered-architecture.md)` — gated on `{{IF_LAYERED}}`.
+- `[workflow.md](./workflow.md)` — for the one-prompt-one-commit rule.
+- `[workflow-testing.md](./workflow-testing.md)` — gated on `{{IF_TESTING}}`.
+
+---
+
+#### Variant B: Stub (literal template, used when Step 4b's probe fails or self-configure doesn't unstick it)
 
 ````markdown
+<!-- best-practices: stub · refinement deferred · reason: {{REFINEMENT_FAILURE_REASON}} -->
 # Best Practices
+
+> **This file is the generic baseline.** It contains language-agnostic patterns that apply across most projects. For *much* more value, refine it from current web sources for your specific {{LANG}} + framework stack — see [§ Enable refinement](#enable-refinement) at the bottom of this file.
 
 Patterns and conventions established in this project. Apply them when adding new features or refactoring. Expand this file with language- or framework-specific idioms as the project matures — the sections below are the language-agnostic core.
 
@@ -824,6 +1081,25 @@ Business logic lives in services (classes, or module-level functions for genuine
 {{IF_LAYERED}}- Don't mix layers — see [`.agents/rules/layered-architecture.md`](./layered-architecture.md) for the project's dependency direction. Reverse imports break the layering.
 - Don't track build artifacts or virtual envs in git — gitignore them.
 - Don't bundle multiple unrelated changes in one commit; one prompt + one commit per request (see `.agents/rules/workflow.md`).
+
+## Enable refinement
+
+The bootstrap tried to refine this file from current {{LANG}} + framework sources but couldn't reach the web from your agent host. Once you fix that, ask any agent to *"re-run the bootstrap's Step 4b best-practices refinement"* and a stack-specific version will replace this stub. **How to enable web access per host:**
+
+| Agent host | What to enable |
+| --- | --- |
+| **Claude Code** | The `WebSearch` and `WebFetch` tools ship with the CLI. If calls prompt for permission, add `"WebSearch"` and `"WebFetch(domain:*)"` (or specific allowed domains) to the `permissions.allow` array in `.claude/settings.json`. For headless / cron runs, also pre-allow the domains you expect to fetch. |
+| **Cursor** | Web search is built in (the `@web` symbol). If the agent doesn't pick it up automatically, prompt it explicitly: *"Use @web to research {{LANG}} best practices, then refine .agents/rules/best-practices.md."* |
+| **OpenAI Codex CLI** | The `--web` flag / web-tool capability must be enabled in your Codex config. See `codex --help` for the current flag name; web access is opt-in per session. |
+| **Aider** | Aider doesn't ship native web search. Either pipe sources in via `aider --read <url-or-path>` after fetching them yourself (`curl`), or use the `/web` slash command if your Aider build supports it (newer versions). |
+| **OpenCode** | Web search is available via the platform's tool config. Enable it in your OpenCode settings before re-running the refinement prompt. |
+| **Continue.dev** | The `@web` context provider is opt-in — add `"web"` to your `.continue/config.json`'s `contextProviders` array. |
+| **Windsurf** | Web search is available via the platform's tool palette. Confirm it's enabled in your Windsurf workspace settings. |
+| **GitHub Copilot** | Copilot Chat in supported IDEs has the `@web` participant (Copilot Workspace + recent VS Code Insiders). If your host is older / web-less, fetch sources manually and paste excerpts into the chat, then ask Copilot to refine the file. |
+
+**Can the agent self-configure?** Sometimes. If your host's gap is *permissions* (the tool exists but is gated), an agent with write access to the host's config file can add the right entry — Claude Code can edit `.claude/settings.json`, Continue.dev can edit `.continue/config.json`. Ask the agent to enable web search by editing its own config, then re-run the refinement. If your host's gap is *capability* (the tool doesn't exist), no agent can give itself a new tool — switch hosts or fetch sources manually.
+
+When refinement runs successfully, the marker comment at the top of this file flips from `stub` to `refined` and `bootstrap.json`'s `BEST_PRACTICES_REFINED` flag becomes `true`. Re-running the bootstrap after that point leaves this file alone (it becomes user-owned).
 ````
 
 ---
@@ -1241,7 +1517,7 @@ The deploy manifest (`serverless.yml` / SAM template / Terraform / `wrangler.tom
 ## What this rule does NOT cover
 
 - **Platform choice** (AWS Lambda / GCP Cloud Functions / Cloudflare Workers / Vercel / Netlify / Azure Functions) — that's an ADR-level decision; capture in `.docs/adrs/`.
-- **Local development story** (sam-local, serverless-offline, wrangler dev, miniflare) — document in `CLAUDE.md` Run section.
+- **Local development story** (sam-local, serverless-offline, wrangler dev, miniflare) — document in `AGENTS.md` Run section.
 - **State storage backend** (DynamoDB / Firestore / RDS / Postgres / KV) — ADR if it's load-bearing.
 ````
 
@@ -1287,7 +1563,7 @@ Fill this table in as you discover surfaces. The starter set:
 | Surface | What lives there, when to update |
 | --- | --- |
 | `README.md` | Project intro, tagline, models in the stack, contributing terms, licence framing. |
-| `CLAUDE.md` | Architecture map, conventions, response policy, copy guard-rails. |
+| `AGENTS.md` | Architecture map, conventions, response policy, copy guard-rails. |
 | `LICENSE` | Actual licence text changes (rare). |
 | Public docs / guide page | New capability documentation, examples, tier matrices. |
 | Pricing / tiers page | Tier behaviour change, comparison-table cell, new tier feature. |
@@ -1379,6 +1655,126 @@ Three guardrails:
 The metering system has four surfaces that move independently — write side, durable read side, observability, display. Each is touched by different commits, often weeks apart. Without a rule that ties them together, drift is inevitable: a counter renamed at the write site keeps showing the old name on dashboards because the chart still reads the old `kind`; a new metric lands but the catalog doesn't, so the next contributor adds a duplicate counter for the same concept under a slightly different name; a label key sneaks in carrying user IDs because nobody re-read the cardinality rule.
 
 Coupling the surfaces to one commit, locking the catalog as the canonical source, and treating the rule as load-bearing (not optional) keeps the metering surface honest.
+````
+
+---
+
+### Template: `.agents/rules/workflow-testing.md` *(opt-in, write only if `TESTING`)*
+
+````markdown
+# Workflow: testing discipline
+
+This rule is a companion to [`workflow.md`](./workflow.md). It defines **when** tests are required, **what** they should cover, **where** in the layering they should live, and **what** the agent must include in the commit that introduces or changes code.
+
+The discipline is opinionated but not religious. The headline rule is short: **every artifact-producing change ships with the tests that prove the behaviour, in the same commit as the behaviour**. The rest of the file says what "the tests that prove the behaviour" actually means.
+
+## When this rule applies
+
+- Any new feature, public function, route, command, message handler, scheduled task, or worker.
+- Any bug fix.
+- Any refactor that changes observable behaviour at a layer boundary.
+- Any change to a rule-encoded invariant (auth check, permission scope, cardinality limit, retry policy).
+
+## When this rule does NOT apply
+
+- Pure typo / wording fixes in docs, comments, or non-behavioural strings.
+- Rename-only refactors with no behavioural change (function rename, file move, import reorder).
+- Configuration edits with no logic change (linter config, editor config, gitignore, CI tweaks unrelated to test execution).
+- Bootstrap / scaffolding commits that introduce empty placeholder modules with no real behaviour yet.
+
+When unsure: write the test. The cost of an extra test is low; the cost of an untested regression is real.
+
+## The pyramid (default shape, not a quota)
+
+| Layer | Volume | What it covers | What it mocks |
+| --- | --- | --- | --- |
+| **Unit** | The bulk | Pure functions, single classes, domain logic, individual service methods, helpers. | Nothing internal. Mock only at the *boundary* of the unit (a clock, an HTTP client, a clock-like time source). |
+| **Integration** | A meaningful minority | Real wiring across a meaningful boundary — a route handler calling a service calling a real (or test-double) repository against a real DB; a queue consumer end-to-end against a real broker; a CLI command exercised through its actual entrypoint. | External third-party APIs (HTTP, queues, model endpoints) via canned responses. The database, in-process side-effects, and your own modules are real. |
+| **End-to-end** | A thin top | The happy-path of a user-facing flow: login → checkout, sign-up → first action, a CLI invocation that touches every layer. | The fewest mocks possible — usually none, or only third-party APIs the test environment can't reach. |
+
+The pyramid is the default shape; particular projects (data pipelines, ML training code, infrastructure modules) have their own ratios. The rule is: bias towards the cheapest layer that meaningfully exercises the behaviour. **A unit test that mocks the database is exercising the mock, not the behaviour.** When you find yourself piling on mocks, move the test up the pyramid.
+
+## Bug fixes: regression test first
+
+For any bug fix:
+
+1. **Write the failing test first.** Reproduce the bug at the lowest layer that surfaces it.
+2. Confirm the test fails for the right reason (not a typo, not a missing import).
+3. Apply the fix.
+4. Confirm the test now passes and no other tests broke.
+5. Commit the test and the fix together in the same commit.
+
+A bug fix without a regression test is half a fix — the same bug will return the moment someone refactors that area. The test is the bug's tombstone.
+
+## Mocking discipline: mock at boundaries, not internals
+
+- **Mock at the system boundary.** External HTTP APIs, third-party SDKs, the model endpoint, the wall clock, randomness, the filesystem when it's incidental. These are non-deterministic, slow, or out of your control.
+- **Don't mock your own code.** Mocking a service to test the route that calls it tests the mock, not the wiring. Use the real service against a test database, an in-memory adapter, or a fake that implements the protocol fully.
+- **Don't mock to make a test easier.** If a unit needs five mocks to be testable, the unit is doing too much. Split it before you write the test.
+- **Prefer fakes to mocks.** A fake repository that holds state in a dict is more readable, more reusable, and catches more real bugs than a mock that records calls.
+- **Avoid snapshot tests for behavioural code.** Snapshots are useful for UI rendering and CLI output where the shape is the contract; they're a trap for business logic where they ossify the *current* output without asserting the *intended* one.
+
+## Naming, structure, and signal
+
+- Name tests by **behaviour, not implementation**: `returns_403_when_viewer_is_not_owner`, not `test_check_owner`. The name should read as a sentence describing the contract.
+- One assertion *concept* per test. A test can make multiple `assert` calls if they prove the same concept; if they prove two unrelated things, split them.
+- Arrange / act / assert sections are visually separated (blank line, comment, or whitespace).
+- Tests are independent and order-independent. No shared mutable state between tests. If two tests share setup, lift it to a fixture, not to a class attribute.
+- Test files live alongside the code they cover unless the language ecosystem dictates otherwise — `tests/` directory for Python/Rust (per `pytest` / `cargo test` conventions), `*.test.ts` co-located for TypeScript, `*_test.go` co-located for Go.
+
+## TDD: encouraged, not mandated
+
+Test-Driven Development — *red, green, refactor* — is the recommended default for non-trivial behaviour. It forces the contract to be designed before the implementation, catches over-engineering early, and produces tests that genuinely cover the behaviour because they were written before the code that satisfies them existed.
+
+That said, TDD is a *practice*, not a rule. Some changes (small bug fixes, mechanical refactors, exploratory spikes) don't benefit from it; some teams aren't on board with it; some moments don't allow the discipline. **The hard rule is: every change ships with its tests in the same commit.** Whether you wrote the test first or second is your call — but the commit must contain both.
+
+When TDD genuinely helps: new public API design, new use-case orchestration, anything where you're not sure what the contract should look like yet, anything where the implementation is non-trivial and you want to confirm the contract before locking yourself in.
+
+When TDD genuinely doesn't: trivial helpers, configuration plumbing, generated code, exploratory spikes you'll throw away.
+
+## Coverage: track, don't gate
+
+- Run coverage tooling locally and in CI. **Report it; don't gate on a percentage.** Hard percentage gates incentivise the wrong behaviour — gaming the metric with assertion-free tests, or skipping a useful test because it doesn't move the number.
+- The right question is "does this commit's diff have tests for its behaviour?" — answered by reading the diff, not by reading a percentage. A change that adds 200 lines of behaviour and 0 tests fails the review regardless of project-level coverage.
+- Coverage **drops** in a PR are a useful signal. If overall coverage went down because new code lacks tests, that's a question worth asking in review. If it went down because dead code was deleted, that's progress.
+- For long-lived projects, watching the *trend* of coverage matters more than the absolute number. Sustained downward trend means the discipline is slipping; sustained upward trend means the project is hardening.
+
+## Flaky tests
+
+A flaky test is a broken test — it just hasn't decided which failure mode it prefers yet. Treat them as P1:
+
+- **First flake**: investigate the same day. Time / order / race / network non-determinism. Fix the underlying cause.
+- **Can't fix immediately**: quarantine (skip with a clear `Flaky: <reason>` annotation) and file a `.docs/todos/<ts>.<slug>.md` entry per `workflow-todos.md` so the quarantine is visible and dated.
+- **Never** disable a flaky test silently. A skipped flake with no entry is technical debt that compounds.
+
+## Test data and fixtures
+
+- **Builders / factories over fixtures of fixed data.** A `make_user(role="admin")` helper that takes overrides is more readable and more maintainable than dozens of fixture files.
+- **No real PII or secrets in test data.** Use obviously fake values (`user@example.com`, `password-for-test`). Never copy production data into a test file.
+- **Time and randomness pinned.** Inject a clock and a seeded RNG so tests are deterministic. If a test depends on the real clock or `random`, it will fail on Tuesdays at 3am six months from now.
+
+## What goes in the commit
+
+Per `workflow.md`, every artifact-producing request bundles its prompt, ADR (if applicable), telemetry, security pass, and code into one commit. With this rule installed, the same commit also bundles:
+
+- **The new / updated tests** that cover the change.
+- **Any test infrastructure** needed by those tests (a new fixture, a new factory, a new fake adapter).
+- **Any test-data updates** for cases the change touches.
+
+If the agent commits code without tests when this rule applies, the commit is incomplete — push back and fix it before moving on.
+
+## Cross-references
+
+- **Security findings** (per `workflow-security.md`): every finding's fix must include a regression test that proves the vulnerability is closed and won't return. That test is part of the same commit as the fix.
+- **Bug fixes** triggered by a `.docs/todos/` entry: the regression test lives in the commit that closes the entry.
+- **Metering changes** (per `workflow-metrics.md`, if installed): tests cover the catalog entry, the emit site, and the read side — at integration level where they actually exercise the wiring.
+- **Product-surface changes** (per `workflow-changes.md`, if installed): the test layer that matches the surface — UI components → component tests, public API → contract tests, docs → link / build checks.
+
+## Why this rule exists
+
+Tests are a memory aid for the project's intended behaviour. Without them, every refactor is a roll of the dice and every bug fix is a hope. With them, the contract is enforced by code that runs on every commit; future agents and humans can change the implementation without breaking the behaviour, because the tests catch them when they do.
+
+The cost of writing the test now is small. The cost of *not* writing it — the production incident, the customer impact, the cold-debug at midnight — is large and lumpy. This rule trades a known small cost for an unknown but eventually large one.
 ````
 
 ---
@@ -2106,7 +2502,7 @@ The agent fills `{{CURRENT_YEAR}}` from `date +%Y` and asks the user for `{{COPY
 
 ### Template: `LICENSE` — variant for `LICENSE=APACHE_2_0`
 
-Write the file with the populated header (using `{{CURRENT_YEAR}}` from `date +%Y` and `{{COPYRIGHT_HOLDER}}` from the Q12 follow-up prompt) followed by the canonical Apache 2.0 license text verbatim. The full file:
+Write the file with the populated header (using `{{CURRENT_YEAR}}` from `date +%Y` and `{{COPYRIGHT_HOLDER}}` from the Q13 follow-up prompt) followed by the canonical Apache 2.0 license text verbatim. The full file:
 
 ````text
 Copyright {{CURRENT_YEAR}} {{COPYRIGHT_HOLDER}}
@@ -2377,6 +2773,7 @@ Always follow the rules in `.agents/rules/`:
 {{IF_CHANGES}}- [`workflow-changes.md`](.agents/rules/workflow-changes.md) — companion to `workflow.md` for *product-affecting* changes. When a change alters anything a user can see, the surfaces that describe it must move in the same commit.
 {{IF_UI_COMPONENTS}}- [`ui-components.md`](.agents/rules/ui-components.md) — catalog of canonical UI affordances. Before adding a new affordance, check the catalog and clone the canonical file's shape; never invent a one-off variant inline.
 {{IF_METRICS}}- [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) — companion to `workflow.md` for *metering* changes. Adding / modifying / removing a metered event must move surfaces in lockstep — constant, call site, catalog row, display side — all in the same commit. Cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable.
+{{IF_TESTING}}- [`workflow-testing.md`](.agents/rules/workflow-testing.md) — companion to `workflow.md` for testing discipline. Every artifact-producing change ships with the tests that prove its behaviour, in the same commit. Pyramid-shaped (unit-heavy / integration-light / e2e-thin), mock at boundaries not internals, bug fixes start with a failing regression test, TDD encouraged but not mandated, coverage tracked without a hard floor.
 
 Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
 
@@ -2421,6 +2818,7 @@ Read these files at the start of any non-trivial task; they define the project's
 {{IF_CHANGES}}- `.agents/rules/workflow-changes.md`
 {{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md`
 {{IF_METRICS}}- `.agents/rules/workflow-metrics.md`
+{{IF_TESTING}}- `.agents/rules/workflow-testing.md`
 
 ADRs (architecture decisions) live under `.docs/adrs/` — read these before making structural changes. Do-later ideas live under `.docs/todos/`. Per-request prompt files live under `.docs/prompts/`.
 
@@ -2447,6 +2845,7 @@ read:
 {{IF_CHANGES}}  - .agents/rules/workflow-changes.md
 {{IF_UI_COMPONENTS}}  - .agents/rules/ui-components.md
 {{IF_METRICS}}  - .agents/rules/workflow-metrics.md
+{{IF_TESTING}}  - .agents/rules/workflow-testing.md
 
 # Aider auto-commits by default; the workflow.md rule wants one commit per request
 # bundling the prompt file + ADR + code + telemetry. Leave auto-commit on, and let
@@ -2506,6 +2905,7 @@ Always-loaded context:
 {{IF_CHANGES}}- `.agents/rules/workflow-changes.md` — product-surface sync rule.
 {{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md` — canonical component vocabulary.
 {{IF_METRICS}}- `.agents/rules/workflow-metrics.md` — metering / cardinality rules.
+{{IF_TESTING}}- `.agents/rules/workflow-testing.md` — testing pyramid + regression-first + same-commit test gate.
 
 ADRs: `.docs/adrs/`. Per-request prompts: `.docs/prompts/`. Deferred ideas: `.docs/todos/`. Security audits: `.docs/security/`.
 
@@ -2546,6 +2946,10 @@ Deferred ideas go to `.docs/todos/` as one file per entry — never as inline TO
 
 Before any security-sensitive commit, walk the rubric in [`.docs/security/methodology.md`](../.docs/security/methodology.md) for the surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full dated audits live as sibling files under `.docs/security/`.
 
+{{IF_TESTING}}## Testing (summary — full text in `.agents/rules/workflow-testing.md`)
+{{IF_TESTING}}
+{{IF_TESTING}}Every artifact-producing change ships with its tests in the same commit. Pyramid shape: unit-heavy, integration-light, e2e-thin. Mock at boundaries (HTTP, clock, randomness, third-party SDKs) — never internals. Bug fixes start with a failing regression test. TDD is encouraged but not mandated; the hard rule is *tests + code in the same commit*. Coverage is tracked, not gated by a percentage. Flaky tests are P1 — fix or quarantine with a dated entry under `.docs/todos/`.
+{{IF_TESTING}}
 When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
 ````
 
@@ -2710,6 +3114,8 @@ Shape:
   "answers": {
     "PROJECT_NAME": "{{PROJECT_NAME}}",
     "ONE_LINE_PURPOSE": "{{ONE_LINE_PURPOSE}}",
+    "AGENTS_USED": {{AGENTS_USED_JSON_ARRAY}},
+    "LAYOUT": "{{LAYOUT}}",
     "POSTURE": "{{POSTURE}}",
     "LANG": "{{LANG}}",
     "ARCH": "{{ARCH}}",
@@ -2719,6 +3125,8 @@ Shape:
     "CHANGES": {{CHANGES}},
     "UI_COMPONENTS": {{UI_COMPONENTS}},
     "METRICS": {{METRICS}},
+    "TESTING": {{TESTING}},
+    "BEST_PRACTICES_REFINED": {{BEST_PRACTICES_REFINED}},
     "LICENSE": "{{LICENSE}}",
     "COPYRIGHT_HOLDER": "{{COPYRIGHT_HOLDER}}",
     "CONTRIB": {{CONTRIB}},
@@ -2732,7 +3140,7 @@ Shape:
 
 - `bootstrap_version` — the timestamp from this bootstrap file's header (or `date +%Y-%m-%d` at write time if no header timestamp is tracked). Lets a future re-run report "you're upgrading from `<old>` to `<new>`".
 - `last_run_at` — `date -Iseconds` at the moment of write; updated every re-run.
-- `answers` — every flag from the interview. **Yes/no flags** are JSON booleans (`true` / `false`, no quotes). **String flags** (POSTURE, LANG, ARCH, LICENSE) are JSON strings. Free-form text (PROJECT_NAME, ONE_LINE_PURPOSE, RUN_INSTRUCTIONS, ADDITIONAL_SECTIONS_FROM_INTERVIEW, COPYRIGHT_HOLDER) are JSON strings; escape newlines as `\n`. If `LICENSE=SKIP`, `COPYRIGHT_HOLDER` stays as the empty string.
+- `answers` — every flag from the interview. **Yes/no flags** are JSON booleans (`true` / `false`, no quotes). **String flags** (POSTURE, LANG, ARCH, LICENSE, LAYOUT) are JSON strings. **Set flags** (`AGENTS_USED`) are JSON arrays of uppercase strings — e.g. `["CLAUDE", "CURSOR", "AIDER"]`. Free-form text (PROJECT_NAME, ONE_LINE_PURPOSE, RUN_INSTRUCTIONS, ADDITIONAL_SECTIONS_FROM_INTERVIEW, COPYRIGHT_HOLDER) are JSON strings; escape newlines as `\n`. If `LICENSE=SKIP`, `COPYRIGHT_HOLDER` stays as the empty string. `POSTURE=N_A` is reserved for projects where `CLAUDE ∉ AGENTS_USED` (no Claude settings file written). `LAYOUT` is `"agents"` (canonical, files under `.agents/rules/`) or `"legacy_claude"` (pre-multi-tool projects where the user picked "leave in place" during the Step 0 migration prompt — see the legacy-layout migration note in Part 1). `BEST_PRACTICES_REFINED` is set by Step 4b: `true` after a successful web-search-driven refinement of `.agents/rules/best-practices.md`, `false` when the stub variant was written. The same flag is independently verifiable by reading the marker comment at the top of the file (single source of truth); the bootstrap.json mirror exists so re-runs can decide cheaply without opening the file.
 - Omit any key the current bootstrap version doesn't know about. On re-run, **missing keys** are exactly what the agent re-asks the user.
 - **No secrets in this file**. Free-form fields capture user intent, not credentials. If the user accidentally includes a secret in `RUN_INSTRUCTIONS` or `ADDITIONAL_SECTIONS_FROM_INTERVIEW`, the agent should flag and ask before persisting.
 
@@ -3468,6 +3876,7 @@ After the agent finishes and pushes the first commit, here's what's worth doing 
 - **Open `AGENTS.md`** and expand the *Purpose* paragraph. The interview gives the agent one sentence; the cold-start brief deserves a paragraph.
 - **Read the rules** under `.agents/rules/` once, end-to-end. They're load-bearing for every future request; knowing what's in there means you can tell when the agent is drifting.
 - **Verify each picked adapter actually loads the brief in its tool.** Open the project in each assistant in `AGENTS_USED` and confirm it picks up `AGENTS.md` + the rule files — Claude follows the `@`-refs in `CLAUDE.md`, Cursor applies the `alwaysApply: true` rule in `.cursor/rules/agents.mdc`, Aider reads files listed in `.aider.conf.yml`'s `read:`, etc. If an adapter is silently ignored, that's a load-bearing gap.
+- **Refine `best-practices.md` from current web sources** if the Step 8 report flagged it as *stubbed*. Open the file's `§ Enable refinement` matrix, flip whichever knob your agent host needs (Claude Code permission entries, Cursor `@web` invocation, Codex `--web` flag, Continue.dev's `web` context provider, etc.), then ask any agent to *"re-run the bootstrap's Step 4b best-practices refinement"*. The stub variant becomes a stack-specific refined variant with inline citations — substantially more useful than the generic baseline. If your host can't reach the web at all, fetch the few canonical sources for your stack manually and paste excerpts into the chat to seed the refinement.
 - **Write the first real ADR** (`0001-<slug>.md`) if the project starts with a load-bearing decision — framework choice, persistence story, deployment shape. Update the README index in the same commit.
 - **Schedule the first security audit.** The methodology at [`.docs/security/methodology.md`](.docs/security/methodology.md) is the playbook; the first dated audit (`.docs/security/<YYYY-MM-DD>-baseline.md`) is a useful pre-release baseline even on a small codebase. The rubric is also a usable pre-commit aid once the project has shipped its first security-sensitive surface.
 - **Grow `.claude/settings.json`** (if Claude is in `AGENTS_USED`) as the project's agent-host needs surface — hooks, permission allowlists, environment vars, model pin. The bootstrap leaves it as an empty `{}`; document each addition in an ADR.
