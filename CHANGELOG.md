@@ -9,6 +9,10 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Changed
+
+- **Q4 reframed for language inclusivity.** Renamed *"Language / runtime"* → *"Primary language or content type"*. Question text now lists eleven named examples (Python, TypeScript, Go, Rust, C# / .NET, Java, Ruby, PHP, Kotlin, Swift, Markdown / docs-as-code) plus *"something else"* instead of leading with four named languages. Names the first-class-scaffold coverage gap explicitly and points contributors at `CONTRIBUTING.md` for the one-PR pattern to add a new variant. No template changes — Python / TypeScript / Go / Rust remain the only languages with full scaffolds; everything else continues to land on the existing fallback variant. `QUICKSTART.md` Q4 description updated to match.
+
 ## [2026-06-12] — Shared-frontend propagation rule + landing-page contribute section
 
 ### Added
