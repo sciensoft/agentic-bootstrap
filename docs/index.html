@@ -9,7 +9,7 @@
   <link rel="mask-icon" href="favicon.svg" color="#7c3aed">
   <meta name="theme-color" content="#7c3aed">
   <meta name="description"
-    content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline, the first commit. Tool-agnostic, cross-stack, idempotent. Works with Claude Code, Cursor, Aider, Codex, OpenCode, Continue.dev, Windsurf, GitHub Copilot.">
+    content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline, the first commit. Tool-agnostic, cross-stack, idempotent. Works with Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, GitHub Copilot, Aider, OpenCode.">
   <meta property="og:title" content="Agentic Bootstrap — the day-one discipline a Senior Engineer would have set up">
   <meta property="og:description" content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one. Tool-agnostic, cross-stack, idempotent.">
   <meta property="og:type" content="website">
@@ -351,17 +351,17 @@
               <span class="text-zinc-700">·</span>
               <span class="font-medium">Cursor</span>
               <span class="text-zinc-700">·</span>
-              <span class="font-medium">Aider</span>
-              <span class="text-zinc-700">·</span>
               <span class="font-medium">OpenAI Codex CLI</span>
-              <span class="text-zinc-700">·</span>
-              <span class="font-medium">OpenCode</span>
               <span class="text-zinc-700">·</span>
               <span class="font-medium">Continue.dev</span>
               <span class="text-zinc-700">·</span>
               <span class="font-medium">Windsurf</span>
               <span class="text-zinc-700">·</span>
               <span class="font-medium">GitHub Copilot</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">Aider</span>
+              <span class="text-zinc-700">·</span>
+              <span class="font-medium">OpenCode</span>
             </div>
             <p class="mt-2 text-xs text-zinc-500">One tool-agnostic spine — <span class="font-mono text-zinc-400">AGENTS.md</span> + <span class="font-mono text-zinc-400">.agents/rules/</span> — plus a thin adapter file per assistant you pick.</p>
           </div>
@@ -380,11 +380,11 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
                 <span class="ml-3 text-xs text-zinc-500">~/my-new-project</span>
               </div>
-              <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · aider · codex · …</span></div>
+              <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · codex · cn · …</span></div>
               <div class="text-zinc-500 mt-1">› follow AGENTIC-BOOTSTRAP.md to bootstrap this repo</div>
               <div class="mt-3 text-zinc-400">
                 <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
-                <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude, Cursor, Aider</span><br>
+                <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude, Cursor, Codex</span><br>
                 <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
                 <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
                 <span class="tk-c">… 11 more questions, one commit later …</span>
@@ -469,7 +469,7 @@
               class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">02</span>
             <h3 class="text-lg font-semibold">Tell the agent</h3>
           </div>
-          <p class="text-zinc-400 leading-relaxed">Hand it to your assistant of choice — Claude Code, Cursor, Aider, Codex, Continue.dev, Windsurf, Copilot — with one prompt.</p>
+          <p class="text-zinc-400 leading-relaxed">Hand it to your assistant of choice — Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, Copilot, Aider, OpenCode — with one prompt.</p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs relative"
             data-copy="follow AGENTIC-BOOTSTRAP.md to bootstrap this repo">
             <button type="button" class="copy-btn" aria-label="Copy prompt to clipboard">
@@ -698,7 +698,7 @@
         <div class="card rounded-2xl p-7 reveal">
           <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Scaffold · smart agent</p>
           <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~25k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Claude Code, Cursor, Aider, Codex CLI — agents whose Read tool supports <span class="font-mono text-zinc-300">offset</span> + <span class="font-mono text-zinc-300">limit</span>. Reads the operator playbook, interview, and decision matrix, then jumps straight to <span class="text-zinc-100 font-medium">only the ~15 templates</span> your answers require. Skips the other ~65.</p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Claude Code, Cursor, Codex CLI — agents whose Read tool supports <span class="font-mono text-zinc-300">offset</span> + <span class="font-mono text-zinc-300">limit</span>. Reads the operator playbook, interview, and decision matrix, then jumps straight to <span class="text-zinc-100 font-medium">only the ~15 templates</span> your answers require. Skips the other ~65.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -833,7 +833,7 @@
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Permission postures</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Trust on your terms.</h2>
           <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Pick how much autonomy your agent gets — from "ask for
-            everything" to "no prompts ever" — and the bootstrap fans that one intent out across every tool you picked. Claude gets a <span class="font-mono text-zinc-200">.claude/settings.json</span>; Cursor gets <span class="font-mono text-zinc-200">.cursor/settings.json</span>; Aider gets the matching keys in <span class="font-mono text-zinc-200">.aider.conf.yml</span>; Codex gets <span class="font-mono text-zinc-200">.codex/config.toml</span>; Continue.dev gets a tools-autonomy block in <span class="font-mono text-zinc-200">.continue/config.json</span>; Windsurf gets <span class="font-mono text-zinc-200">.windsurf/settings.json</span>. OpenCode and Copilot don't have file-based permission models — their adapters carry a posture-intent note you apply in the IDE.</p>
+            everything" to "no prompts ever" — and the bootstrap fans that one intent out across every tool you picked. Claude gets a <span class="font-mono text-zinc-200">.claude/settings.json</span>; Cursor gets <span class="font-mono text-zinc-200">.cursor/settings.json</span>; Codex gets <span class="font-mono text-zinc-200">.codex/config.toml</span>; Continue.dev gets a tools-autonomy block in <span class="font-mono text-zinc-200">.continue/config.json</span>; Windsurf gets <span class="font-mono text-zinc-200">.windsurf/settings.json</span>; Aider gets the matching keys in <span class="font-mono text-zinc-200">.aider.conf.yml</span>. OpenCode and Copilot don't have file-based permission models — their adapters carry a posture-intent note you apply in the IDE.</p>
           <!-- Posture spectrum — small horizontal visualization of the autonomy axis -->
           <div class="mt-8 rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/60 to-zinc-950/60 px-6 py-7">
             <p class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mb-7">Autonomy axis</p>
