@@ -1,0 +1,35 @@
+{
+  "bootstrap_version": "2026-06-12",
+  "first_run_at": "2026-06-11",
+  "layout": ".agents",
+  "answers": {
+    "NAME": "Agentic Bootstrap",
+    "PURPOSE": "Single-file scaffold that hands AI coding agents a disciplined workflow.",
+    "AGENTS_USED": ["CLAUDE"],
+    "POSTURE": "TRUSTED_DEV",
+    "LANG": "Other",
+    "ARCH": "FLAT",
+    "WEB": false,
+    "LLM": false,
+    "ENV_VARS": false,
+    "CHANGES": true,
+    "UI_COMPONENTS": false,
+    "METRICS": false,
+    "TESTING": false,
+    "FRONTEND": false,
+    "LICENSE": "MIT",
+    "COPYRIGHT_HOLDER": "Alexandre Souza",
+    "CONTRIB": true,
+    "RUN": "python scripts/lint_bootstrap.py; open docs/index.html for the landing-page preview.",
+    "EXTRA": "The bootstrap file IS the artifact; modify only via deliberate PRs that bump the bootstrap-version header. The lint script at scripts/lint_bootstrap.py validates four cross-reference invariants and runs in CI on every PR."
+  },
+  "derived_flags": {
+    "LAYERED": false
+  },
+  "best_practices_status": {
+    "refined": false,
+    "stub_reason": "LANG=Other (markdown-content project, no single language to refine)"
+  },
+  "self_application": true,
+  "self_application_note": "This bootstrap.json was written during the project's own self-application. Sacred files (README.md, CONTRIBUTING.md, LICENSE, SECURITY.md, CHANGELOG.md) pre-existed with hand-written content and were skipped per the Sacred re-run policy applied to a first-time run. .claude/settings.json was written without the Python language addendum per LANG=Other; the follow-up at .docs/todos/extend-claude-allow-list-with-python.md tracks adding the Python commands manually."
+}

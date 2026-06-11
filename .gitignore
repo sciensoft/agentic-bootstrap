@@ -1,0 +1,34 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Build / artifacts (extend per language)
+build/
+dist/
+out/
+target/
+
+# Logs
+*.log
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code per-machine settings (personal allowlist / WebFetch domains / etc.)
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific
+.temp/
+
+# Python caches (for the lint script under scripts/)
+__pycache__/
+.ruff_cache/
