@@ -584,6 +584,35 @@
     </div>
   </section>
 
+  <!-- Runtime footprint -->
+  <section id="footprint" class="py-24 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="max-w-2xl reveal">
+        <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Runtime footprint</p>
+        <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Runs once. Then steps out of the way.</h2>
+        <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever after. Your team doesn't pay the playbook's token cost on every session.</p>
+      </div>
+
+      <div class="mt-14 grid md:grid-cols-2 gap-6">
+
+        <div class="card rounded-2xl p-7 reveal">
+          <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Scaffold time · once</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~80k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Your agent reads <span class="font-mono text-zinc-300">AGENTIC-BOOTSTRAP.md</span> top-to-bottom — the operator playbook, the interview, the decision matrix, every template. One-shot, paid by the engineer running the bootstrap.</p>
+        </div>
+
+        <div class="card rounded-2xl p-7 reveal">
+          <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Every session after</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~10k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Tools auto-load only the thin spine — <span class="font-mono text-zinc-300">AGENTS.md</span> + a few rule files under <span class="font-mono text-zinc-300">.agents/rules/</span>. Scales modestly with the feature gates you opted into.</p>
+        </div>
+
+      </div>
+
+      <p class="mt-12 text-zinc-400 text-center reveal">The bootstrap pays its token cost at scaffold time. Your team works at the runtime cost <span class="text-zinc-100 font-medium">forever after</span>.</p>
+    </div>
+  </section>
+
   <!-- Architecture support -->
   <section id="architectures" class="py-24 border-t border-white/5 relative overflow-hidden">
     <div
