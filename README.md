@@ -2,9 +2,9 @@
 
 **One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — tool-agnostic, cross-stack, idempotent.**
 
-*By [Alexandre Souza](https://github.com/AlexzSouz) · [MIT licensed](./LICENSE) · [github.com/sciensoft/agentic-bootstrap](https://github.com/sciensoft/agentic-bootstrap)*
+[**🌐 agentic-bootstrap.md →**](https://agentic-bootstrap.md) · [Quickstart](./QUICKSTART.md) · [Examples](./examples/) · [Changelog](./CHANGELOG.md) · [Contribute](./CONTRIBUTING.md)
 
-➡️ **[60-second quickstart](./QUICKSTART.md)** · **[See the output (examples/)](./examples/)** · **[Changelog](./CHANGELOG.md)** · **[Contribute](./CONTRIBUTING.md)**
+*By [Alexandre Souza](https://github.com/AlexzSouz) · [MIT licensed](./LICENSE) · [github.com/sciensoft/agentic-bootstrap](https://github.com/sciensoft/agentic-bootstrap)*
 
 ---
 
