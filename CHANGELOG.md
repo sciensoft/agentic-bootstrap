@@ -9,6 +9,10 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Added
+
+- **5th lint check: Template Index offsets ↔ actual `### Template:` positions.** [`scripts/lint_bootstrap.py`](./scripts/lint_bootstrap.py) now parses the Part 4 Template Index table and compares each row's `start → end` offsets against the actual heading positions in the file. Drift is caught in CI before it ships; the failure message names the first few mismatching rows and tells the maintainer to re-grep `^### Template:` to refresh. Concurrent with this PR, the existing offsets — stale by +16 lines from #12 — were refreshed (78 rows updated). Closes the follow-up tracked at `.docs/todos/lint-template-index-offsets.md` (now `git rm`'d per the workflow-todos rule). The success message bumps from *"4 checks passed"* to *"5 checks passed"*.
+
 ### Changed
 
 - **Q2 and Q3 compressed into question + sub-table pairs.** Same pattern as the Q5 compression in #12. Q2 (AGENTS_USED) was a 945-char inline list of 8 tools with adapter descriptions; now a short question + a **Supported tools** sub-table with a `AGENTS.md natively?` column that surfaces a previously-buried fact (Codex CLI and OpenCode read AGENTS.md natively — two of eight need no adapter file). Q3 (POSTURE) was a 1,537-char paragraph of four posture descriptions glued together; now a short question + a **Posture options** sub-table (`Slot · Pre-allowed · Still prompts · Fits when`) with the `TRUSTED_DEV` language-toolchain cross-reference moved into a one-line footnote. Same flag values, same dispatch logic, same per-tool permission fan-out — only the user-facing text changes. Chat-only agents that paste verbatim render the question + the table together; smart picker hosts (Claude Code, Cursor) use the table rows as picker options.

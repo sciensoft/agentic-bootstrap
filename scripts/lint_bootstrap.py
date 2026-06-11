@@ -21,6 +21,13 @@ Checks (each one independent; all run every invocation):
    `CHANGELOG.md`. Bumping one without the other means re-run
    Step 8's upgrade narrative says the wrong thing.
 
+5. **Template Index offsets ↔ actual `### Template:` positions** — the
+   Index table at the start of Part 4 lets capable agents skip irrelevant
+   templates via offset reads. Stale offsets degrade gracefully (the
+   drift safeguard re-greps when a read doesn't land on a heading), but
+   silently waste tokens. Catching drift in CI is cheaper than letting
+   it accumulate.
+
 Exit code 0 on clean, 1 on any finding. Findings to stderr, one per line,
 prefixed with the check name.
 """
@@ -52,9 +59,10 @@ def main() -> int:
     findings += check_if_flags(bootstrap)
     findings += check_decision_matrix(bootstrap)
     findings += check_version(bootstrap, changelog)
+    findings += check_template_index(bootstrap)
 
     if not findings:
-        print("lint_bootstrap: OK (4 checks passed)")
+        print("lint_bootstrap: OK (5 checks passed)")
         return 0
 
     print(f"lint_bootstrap: FAIL ({len(findings)} finding(s))", file=sys.stderr)
@@ -229,6 +237,132 @@ def check_version(bootstrap: str, changelog: str) -> list[str]:
             f"recent dated changelog entry is {most_recent} — bump one to match the other"
         ]
     return []
+
+
+def check_template_index(bootstrap: str) -> list[str]:
+    """Template Index in Part 4 must stay in sync with actual `### Template:` positions.
+
+    The Index lets capable agents skip irrelevant templates via offset reads
+    (Read(offset=START, limit=END-START+1)). Stale offsets don't break
+    correctness (the drift safeguard re-greps), but waste tokens silently.
+    """
+    actual_ranges, err = _actual_template_ranges(bootstrap)
+    if err is not None:
+        return [err]
+
+    index_ranges, err = _parse_template_index_rows(bootstrap)
+    if err is not None:
+        return [err]
+
+    return _diff_template_ranges(bootstrap, actual_ranges, index_ranges)
+
+
+def _actual_template_ranges(bootstrap: str) -> tuple[list[tuple[int, int]], str | None]:
+    """Return (start, end) tuples for every `### Template:` heading in Part 4."""
+    template_lines = [
+        i
+        for i, line in enumerate(bootstrap.splitlines(), start=1)
+        if line.startswith("### Template:")
+    ]
+    if not template_lines:
+        return [], "template_index: no `### Template:` headings found in file"
+
+    part5_match = re.search(r"^## Part 5 ", bootstrap, re.MULTILINE)
+    if not part5_match:
+        return [], (
+            "template_index: could not locate `## Part 5` heading "
+            "(needed to compute the last template's end line)"
+        )
+    part5_line = bootstrap[: part5_match.start()].count("\n") + 1
+
+    ranges = [
+        (start, (template_lines[i + 1] - 1) if i + 1 < len(template_lines) else part5_line - 1)
+        for i, start in enumerate(template_lines)
+    ]
+    return ranges, None
+
+
+def _parse_template_index_rows(
+    bootstrap: str,
+) -> tuple[list[tuple[int, int]], str | None]:
+    """Parse the Part 4 Template Index table into a list of (start, end) tuples."""
+    index_header = "### Template Index"
+    idx_start = bootstrap.find(index_header)
+    if idx_start < 0:
+        return [], (
+            "template_index: no `### Template Index` heading found in Part 4 "
+            "— the offset-read optimisation requires one"
+        )
+    next_section = re.search(
+        r"^### ", bootstrap[idx_start + len(index_header) :], re.MULTILINE
+    )
+    idx_end = (
+        idx_start + len(index_header) + next_section.start()
+        if next_section
+        else len(bootstrap)
+    )
+    row_pattern = re.compile(r"^\|.*?\|.*?\|\s*(\d+)\s*→\s*(\d+)\s*\|", re.MULTILINE)
+    ranges = [
+        (int(m.group(1)), int(m.group(2)))
+        for m in row_pattern.finditer(bootstrap[idx_start:idx_end])
+    ]
+    if not ranges:
+        return [], (
+            "template_index: no rows matching `| ... | ... | START → END |` "
+            "parsed from the Index table"
+        )
+    return ranges, None
+
+
+def _diff_template_ranges(
+    bootstrap: str,
+    actual: list[tuple[int, int]],
+    index: list[tuple[int, int]],
+) -> list[str]:
+    """Compare Index rows against actual template positions, summarise mismatches."""
+    findings: list[str] = []
+    if len(index) != len(actual):
+        findings.append(
+            f"template_index: row count mismatch — Index table has {len(index)} "
+            f"rows, file has {len(actual)} `### Template:` headings"
+        )
+
+    lines = bootstrap.splitlines()
+    mismatches = [
+        _format_template_mismatch(i, lines, actual[i], index[i])
+        for i in range(min(len(index), len(actual)))
+        if actual[i] != index[i]
+    ]
+    if not mismatches:
+        return findings
+
+    findings.append(
+        f"template_index: {len(mismatches)} offset mismatch(es) "
+        f"— re-grep `^### Template:` in AGENTIC-BOOTSTRAP.md to refresh the table"
+    )
+    findings.extend(f"template_index: {m}" for m in mismatches[:3])
+    if len(mismatches) > 3:
+        findings.append(
+            f"template_index: ...and {len(mismatches) - 3} more mismatches "
+            f"(showing first 3)"
+        )
+    return findings
+
+
+def _format_template_mismatch(
+    i: int,
+    lines: list[str],
+    actual: tuple[int, int],
+    index: tuple[int, int],
+) -> str:
+    """Format one row mismatch with the template path for context."""
+    path_match = re.search(r"### Template: `([^`]+)`", lines[actual[0] - 1])
+    path = path_match.group(1) if path_match else f"line {actual[0]}"
+    return (
+        f"row {i + 1} (`{path}`): "
+        f"index says {index[0]} → {index[1]}, "
+        f"actual is {actual[0]} → {actual[1]}"
+    )
 
 
 if __name__ == "__main__":
