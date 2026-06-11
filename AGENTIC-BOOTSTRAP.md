@@ -454,84 +454,84 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 496 → 524 |
-| `.agents/rules/workflow.md` | Always | 525 → 967 |
-| `.agents/rules/workflow-todos.md` | Always | 968 → 1072 |
-| `.agents/rules/workflow-security.md` | Always | 1073 → 1153 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1154 → 1301 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1302 → 1405 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1406 → 1538 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1539 → 1659 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1660 → 1767 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1768 → 1853 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1854 → 1954 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 1955 → 2012 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2013 → 2091 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2092 → 2170 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2171 → 2227 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2228 → 2347 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2348 → 2485 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2486 → 2558 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2559 → 2605 |
-| `.docs/adrs/README.md` | Always | 2606 → 2623 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2624 → 2717 |
-| `.docs/todos/README.md` | Always | 2718 → 2736 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2737 → 2986 |
-| `.gitignore` (Python) | `LANG=Python` | 2987 → 3052 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3053 → 3106 |
-| `.gitignore` (Go) | `LANG=Go` | 3107 → 3149 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3150 → 3185 |
-| `.gitignore` (fallback) | any other `LANG` | 3186 → 3219 |
-| `.env.example` | `ENV_VARS` | 3220 → 3247 |
-| `.editorconfig` | Always | 3248 → 3276 |
-| `README.md` | Always (Sacred) | 3277 → 3307 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3308 → 3337 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3338 → 3563 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3564 → 3585 |
-| `AGENTS.md` | Always (Sacred first-write) | 3586 → 3633 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3634 → 3668 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3669 → 3716 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3717 → 3752 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3753 → 3783 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3784 → 3841 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3842 → 3854 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3855 → 3890 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3891 → 3951 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 3952 → 3986 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3987 → 4000 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4001 → 4020 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4021 → 4040 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4041 → 4056 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4057 → 4071 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4072 → 4086 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4087 → 4107 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4108 → 4124 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4125 → 4138 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4139 → 4153 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4154 → 4172 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4173 → 4188 |
-| `.agents/bootstrap.json` | Always | 4189 → 4242 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4243 → 4289 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4290 → 4329 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4330 → 4361 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4362 → 4392 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4393 → 4400 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4401 → 4437 |
-| `SECURITY.md` | Always | 4438 → 4483 |
-| `.gitattributes` | Always | 4484 → 4526 |
-| `CHANGELOG.md` | Always | 4527 → 4552 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4553 → 4594 |
-| linter / formatter configs (Python) | `LANG=Python` | 4595 → 4618 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4619 → 4668 |
-| linter / formatter configs (Go) | `LANG=Go` | 4669 → 4699 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4700 → 4720 |
-| linter / formatter configs (fallback) | any other `LANG` | 4721 → 4728 |
-| `Makefile` (Python) | `LANG=Python` | 4729 → 4769 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4770 → 4810 |
-| `Makefile` (Go) | `LANG=Go` | 4811 → 4854 |
-| `Makefile` (Rust) | `LANG=Rust` | 4855 → 4892 |
-| `Makefile` (fallback) | any other `LANG` | 4893 → 4921 |
-| `.pre-commit-config.yaml` | Always | 4922 → 4958 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 540 → 568 |
+| `.agents/rules/workflow.md` | Always | 569 → 1011 |
+| `.agents/rules/workflow-todos.md` | Always | 1012 → 1116 |
+| `.agents/rules/workflow-security.md` | Always | 1117 → 1197 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1198 → 1345 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1346 → 1449 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1450 → 1582 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1583 → 1703 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1704 → 1811 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1812 → 1897 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1898 → 1998 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 1999 → 2056 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2057 → 2135 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2136 → 2214 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2215 → 2271 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2272 → 2391 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2392 → 2529 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2530 → 2602 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2603 → 2649 |
+| `.docs/adrs/README.md` | Always | 2650 → 2667 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2668 → 2761 |
+| `.docs/todos/README.md` | Always | 2762 → 2780 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2781 → 3030 |
+| `.gitignore` (Python) | `LANG=Python` | 3031 → 3096 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3097 → 3150 |
+| `.gitignore` (Go) | `LANG=Go` | 3151 → 3193 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3194 → 3229 |
+| `.gitignore` (fallback) | any other `LANG` | 3230 → 3263 |
+| `.env.example` | `ENV_VARS` | 3264 → 3291 |
+| `.editorconfig` | Always | 3292 → 3320 |
+| `README.md` | Always (Sacred) | 3321 → 3351 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3352 → 3381 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3382 → 3607 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3608 → 3629 |
+| `AGENTS.md` | Always (Sacred first-write) | 3630 → 3677 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3678 → 3712 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3713 → 3760 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3761 → 3796 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3797 → 3827 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3828 → 3885 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3886 → 3898 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3899 → 3934 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3935 → 3995 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 3996 → 4030 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4031 → 4044 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4045 → 4064 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4065 → 4084 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4085 → 4100 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4101 → 4115 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4116 → 4130 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4131 → 4151 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4152 → 4168 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4169 → 4182 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4183 → 4197 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4198 → 4216 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4217 → 4232 |
+| `.agents/bootstrap.json` | Always | 4233 → 4286 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4287 → 4333 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4334 → 4373 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4374 → 4405 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4406 → 4436 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4437 → 4444 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4445 → 4481 |
+| `SECURITY.md` | Always | 4482 → 4527 |
+| `.gitattributes` | Always | 4528 → 4570 |
+| `CHANGELOG.md` | Always | 4571 → 4596 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4597 → 4638 |
+| linter / formatter configs (Python) | `LANG=Python` | 4639 → 4662 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4663 → 4712 |
+| linter / formatter configs (Go) | `LANG=Go` | 4713 → 4743 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 4744 → 4764 |
+| linter / formatter configs (fallback) | any other `LANG` | 4765 → 4772 |
+| `Makefile` (Python) | `LANG=Python` | 4773 → 4813 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4814 → 4854 |
+| `Makefile` (Go) | `LANG=Go` | 4855 → 4898 |
+| `Makefile` (Rust) | `LANG=Rust` | 4899 → 4936 |
+| `Makefile` (fallback) | any other `LANG` | 4937 → 4965 |
+| `.pre-commit-config.yaml` | Always | 4966 → 5002 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
