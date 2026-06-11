@@ -1,0 +1,47 @@
+name: Feature request
+description: A new capability for the bootstrap — architecture, tool adapter, workflow rule, language scaffold, interview question.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: scope
+    attributes:
+      label: What kind of feature?
+      options:
+        - New architecture variant (Part 4 `layered-architecture.md` template)
+        - New per-tool adapter
+        - New workflow rule (opt-in)
+        - New language scaffold (gitignore + manifest + linter + Makefile family)
+        - New interview question
+        - Doctor-mode check
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: The discipline or convenience missing today. Be concrete — name a real project that would benefit.
+    validations:
+      required: true
+
+  - type: textarea
+    id: shape
+    attributes:
+      label: Rough shape of the solution
+      description: What gets added or changed? Which files? Which interview answer drives it? Which re-run category (Canon / Mixed / Sacred)?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else could solve this? Why is this the right shape for the bootstrap rather than a downstream project's own concern?
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Prior art, references, mock templates, related issues.

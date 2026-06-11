@@ -1,0 +1,5 @@
+# Every PR auto-tags the maintainer for review.
+# When a co-maintainer joins, narrow by path (e.g. `docs/ @other`,
+# `scripts/ @other`) instead of expanding the catch-all.
+
+* @AlexzSouz

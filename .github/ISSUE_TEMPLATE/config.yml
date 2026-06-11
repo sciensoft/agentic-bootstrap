@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: General question or discussion
+    url: https://github.com/sciensoft/agentic-bootstrap/discussions
+    about: For "how should I use X?" / "is this the right way to…?" / "I bootstrapped my project, here's what happened" — please open a Discussion instead of an issue.
