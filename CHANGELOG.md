@@ -9,6 +9,14 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Changed
+
+- **Category B editorial passes (Step 0 + Doctor mode + Q14).** Three independent tightening passes shipped together:
+  - **Step 0 legacy-layout megabullet** broken into three sub-bullets (Migrate / Leave / Either way) under one parent bullet. The original was ~280 words of nested conditionals in a single bullet; the new shape preserves all three branches but is half the length and skim-able.
+  - **Doctor mode 10-item checklist** converted from a numbered prose list to a `# / Check / What to flag` table. Each row is now one line instead of three-to-five; the *Critical / Stale / Drift / Informational* severity grouping under "Report shape" still maps cleanly to the rows.
+  - **Q14 LICENSE** compressed into the same question + sub-table pattern as Q2 / Q3 / Q5. The four options stay inline as a compact one-line picker for chat-only renderers; a new **License options** sub-table adds a *Fits when* column with concrete guidance (hobby projects · larger OSS with corporate contributors · internal codebases · undecided experiments) that the original prose didn't surface.
+  - All three passes preserve behaviour — same flag values, same Step 8 narrative, same Doctor failure modes. Template Index offsets refreshed by 78 rows to absorb the line shifts.
+
 ### Added
 
 - **Landing page: two small reminders in the "Three steps" section.** (1) A six-word note under the Tell-the-agent code block — *"Re-run is safe — it's idempotent."* with a small refresh-arrow glyph — handles the case where an agent stalls mid-bootstrap, matched real `deepseek-r1:14b` + Aider behaviour observed in a debug session. (2) A single-sentence advisory below the three cards naming the model classes that handle the playbook reliably (Claude Sonnet / Opus, GPT-4 class, Gemini 1.5 / 2.x, full DeepSeek-V3, Qwen 2.5 Coder 32B+) and the failure mode of smaller distilled reasoners (skipping steps in an 80-template multi-step orchestration). Phrased as guidance, not gatekeeping — *"may skip steps; use a bigger model for this one-time scaffold."*
