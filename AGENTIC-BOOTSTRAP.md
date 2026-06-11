@@ -132,6 +132,8 @@ Always-included files are written every time. Opt-in files are written only when
 
 ### Step 4. Write the files (Part 4 templates)
 
+**Performance tip — use offset reads when your host supports them.** Before reading any Part 4 template, consult the **Part 4 Template Index** at the start of Part 4. It maps each template's name, trigger, and **line range** so you can use your Read tool's `offset` + `limit` parameters to load *only* the templates the captured answers require. For a typical project (1 tool, 1 architecture, 1 language, 1 posture) you'll touch ~15 of the ~80 templates listed; skipping the irrelevant ones cuts scaffold-time token cost by ~60–70%. Hosts without `offset`-capable Read tools fall through to top-to-bottom reading — no functionality lost, just the higher unoptimized token cost.
+
 For each file you decided to write in Step 3:
 
 - Create parent directories as needed (`mkdir -p`).
@@ -397,6 +399,97 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 ## Part 4 — File templates
 
 Each template below is wrapped in a **four-backtick fence** so that three-backtick code blocks inside the file content survive intact. When you write the file, write only the content between the fences — not the fence itself.
+
+---
+
+### Template Index (read first, then offset-load only what you need)
+
+> **Performance note for agents with offset-read capability** (Claude Code, Cursor, Aider, Codex CLI — Read tools that accept an `offset` parameter): consult this index after the interview, then use `Read(AGENTIC-BOOTSTRAP.md, offset=START, limit=END-START+1)` to load *only* the templates the captured answers require. A typical bootstrap touches **~15 of the ~80 templates** below — skipping the irrelevant ones cuts scaffold-time token cost by ~60–70%.
+>
+> **Performance note for naive readers**: agents whose Read tool can't take an `offset`, or hosts that ignore this instruction, fall through to top-to-bottom reading. Functionality is unchanged; only the token efficiency drops to the unoptimized baseline.
+
+| Template | Trigger | Lines (start → end) |
+| --- | --- | --- |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 496 → 524 |
+| `.agents/rules/workflow.md` | Always | 525 → 967 |
+| `.agents/rules/workflow-todos.md` | Always | 968 → 1072 |
+| `.agents/rules/workflow-security.md` | Always | 1073 → 1153 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1154 → 1301 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1302 → 1405 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1406 → 1538 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1539 → 1659 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1660 → 1767 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1768 → 1853 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1854 → 1954 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 1955 → 2012 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2013 → 2091 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2092 → 2170 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2171 → 2227 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2228 → 2347 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2348 → 2485 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2486 → 2558 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2559 → 2605 |
+| `.docs/adrs/README.md` | Always | 2606 → 2623 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2624 → 2717 |
+| `.docs/todos/README.md` | Always | 2718 → 2736 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2737 → 2986 |
+| `.gitignore` (Python) | `LANG=Python` | 2987 → 3052 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3053 → 3106 |
+| `.gitignore` (Go) | `LANG=Go` | 3107 → 3149 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3150 → 3185 |
+| `.gitignore` (fallback) | any other `LANG` | 3186 → 3219 |
+| `.env.example` | `ENV_VARS` | 3220 → 3247 |
+| `.editorconfig` | Always | 3248 → 3276 |
+| `README.md` | Always (Sacred) | 3277 → 3307 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3308 → 3337 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3338 → 3563 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3564 → 3585 |
+| `AGENTS.md` | Always (Sacred first-write) | 3586 → 3633 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3634 → 3668 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3669 → 3716 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3717 → 3752 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3753 → 3783 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3784 → 3841 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3842 → 3854 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3855 → 3890 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3891 → 3951 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 3952 → 3986 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3987 → 4000 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4001 → 4020 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4021 → 4040 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4041 → 4056 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4057 → 4071 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4072 → 4086 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4087 → 4107 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4108 → 4124 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4125 → 4138 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4139 → 4153 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4154 → 4172 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4173 → 4188 |
+| `.agents/bootstrap.json` | Always | 4189 → 4242 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4243 → 4289 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4290 → 4329 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4330 → 4361 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4362 → 4392 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4393 → 4400 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4401 → 4437 |
+| `SECURITY.md` | Always | 4438 → 4483 |
+| `.gitattributes` | Always | 4484 → 4526 |
+| `CHANGELOG.md` | Always | 4527 → 4552 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4553 → 4594 |
+| linter / formatter configs (Python) | `LANG=Python` | 4595 → 4618 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4619 → 4668 |
+| linter / formatter configs (Go) | `LANG=Go` | 4669 → 4699 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 4700 → 4720 |
+| linter / formatter configs (fallback) | any other `LANG` | 4721 → 4728 |
+| `Makefile` (Python) | `LANG=Python` | 4729 → 4769 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4770 → 4810 |
+| `Makefile` (Go) | `LANG=Go` | 4811 → 4854 |
+| `Makefile` (Rust) | `LANG=Rust` | 4855 → 4892 |
+| `Makefile` (fallback) | any other `LANG` | 4893 → 4921 |
+| `.pre-commit-config.yaml` | Always | 4922 → 4958 |
+
+> **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
 ---
 

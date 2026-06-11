@@ -590,21 +590,27 @@
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Runtime footprint</p>
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Runs once. Then steps out of the way.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever after. Your team doesn't pay the playbook's token cost on every session.</p>
+        <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever after. A template index lets capable agents skip what doesn't apply to your answers, cutting scaffold cost further. Your team never pays the playbook's token cost on a working session.</p>
       </div>
 
-      <div class="mt-14 grid md:grid-cols-2 gap-6">
+      <div class="mt-14 grid md:grid-cols-3 gap-6">
 
         <div class="card rounded-2xl p-7 reveal">
-          <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Scaffold time · once</p>
-          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~80k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Your agent reads <span class="font-mono text-zinc-300">AGENTIC-BOOTSTRAP.md</span> top-to-bottom — the operator playbook, the interview, the decision matrix, every template. One-shot, paid by the engineer running the bootstrap.</p>
+          <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Scaffold · smart agent</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~25k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Claude Code, Cursor, Aider, Codex CLI — agents whose Read tool supports <span class="font-mono text-zinc-300">offset</span> + <span class="font-mono text-zinc-300">limit</span>. Reads the operator playbook, interview, and decision matrix, then jumps straight to <span class="text-zinc-100 font-medium">only the ~15 templates</span> your answers require. Skips the other ~65.</p>
+        </div>
+
+        <div class="card rounded-2xl p-7 reveal">
+          <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Scaffold · naive fallback</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~75k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Agents without offset reads, or hosts that ignore the index instruction, fall through to top-to-bottom reading. <span class="text-zinc-100 font-medium">No functionality lost</span>; the bootstrap still works — you just pay the full playbook cost. Backward-compatible safety net.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
           <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Every session after</p>
           <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~10k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Tools auto-load only the thin spine — <span class="font-mono text-zinc-300">AGENTS.md</span> + a few rule files under <span class="font-mono text-zinc-300">.agents/rules/</span>. Scales modestly with the feature gates you opted into.</p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Tools auto-load only the thin spine — <span class="font-mono text-zinc-300">AGENTS.md</span> + a few rule files under <span class="font-mono text-zinc-300">.agents/rules/</span>. Scales modestly with the feature gates you opted into. Same on every agent.</p>
         </div>
 
       </div>
