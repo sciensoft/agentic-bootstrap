@@ -20,7 +20,7 @@ The interview is 17 questions, grouped into six tiers. None are trick questions;
 - **Q1 — Project name + one-line purpose.** The cold-start brief title.
 - **Q2 — Which agentic assistants?** Multi-pick. Decides which adapter files get written.
 - **Q3 — Agent autonomy posture?** Cautious / read-only / trusted-dev / bypass. The chosen intent fans out into every tool's native permission config (`.claude/settings.json`, `.cursor/settings.json`, `.aider.conf.yml` autonomy keys, `.codex/config.toml`, `.continue/config.json` tools block, `.windsurf/settings.json`).
-- **Q4 — Language.** Python / TypeScript / Go / Rust / other. Drives the manifest, linter configs, test scaffold, and `Makefile`.
+- **Q4 — Primary language or content type.** Eleven named examples — Python, TypeScript, Go, Rust, C# / .NET, Java, Ruby, PHP, Kotlin, Swift, Markdown / docs-as-code — plus *something else*. First-class scaffolds today: Python, TypeScript, Go, Rust; everything else gets a generic fallback. Drives the manifest, linter configs, test scaffold, and `Makefile`.
 - **Q5 — Architecture shape.** 9 options including 4-Layer DDD, Hexagonal, Microservice, Vertical Slice, Monorepo, Serverless. Drives the layered-architecture rule.
 - **Q6–Q8 — Project shape.** Web app? LLM in the request path? Env vars / secrets?
 - **Q9–Q13 — Feature gates.** Customer-visible surfaces? UI component vocabulary? Governed metrics? Testing discipline? Shared-frontend propagation? (All opt-in.)
