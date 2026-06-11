@@ -2,7 +2,8 @@
 
 **One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — tool-agnostic, cross-stack, idempotent.**
 
-[**🌐 agentic-bootstrap.md →**](https://agentic-bootstrap.md) · [Quickstart](./QUICKSTART.md) · [Examples](./examples/) · [Changelog](./CHANGELOG.md) · [Contribute](./CONTRIBUTING.md)
+<!-- markdownlint-disable-next-line MD033 -- inline HTML required: pure markdown can't set target="_blank" on the external landing-page CTA; the four in-repo links stay as markdown. -->
+<a href="https://agentic-bootstrap.md" target="_blank" rel="noopener noreferrer"><strong>🌐 agentic-bootstrap.md →</strong></a> · [Quickstart](./QUICKSTART.md) · [Examples](./examples/) · [Changelog](./CHANGELOG.md) · [Contribute](./CONTRIBUTING.md)
 
 *By [Alexandre Souza](https://github.com/AlexzSouz) · [MIT licensed](./LICENSE) · [github.com/sciensoft/agentic-bootstrap](https://github.com/sciensoft/agentic-bootstrap)*
 
