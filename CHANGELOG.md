@@ -11,7 +11,7 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ### Added
 
-- **Part 4 Template Index for offset-read selective loading.** A line-range table at the start of Part 4 mapping each of the ~80 templates to its trigger flag and `start → end` line offsets. Paired with a performance tip in Part 1 Step 4 instructing agents with `offset`-capable Read tools (Claude Code, Cursor, Aider, Codex CLI) to load *only* the templates the captured answers require — skipping the irrelevant ~65 templates a typical bootstrap doesn't touch. Cuts scaffold-time token cost from ~80k → ~25k for smart agents (~60–70% reduction); naive readers fall through to top-to-bottom reading with no regression. Landing page Runtime footprint section updated to reflect the three-number story (smart scaffold · naive fallback · runtime).
+- **Part 4 Template Index for offset-read selective loading.** A line-range table at the start of Part 4 mapping each of the ~80 templates to its trigger flag and `start → end` line offsets. Paired with a performance tip in Part 1 Step 4 instructing agents with `offset`-capable Read tools (Claude Code, Cursor, Aider, Codex CLI) to load *only* the templates the captured answers require — skipping the irrelevant ~65 templates a typical bootstrap doesn't touch. Cuts scaffold-time token cost from ~75k → ~25k for smart agents (~60–70% reduction); naive readers fall through to top-to-bottom reading with no regression. Landing page Runtime footprint section updated to reflect the three-number story (smart scaffold · naive fallback · runtime).
 
 ### Changed
 

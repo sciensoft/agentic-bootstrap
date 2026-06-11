@@ -5,7 +5,7 @@
 
 ## Context
 
-`AGENTIC-BOOTSTRAP.md` is ~5,000 lines / ~80k tokens read top-to-bottom — the operator playbook (Part 1), the 17-question interview (Part 2), the decision matrix (Part 3), and ~80 file templates (Part 4) covering every supported language, architecture, agentic tool, posture variant, and feature gate. Any given bootstrap run touches a small fraction of those templates — Python + 4-Layer DDD + Claude-only + TRUSTED_DEV needs roughly 15 of the 80. Reading the other 65 is pure context waste.
+`AGENTIC-BOOTSTRAP.md` is ~5,000 lines / ~75k tokens read top-to-bottom — the operator playbook (Part 1), the 17-question interview (Part 2), the decision matrix (Part 3), and ~80 file templates (Part 4) covering every supported language, architecture, agentic tool, posture variant, and feature gate. Any given bootstrap run touches a small fraction of those templates — Python + 4-Layer DDD + Claude-only + TRUSTED_DEV needs roughly 15 of the 80. Reading the other 65 is pure context waste.
 
 Three constraints framed the fix:
 
@@ -25,7 +25,7 @@ flowchart LR
   S4 --> S5[Compute needed templates<br/>from captured answers]
   S5 --> S6[Read ONLY those ranges<br/>via offset+limit Read calls]
   S6 --> S7[Write files · ~25k tokens used]
-  S3 -- No --> S8[Read Part 4 top-to-bottom<br/>~80k tokens used]
+  S3 -- No --> S8[Read Part 4 top-to-bottom<br/>~75k tokens used]
   S8 --> S7b[Write files · same correctness]
 ```
 
@@ -33,11 +33,11 @@ The flow above: smart agents take the left branch, naive agents take the right; 
 
 ## Consequences
 
-- **~60–70% scaffold-time token cost reduction for capable agents** (~80k → ~25k). The 5,000-line file is now shaped like a library: read the playbook + interview + matrix + index, then dispatch to the templates the answers actually want.
+- **~60–70% scaffold-time token cost reduction for capable agents** (~75k → ~25k). The 5,000-line file is now shaped like a library: read the playbook + interview + matrix + index, then dispatch to the templates the answers actually want.
 - **Naive readers are unchanged.** Agents whose Read tool can't take an `offset`, or hosts that strip the instruction, fall through to top-to-bottom reading — same as before, no regression. Honors design principle 1 (self-contained).
 - **Maintenance: the index must stay in sync with file edits.** Adding a new template, renumbering Q-questions, or any insertion that shifts Part 4 line numbers requires updating the table. The included drift safeguard ("if an offset doesn't land on `### Template:`, re-grep") protects users from minor drift, but doesn't prevent maintainer accidents.
 - **Follow-up tracked at [`.docs/todos/lint-template-index-offsets.md`](../todos/lint-template-index-offsets.md)**: add a lint check that re-derives the index from `^### Template:` positions and diffs against the committed table. CI failure on drift. The current four-check lint (`scripts/lint_bootstrap.py`) would gain a fifth.
-- **Landing page updated** ([`docs/index.html`](../../docs/index.html) `#footprint` section) to reflect the three-number story — smart scaffold (~25k), naive fallback (~80k), runtime (~10k). The middle number is the backward-compatibility safety net; the first is the win.
+- **Landing page updated** ([`docs/index.html`](../../docs/index.html) `#footprint` section) to reflect the three-number story — smart scaffold (~25k), naive fallback (~75k), runtime (~10k). The middle number is the backward-compatibility safety net; the first is the win.
 
 ## Alternatives considered
 
