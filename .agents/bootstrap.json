@@ -28,7 +28,8 @@
   },
   "best_practices_status": {
     "refined": false,
-    "stub_reason": "LANG=Other (markdown-content project, no single language to refine)"
+    "variant": "custom-markdown",
+    "note": "Hand-written for markdown-content discipline. The bootstrap doesn't yet ship a Markdown variant — see .docs/todos/markdown-content-best-practices-variant.md (paired with .docs/todos/expand-q4-language-coverage.md). The current .agents/rules/best-practices.md is the seed for that future variant."
   },
   "self_application": true,
   "self_application_note": "This bootstrap.json was written during the project's own self-application. Sacred files (README.md, CONTRIBUTING.md, LICENSE, SECURITY.md, CHANGELOG.md) pre-existed with hand-written content and were skipped per the Sacred re-run policy applied to a first-time run. .claude/settings.json was written without the Python language addendum per LANG=Other; the follow-up at .docs/todos/extend-claude-allow-list-with-python.md tracks adding the Python commands manually."
