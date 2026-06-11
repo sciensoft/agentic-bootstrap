@@ -11,7 +11,7 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ### Changed
 
-- **Q5 compressed into a question + Architecture options table.** The old Q5 row was a 700-word single-cell paragraph describing seven shapes inline — genuinely hard for a user to skim during the interview. Now: a ~700-character question that lists all seven shapes as a compact one-liner-per-option set (so chat-only agents that paste the question verbatim still give the user a complete picker), plus a small **Architecture options** sub-table below with the *Fits when* column for hosts that render markdown tables nicely. Same seven canonical options (`4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `FLAT`), same `ARCH` flag values, same disambiguation subsection unchanged. The agent now has a structured source it can render as a picker, a table, or a flow — and the question stays self-contained for verbatim renderers.
+- **Q5 compressed into a question + Architecture options table.** The old Q5 row was a 700-word single-cell paragraph describing seven shapes inline — genuinely hard for a user to skim during the interview. Now: a 50-word question (single-pick from the table that follows; disambiguation path named for system-topology / vocabulary-alias answers) plus a small **Architecture options** sub-table with one row per shape (Slot · Shape · Fits when). Same seven canonical options (`4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `FLAT`), same `ARCH` flag values, same disambiguation subsection unchanged. The agent now has a structured source it can render as a picker, a table, or a flow — instead of reflowing a 700-word paragraph.
 
 ### Added
 
