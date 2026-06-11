@@ -14,5 +14,6 @@ This directory holds the [Architecture Decision Records (ADRs)](https://cognitec
 | [0005](./0005-custom-domain-agentic-bootstrap-md.md) | Custom domain `agentic-bootstrap.md` for the landing page | Accepted | 2026-06-11 |
 | [0006](./0006-keep-changelog-md-always-not-opt-in.md) | Keep `CHANGELOG.md` always-written, not gated by `CONTRIB` | Accepted | 2026-06-11 |
 | [0007](./0007-structured-contribution-intake.md) | Structured contribution intake — issue templates, PR template, CODEOWNERS, SECURITY.md | Accepted | 2026-06-11 |
+| [0008](./0008-offset-read-template-index.md) | Offset-read template index for Part 4 | Accepted | 2026-06-11 |
 
 (Append new ADRs as `NNNN-<kebab-slug>.md` and add a row here in the same commit. See `.agents/rules/workflow.md` for when an ADR is required.)
