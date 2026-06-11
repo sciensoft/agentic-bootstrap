@@ -35,7 +35,10 @@ The bootstrap is **idempotent**: it's safe to re-run on a project that's already
 - **Detect doctor mode first.** If the user's invocation contains *"bootstrap-doctor"*, *"doctor mode"*, *"audit this repo"*, *"check compliance"*, *"drift report"*, or otherwise signals an audit-only intent, switch to **doctor mode** and follow the dedicated playbook in *Doctor mode* below (no writes, structured report only). If the invocation is ambiguous (just *"check this"*), ask the user to confirm: write mode or audit mode?
 - Check for the sentinel: `.agents/rules/workflow.md`. If it exists, the bootstrap has already run here → **re-run mode** (also called *update mode*).
 - Also check for `.agents/bootstrap.json` — if it exists, read it; the file holds the answers captured during the previous bootstrap (see Part 4 template). On re-run, reuse those answers and skip those questions; only ask for any keys *missing* from the file (new interview questions added in newer bootstrap versions).
-- **Legacy-layout migration**: if `.agents/rules/workflow.md` does *not* exist but `.claude/rules/workflow.md` does, this is a project bootstrapped under the **pre-multi-tool layout** (rules under `.claude/rules/`, answer cache at `.claude/bootstrap.json`). Treat it as re-run mode and **ask the user**: *"This project uses the legacy `.claude/rules/` layout. Migrate to `.agents/rules/` so other agentic assistants can be added (recommended)? Or leave the files in place?"* If they pick **migrate**, `git mv .claude/rules .agents/rules` and `git mv .claude/bootstrap.json .agents/bootstrap.json` before proceeding; update any `@.claude/rules/…` references in `CLAUDE.md` to `@.agents/rules/…` in the same step. If they pick **leave**, keep treating the legacy paths as the live ones for this re-run (skip the rename, keep writing to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools will be limited until they migrate. Either way, write the chosen layout into `bootstrap.json` so future re-runs don't re-ask.
+- **Legacy-layout migration**: if `.claude/rules/workflow.md` exists but `.agents/rules/workflow.md` doesn't, this is a project bootstrapped under the pre-multi-tool layout (rules under `.claude/rules/`, answer cache at `.claude/bootstrap.json`). Treat it as re-run mode, then ask: *"Migrate `.claude/rules/` → `.agents/rules/` (recommended — unlocks the other 7 tool adapters) or leave it in place?"* Then:
+  - **Migrate**: `git mv .claude/rules .agents/rules` + `git mv .claude/bootstrap.json .agents/bootstrap.json`; update any `@.claude/rules/…` refs in `CLAUDE.md` to `@.agents/rules/…` in the same step.
+  - **Leave**: keep the legacy paths live for this re-run (write to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools is limited until the user migrates.
+  - **Either way**: record the chosen layout in `bootstrap.json` so future re-runs don't re-ask.
 - If no sentinel exists at either path → **first-time mode**. Standard flow (Steps 1–8 as written).
 - **Read the version markers**. This bootstrap file carries `<!-- bootstrap-version: <YYYY-MM-DD> -->` near the top — parse it as `CURRENT_BOOTSTRAP_VERSION`. On re-run, also read `bootstrap_version` from `.agents/bootstrap.json` as `PREVIOUS_BOOTSTRAP_VERSION`. If they differ, the user is upgrading; carry both values through to Step 8 so the report can name what changed (see [CHANGELOG.md](./CHANGELOG.md) for the change log between versions). If they're identical, this is a re-run on the same version (e.g. to refresh after an interview tweak); the upgrade narrative is omitted.
 
@@ -56,16 +59,18 @@ When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo
 
 **What to check, in this order:**
 
-1. **Layout**. Does `.agents/rules/` exist? Or is the project on the legacy `.claude/rules/` layout? If neither exists, this isn't a bootstrapped project — say so, recommend running the bootstrap normally, stop.
-2. **Sentinel files**. For each entry in the Part 3 decision matrix that should exist given the answers in `.agents/bootstrap.json` (or `.claude/bootstrap.json` for legacy), confirm the file is present. Missing rule files, missing security methodology, missing ADR README, missing todos README — all flagged.
-3. **`bootstrap.json` freshness**. Read the `bootstrap_version` from the cache and compare against `CURRENT_BOOTSTRAP_VERSION` (this file's header). If they differ, note the delta and list the `CHANGELOG.md` bullets the user hasn't picked up yet. Check that every key the current bootstrap knows about is present in `answers`; flag any keys that would be re-asked on next re-run.
-4. **Architecture rule freshness**. If `.agents/rules/layered-architecture.md` exists, confirm its first line matches the variant header for the `ARCH` value in `bootstrap.json` (the bootstrap writes `# Layered Architecture (...)` / `# Hexagonal Architecture (Ports and Adapters)` / `# Microservice Architecture` / etc.). A mismatch means someone hand-edited the file or the ARCH answer changed without a re-run.
-5. **Best-practices refinement status**. Read the top-of-file marker in `.agents/rules/best-practices.md`. Report whether it's `refined` (with the accessed date) or `stub` (with the reason). If stubbed and the marker date is older than the current bootstrap version, suggest a re-refinement attempt.
-6. **Security audit cadence**. List the dated files under `.docs/security/*.md`. Report the most recent audit date and how long ago it was. Flag if no dated audit exists at all (the methodology is the playbook; without dated audits the rubric isn't being walked), or if the most recent is more than 90 days old.
-7. **Per-tool adapter coverage**. For each tool in `AGENTS_USED`, confirm the matching adapter file exists at the expected path. Flag missing adapters (the user added a tool to `AGENTS_USED` but didn't re-run); flag stray adapters (a file exists for a tool that's not in `AGENTS_USED`).
-8. **ADR index integrity**. List `.docs/adrs/00*.md` files and compare against the rows in `.docs/adrs/README.md`'s index table. Flag ADRs missing from the index; flag index rows referencing non-existent files.
-9. **Todos hygiene**. List `.docs/todos/*.md` entries. Count them. If any entry's *Revisit when* trigger has obviously fired (a date in the past, a referenced PR that's merged), flag it as sweepable. Don't auto-sweep — that's a write.
-10. **Prompt-file presence**. Count `.docs/prompts/*.md` files. Compare against commit count since bootstrap. If there are many commits but few prompts, flag that the workflow.md discipline may not be active.
+| # | Check | What to flag |
+| --- | --- | --- |
+| 1 | **Layout** — does `.agents/rules/` or legacy `.claude/rules/` exist? | If neither, this isn't a bootstrapped project — say so, recommend the bootstrap, stop. |
+| 2 | **Sentinel files** — for each Part 3 matrix row that should exist given the answers in `.agents/bootstrap.json` (or `.claude/bootstrap.json` for legacy), confirm the file is present | Missing rule files · methodology · ADR README · todos README. |
+| 3 | **`bootstrap.json` freshness** — `bootstrap_version` in the cache vs `CURRENT_BOOTSTRAP_VERSION` (this file's header); every key the current bootstrap knows about present in `answers` | Version drift → list the `CHANGELOG.md` bullets the user hasn't picked up. Missing keys → would re-ask on next re-run. |
+| 4 | **Architecture rule freshness** — first line of `.agents/rules/layered-architecture.md` matches the variant header for the `ARCH` value (`# Layered Architecture (...)` / `# Hexagonal Architecture (Ports and Adapters)` / `# Microservice Architecture` / etc.) | Mismatch → file was hand-edited, or `ARCH` answer changed without a re-run. |
+| 5 | **Best-practices refinement status** — top-of-file marker in `.agents/rules/best-practices.md` (`refined` with accessed date, `stub` with reason, or `custom`) | If `stub` and marker older than current bootstrap version → suggest a re-refinement attempt. |
+| 6 | **Security audit cadence** — dated files under `.docs/security/*.md`; report the most recent audit date | No dated audit at all (rubric isn't being walked), or most recent > 90 days old. |
+| 7 | **Per-tool adapter coverage** — for each tool in `AGENTS_USED`, the matching adapter file at the expected path | Missing adapters (tool added without re-run) · stray adapters (file exists for a tool not in `AGENTS_USED`). |
+| 8 | **ADR index integrity** — `.docs/adrs/00*.md` files vs `.docs/adrs/README.md` index table | ADRs missing from index · index rows referencing missing files. |
+| 9 | **Todos hygiene** — entries in `.docs/todos/`; check each *Revisit when* trigger | Trigger obviously fired (date in past, referenced PR merged) → flag as sweepable. **Never auto-sweep** — that's a write. |
+| 10 | **Prompt-file presence** — count `.docs/prompts/*.md` vs commit count since bootstrap | Many commits but few prompts → `workflow.md` discipline likely not active. |
 
 **Report shape** — print as Markdown so it's pasteable into chat or a doc:
 
@@ -388,8 +393,19 @@ The disambiguation is one shot, not a tree. If the clarification still doesn't f
 
 | # | Question | Affects |
 | --- | --- | --- |
-| Q14 | **License?** "Single-pick: **MIT** (permissive, most popular OSS), **Apache 2.0** (permissive + explicit patent grant — preferred for larger projects), **Proprietary** (all rights reserved, internal use only), **Skip** (no LICENSE file)." **If LICENSE ≠ SKIP**, also ask: *"Who is the copyright holder? (person name or organisation — used in the LICENSE file's copyright line.)"* | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
+| Q14 | **License?** "Single-pick: `MIT` (permissive · popular OSS) · `APACHE_2_0` (permissive + patent grant) · `PROPRIETARY` (all rights reserved · internal-only) · `SKIP` (no LICENSE file). See the **License options** sub-table below for fuller descriptions and *Fits when* guidance. **If LICENSE ≠ SKIP**, follow up with: *"Who is the copyright holder?"* (person name or organisation — used in the LICENSE file's copyright line)." | `LICENSE` value in `{MIT, APACHE_2_0, PROPRIETARY, SKIP}`. Picks the LICENSE template variant. `COPYRIGHT_HOLDER` captured as a free-form string used in the LICENSE body. |
 | Q15 | **Accepting external contributions?** "yes / no. If yes, scaffold `CONTRIBUTING.md` with a stub covering dev setup, branch / PR conventions, code style pointer, and how to file issues. If no (internal / personal project), skip the file." | `CONTRIB` flag — controls `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
+
+#### License options — for Q14
+
+Single-pick the license that fits the project:
+
+| Slot | Description | Fits when |
+| --- | --- | --- |
+| `MIT` | Short permissive license; anyone may use / modify / distribute provided the notice is preserved | hobby projects · libraries · anything you want maximally reusable |
+| `APACHE_2_0` | Permissive with an explicit patent grant — adds legal clarity for contributor-patent issues | larger OSS projects · corporate contributors · code that touches patentable technology |
+| `PROPRIETARY` | All rights reserved — no permission granted | internal company codebases · closed-source products before launch |
+| `SKIP` | No LICENSE file scaffolded | private experiments · repos where licensing isn't yet decided |
 
 ### Free-form details
 
@@ -470,84 +486,84 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 556 → 584 |
-| `.agents/rules/workflow.md` | Always | 585 → 1027 |
-| `.agents/rules/workflow-todos.md` | Always | 1028 → 1132 |
-| `.agents/rules/workflow-security.md` | Always | 1133 → 1213 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1214 → 1361 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1362 → 1465 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1466 → 1598 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1599 → 1719 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1720 → 1827 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1828 → 1913 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1914 → 2014 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2015 → 2072 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2073 → 2151 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2152 → 2230 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2231 → 2287 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2288 → 2407 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2408 → 2545 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2546 → 2618 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2619 → 2665 |
-| `.docs/adrs/README.md` | Always | 2666 → 2683 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2684 → 2777 |
-| `.docs/todos/README.md` | Always | 2778 → 2796 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2797 → 3046 |
-| `.gitignore` (Python) | `LANG=Python` | 3047 → 3112 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3113 → 3166 |
-| `.gitignore` (Go) | `LANG=Go` | 3167 → 3209 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3210 → 3245 |
-| `.gitignore` (fallback) | any other `LANG` | 3246 → 3279 |
-| `.env.example` | `ENV_VARS` | 3280 → 3307 |
-| `.editorconfig` | Always | 3308 → 3336 |
-| `README.md` | Always (Sacred) | 3337 → 3367 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3368 → 3397 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3398 → 3623 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3624 → 3645 |
-| `AGENTS.md` | Always (Sacred first-write) | 3646 → 3693 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3694 → 3728 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3729 → 3776 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3777 → 3812 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3813 → 3843 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3844 → 3901 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3902 → 3914 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3915 → 3950 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3951 → 4011 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4012 → 4046 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4047 → 4060 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4061 → 4080 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4081 → 4100 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4101 → 4116 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4117 → 4131 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4132 → 4146 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4147 → 4167 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4168 → 4184 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4185 → 4198 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4199 → 4213 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4214 → 4232 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4233 → 4248 |
-| `.agents/bootstrap.json` | Always | 4249 → 4302 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4303 → 4349 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4350 → 4389 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4390 → 4421 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4422 → 4452 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4453 → 4460 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4461 → 4497 |
-| `SECURITY.md` | Always | 4498 → 4543 |
-| `.gitattributes` | Always | 4544 → 4586 |
-| `CHANGELOG.md` | Always | 4587 → 4612 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4613 → 4654 |
-| linter / formatter configs (Python) | `LANG=Python` | 4655 → 4678 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4679 → 4728 |
-| linter / formatter configs (Go) | `LANG=Go` | 4729 → 4759 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4760 → 4780 |
-| linter / formatter configs (fallback) | any other `LANG` | 4781 → 4788 |
-| `Makefile` (Python) | `LANG=Python` | 4789 → 4829 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4830 → 4870 |
-| `Makefile` (Go) | `LANG=Go` | 4871 → 4914 |
-| `Makefile` (Rust) | `LANG=Rust` | 4915 → 4952 |
-| `Makefile` (fallback) | any other `LANG` | 4953 → 4981 |
-| `.pre-commit-config.yaml` | Always | 4982 → 5018 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 572 → 600 |
+| `.agents/rules/workflow.md` | Always | 601 → 1043 |
+| `.agents/rules/workflow-todos.md` | Always | 1044 → 1148 |
+| `.agents/rules/workflow-security.md` | Always | 1149 → 1229 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1230 → 1377 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1378 → 1481 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1482 → 1614 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1615 → 1735 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1736 → 1843 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1844 → 1929 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1930 → 2030 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2031 → 2088 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2089 → 2167 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2168 → 2246 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2247 → 2303 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2304 → 2423 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2424 → 2561 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2562 → 2634 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2635 → 2681 |
+| `.docs/adrs/README.md` | Always | 2682 → 2699 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2700 → 2793 |
+| `.docs/todos/README.md` | Always | 2794 → 2812 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2813 → 3062 |
+| `.gitignore` (Python) | `LANG=Python` | 3063 → 3128 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3129 → 3182 |
+| `.gitignore` (Go) | `LANG=Go` | 3183 → 3225 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3226 → 3261 |
+| `.gitignore` (fallback) | any other `LANG` | 3262 → 3295 |
+| `.env.example` | `ENV_VARS` | 3296 → 3323 |
+| `.editorconfig` | Always | 3324 → 3352 |
+| `README.md` | Always (Sacred) | 3353 → 3383 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3384 → 3413 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3414 → 3639 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3640 → 3661 |
+| `AGENTS.md` | Always (Sacred first-write) | 3662 → 3709 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3710 → 3744 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3745 → 3792 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3793 → 3828 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3829 → 3859 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3860 → 3917 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3918 → 3930 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3931 → 3966 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3967 → 4027 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4028 → 4062 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4063 → 4076 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4077 → 4096 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4097 → 4116 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4117 → 4132 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4133 → 4147 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4148 → 4162 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4163 → 4183 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4184 → 4200 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4201 → 4214 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4215 → 4229 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4230 → 4248 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4249 → 4264 |
+| `.agents/bootstrap.json` | Always | 4265 → 4318 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4319 → 4365 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4366 → 4405 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4406 → 4437 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4438 → 4468 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4469 → 4476 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4477 → 4513 |
+| `SECURITY.md` | Always | 4514 → 4559 |
+| `.gitattributes` | Always | 4560 → 4602 |
+| `CHANGELOG.md` | Always | 4603 → 4628 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4629 → 4670 |
+| linter / formatter configs (Python) | `LANG=Python` | 4671 → 4694 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4695 → 4744 |
+| linter / formatter configs (Go) | `LANG=Go` | 4745 → 4775 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 4776 → 4796 |
+| linter / formatter configs (fallback) | any other `LANG` | 4797 → 4804 |
+| `Makefile` (Python) | `LANG=Python` | 4805 → 4845 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4846 → 4886 |
+| `Makefile` (Go) | `LANG=Go` | 4887 → 4930 |
+| `Makefile` (Rust) | `LANG=Rust` | 4931 → 4968 |
+| `Makefile` (fallback) | any other `LANG` | 4969 → 4997 |
+| `.pre-commit-config.yaml` | Always | 4998 → 5034 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
