@@ -9,6 +9,10 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Changed
+
+- **Q5 compressed into a question + Architecture options table.** The old Q5 row was a 700-word single-cell paragraph describing seven shapes inline — genuinely hard for a user to skim during the interview. Now: a 50-word question (single-pick from the table that follows; disambiguation path named for system-topology / vocabulary-alias answers) plus a small **Architecture options** sub-table with one row per shape (Slot · Shape · Fits when). Same seven canonical options (`4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `FLAT`), same `ARCH` flag values, same disambiguation subsection unchanged. The agent now has a structured source it can render as a picker, a table, or a flow — instead of reflowing a 700-word paragraph.
+
 ### Added
 
 - **Part 4 Template Index for offset-read selective loading.** A line-range table at the start of Part 4 mapping each of the ~80 templates to its trigger flag and `start → end` line offsets. Paired with a performance tip in Part 1 Step 4 instructing agents with `offset`-capable Read tools (Claude Code, Cursor, Aider, Codex CLI) to load *only* the templates the captured answers require — skipping the irrelevant ~65 templates a typical bootstrap doesn't touch. Cuts scaffold-time token cost from ~75k → ~25k for smart agents (~60–70% reduction); naive readers fall through to top-to-bottom reading with no regression. Landing page Runtime footprint section updated to reflect the three-number story (smart scaffold · naive fallback · runtime).
