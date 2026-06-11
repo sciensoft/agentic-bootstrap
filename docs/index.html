@@ -488,25 +488,52 @@
         </div>
       </div>
 
-      <p class="mt-12 text-zinc-400 text-sm text-center reveal flex items-center justify-center gap-2 max-w-3xl mx-auto leading-relaxed">
-        <svg viewBox="0 0 24 24" class="w-4 h-4 flex-shrink-0 text-accent-400" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="16" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12.01" y2="8" />
-        </svg>
-        <span>Best results with a capable instruction-following model — Claude Sonnet / Opus, GPT-4 class, Gemini 1.5 / 2.x, full DeepSeek-V3, Qwen 2.5 Coder 32B+. Smaller distilled reasoning models may skip steps in an 80-template multi-step orchestration; use a bigger model for this one-time scaffold.</span>
-      </p>
+      <div class="mt-12 max-w-3xl mx-auto reveal">
+        <div class="border border-white/10 rounded-xl bg-white/[0.02] p-6 md:p-8">
 
-      <p class="mt-6 text-zinc-400 text-sm text-center reveal flex items-center justify-center gap-2 max-w-3xl mx-auto leading-relaxed">
-        <svg viewBox="0 0 24 24" class="w-4 h-4 flex-shrink-0 text-accent-400" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <path d="M3 9h18" />
-          <path d="M9 21V9" />
-        </svg>
-        <span>The bootstrap reads at ~80k tokens. Verify your model + runtime + tool can carry that much in one window. Common failure modes: model architecturally capped below 128k (most Qwen 2.5 builds, Codestral, Phi-4); runtime serving a smaller context than the model supports (Ollama, vLLM, llama.cpp all have separate caps); agent re-sending the file every turn vs chunked tool reads. When the math doesn't fit, use a hosted API for this one-time scaffold — the cost is rounding error against a single dev day.</span>
-      </p>
+          <div class="flex items-center gap-2.5 mb-6">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 flex-shrink-0 text-accent-400" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <h3 class="text-zinc-200 text-base font-medium tracking-tight">Before you run · two requirements</h3>
+          </div>
+
+          <div class="space-y-5">
+
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-7 h-7 rounded-full border border-accent-400/40 bg-accent-400/10 text-accent-300 text-sm font-semibold flex items-center justify-center">1</div>
+              <div class="flex-1">
+                <div class="text-zinc-200 text-sm font-medium mb-1.5">Capable model</div>
+                <p class="text-zinc-400 text-sm leading-relaxed">
+                  Claude Sonnet / Opus · GPT-4 class · Gemini 1.5 / 2.x · full DeepSeek-V3 · Qwen 2.5 Coder 32B+.
+                  Smaller distilled reasoning models may skip steps in this 80-template multi-step orchestration.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-7 h-7 rounded-full border border-accent-400/40 bg-accent-400/10 text-accent-300 text-sm font-semibold flex items-center justify-center">2</div>
+              <div class="flex-1">
+                <div class="text-zinc-200 text-sm font-medium mb-1.5">~80k context window that fits</div>
+                <p class="text-zinc-400 text-sm leading-relaxed">
+                  Verify your model + runtime + tool can carry it in one window. Watch for: model GGUF capped at 32k (most Qwen 2.5 builds, Codestral, Phi-4); runtime defaults (Ollama, vLLM, llama.cpp all have separate caps); agent re-sending the file every turn vs chunked tool reads.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-6 pt-5 border-t border-white/5">
+            <p class="text-zinc-500 text-xs leading-relaxed">
+              <span class="text-zinc-400">Can't meet both?</span> Use a hosted API for the one-shot scaffold — the cost is rounding error against a single dev day.
+            </p>
+          </div>
+
+        </div>
+      </div>
     </div>
   </section>
 
