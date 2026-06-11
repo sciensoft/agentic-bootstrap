@@ -7,7 +7,7 @@ body:
     id: bootstrap-version
     attributes:
       label: Bootstrap version
-      description: The `<!-- bootstrap-version: YYYY-MM-DD -->` header from your `AGENTIC-BOOTSTRAP.md` (or "I cloned `develop` at <date>").
+      description: 'The date from the `<!-- bootstrap-version: YYYY-MM-DD -->` header in `AGENTIC-BOOTSTRAP.md`, or "develop @ YYYY-MM-DD" if you cloned trunk.'
       placeholder: "2026-06-12"
     validations:
       required: true
