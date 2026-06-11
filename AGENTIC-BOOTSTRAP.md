@@ -2,7 +2,7 @@
 <!-- MD010 disabled: Makefile fenced blocks legitimately require hard tabs (POSIX make spec). -->
 <!-- bootstrap-version: 2026-06-12 -->
 <!-- Version is the ISO date this file was last meaningfully changed. -->
-<!-- Bumped manually on each notable change; the diff lives in BOOTSTRAP_CHANGELOG.md. -->
+<!-- Bumped manually on each notable change; the diff lives in CHANGELOG.md. -->
 
 # Agentic Bootstrap
 
@@ -37,7 +37,7 @@ The bootstrap is **idempotent**: it's safe to re-run on a project that's already
 - Also check for `.agents/bootstrap.json` — if it exists, read it; the file holds the answers captured during the previous bootstrap (see Part 4 template). On re-run, reuse those answers and skip those questions; only ask for any keys *missing* from the file (new interview questions added in newer bootstrap versions).
 - **Legacy-layout migration**: if `.agents/rules/workflow.md` does *not* exist but `.claude/rules/workflow.md` does, this is a project bootstrapped under the **pre-multi-tool layout** (rules under `.claude/rules/`, answer cache at `.claude/bootstrap.json`). Treat it as re-run mode and **ask the user**: *"This project uses the legacy `.claude/rules/` layout. Migrate to `.agents/rules/` so other agentic assistants can be added (recommended)? Or leave the files in place?"* If they pick **migrate**, `git mv .claude/rules .agents/rules` and `git mv .claude/bootstrap.json .agents/bootstrap.json` before proceeding; update any `@.claude/rules/…` references in `CLAUDE.md` to `@.agents/rules/…` in the same step. If they pick **leave**, keep treating the legacy paths as the live ones for this re-run (skip the rename, keep writing to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools will be limited until they migrate. Either way, write the chosen layout into `bootstrap.json` so future re-runs don't re-ask.
 - If no sentinel exists at either path → **first-time mode**. Standard flow (Steps 1–8 as written).
-- **Read the version markers**. This bootstrap file carries `<!-- bootstrap-version: <YYYY-MM-DD> -->` near the top — parse it as `CURRENT_BOOTSTRAP_VERSION`. On re-run, also read `bootstrap_version` from `.agents/bootstrap.json` as `PREVIOUS_BOOTSTRAP_VERSION`. If they differ, the user is upgrading; carry both values through to Step 8 so the report can name what changed (see [BOOTSTRAP_CHANGELOG.md](./BOOTSTRAP_CHANGELOG.md) for the change log between versions). If they're identical, this is a re-run on the same version (e.g. to refresh after an interview tweak); the upgrade narrative is omitted.
+- **Read the version markers**. This bootstrap file carries `<!-- bootstrap-version: <YYYY-MM-DD> -->` near the top — parse it as `CURRENT_BOOTSTRAP_VERSION`. On re-run, also read `bootstrap_version` from `.agents/bootstrap.json` as `PREVIOUS_BOOTSTRAP_VERSION`. If they differ, the user is upgrading; carry both values through to Step 8 so the report can name what changed (see [CHANGELOG.md](./CHANGELOG.md) for the change log between versions). If they're identical, this is a re-run on the same version (e.g. to refresh after an interview tweak); the upgrade narrative is omitted.
 
 Both modes share the same playbook from this point on, with these behavioural differences:
 
@@ -58,7 +58,7 @@ When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo
 
 1. **Layout**. Does `.agents/rules/` exist? Or is the project on the legacy `.claude/rules/` layout? If neither exists, this isn't a bootstrapped project — say so, recommend running the bootstrap normally, stop.
 2. **Sentinel files**. For each entry in the Part 3 decision matrix that should exist given the answers in `.agents/bootstrap.json` (or `.claude/bootstrap.json` for legacy), confirm the file is present. Missing rule files, missing security methodology, missing ADR README, missing todos README — all flagged.
-3. **`bootstrap.json` freshness**. Read the `bootstrap_version` from the cache and compare against `CURRENT_BOOTSTRAP_VERSION` (this file's header). If they differ, note the delta and list the `BOOTSTRAP_CHANGELOG.md` bullets the user hasn't picked up yet. Check that every key the current bootstrap knows about is present in `answers`; flag any keys that would be re-asked on next re-run.
+3. **`bootstrap.json` freshness**. Read the `bootstrap_version` from the cache and compare against `CURRENT_BOOTSTRAP_VERSION` (this file's header). If they differ, note the delta and list the `CHANGELOG.md` bullets the user hasn't picked up yet. Check that every key the current bootstrap knows about is present in `answers`; flag any keys that would be re-asked on next re-run.
 4. **Architecture rule freshness**. If `.agents/rules/layered-architecture.md` exists, confirm its first line matches the variant header for the `ARCH` value in `bootstrap.json` (the bootstrap writes `# Layered Architecture (...)` / `# Hexagonal Architecture (Ports and Adapters)` / `# Microservice Architecture` / etc.). A mismatch means someone hand-edited the file or the ARCH answer changed without a re-run.
 5. **Best-practices refinement status**. Read the top-of-file marker in `.agents/rules/best-practices.md`. Report whether it's `refined` (with the accessed date) or `stub` (with the reason). If stubbed and the marker date is older than the current bootstrap version, suggest a re-refinement attempt.
 6. **Security audit cadence**. List the dated files under `.docs/security/*.md`. Report the most recent audit date and how long ago it was. Flag if no dated audit exists at all (the methodology is the playbook; without dated audits the rubric isn't being walked), or if the most recent is more than 90 days old.
@@ -105,7 +105,7 @@ Or fix individual items manually — each bullet above includes the path and the
 **Hard rules for doctor mode:**
 
 - **Zero writes.** Don't write any file, even to log the run. The doctor is read-only.
-- **Don't prompt for missing capabilities.** If web search would help (e.g. to check whether `BOOTSTRAP_CHANGELOG.md` has been bumped upstream), use it; if not available, skip that check silently.
+- **Don't prompt for missing capabilities.** If web search would help (e.g. to check whether `CHANGELOG.md` has been bumped upstream), use it; if not available, skip that check silently.
 - **Severity ordering matters.** Critical findings (missing rule files, broken layout) lead the report; informational findings come last.
 - **No false alarms.** If a check can't run reliably (e.g. the cache file is malformed JSON), say so in the *Informational* section — don't pretend you ran the check.
 
@@ -239,7 +239,7 @@ In one short paragraph:
 
 - **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), which per-tool adapters were written (from `AGENTS_USED`), the natural next step — usually: open `AGENTS.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`.docs/adrs/0001-<slug>.md`).
 - **Re-run mode**: which Canon files were refreshed, which Mixed files were merged / kept / overwritten / skipped (with per-file user decisions), which Sacred files were preserved untouched, which new interview keys landed in `.agents/bootstrap.json`. Also flag any Sacred files that were missing on disk (the user may want to re-scaffold from the template manually).
-- **Upgrade narrative** (re-run mode, only when `PREVIOUS_BOOTSTRAP_VERSION ≠ CURRENT_BOOTSTRAP_VERSION`): one sentence naming the version delta — *"Upgrading from `<previous>` to `<current>`"* — and a 2-4 bullet summary of the relevant changes since the previous version (from `BOOTSTRAP_CHANGELOG.md`). Skip changes that don't apply to this project (e.g. a new tool adapter that isn't in `AGENTS_USED`).
+- **Upgrade narrative** (re-run mode, only when `PREVIOUS_BOOTSTRAP_VERSION ≠ CURRENT_BOOTSTRAP_VERSION`): one sentence naming the version delta — *"Upgrading from `<previous>` to `<current>`"* — and a 2-4 bullet summary of the relevant changes since the previous version (from `CHANGELOG.md`). Skip changes that don't apply to this project (e.g. a new tool adapter that isn't in `AGENTS_USED`).
 - **Best-practices refinement status** (always — call this out explicitly so the user notices). Two outcomes:
   - *Refined*: name the sources cited (one-line summary), the accessed date, and that the file is now user-owned (re-runs won't touch it).
   - *Stubbed*: name the one-line failure reason (probe error / permission gated / no capability), point at `§ Enable refinement` in `best-practices.md` for the per-agent remediation matrix, and offer: *"Want me to try self-configuring your host's web access now?"* if the host gap appears to be permissions (not capability).

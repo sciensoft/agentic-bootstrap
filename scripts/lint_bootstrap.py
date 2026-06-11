@@ -18,7 +18,7 @@ Checks (each one independent; all run every invocation):
 
 4. **Version header ↔ changelog** — the `<!-- bootstrap-version: ... -->`
    header in AGENTIC-BOOTSTRAP.md matches the most recent dated entry in
-   `BOOTSTRAP_CHANGELOG.md`. Bumping one without the other means re-run
+   `CHANGELOG.md`. Bumping one without the other means re-run
    Step 8's upgrade narrative says the wrong thing.
 
 Exit code 0 on clean, 1 on any finding. Findings to stderr, one per line,
@@ -33,7 +33,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BOOTSTRAP_PATH = REPO_ROOT / "AGENTIC-BOOTSTRAP.md"
-CHANGELOG_PATH = REPO_ROOT / "BOOTSTRAP_CHANGELOG.md"
+CHANGELOG_PATH = REPO_ROOT / "CHANGELOG.md"
 
 
 def main() -> int:

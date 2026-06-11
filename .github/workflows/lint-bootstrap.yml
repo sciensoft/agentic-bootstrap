@@ -8,14 +8,14 @@ on:
   pull_request:
     paths:
       - 'AGENTIC-BOOTSTRAP.md'
-      - 'BOOTSTRAP_CHANGELOG.md'
+      - 'CHANGELOG.md'
       - 'scripts/lint_bootstrap.py'
       - '.github/workflows/lint-bootstrap.yml'
   push:
     branches: [main, develop]
     paths:
       - 'AGENTIC-BOOTSTRAP.md'
-      - 'BOOTSTRAP_CHANGELOG.md'
+      - 'CHANGELOG.md'
       - 'scripts/lint_bootstrap.py'
       - '.github/workflows/lint-bootstrap.yml'
 

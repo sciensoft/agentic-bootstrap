@@ -21,7 +21,7 @@ When you contribute, you're almost always editing one of: Part 2 (a new intervie
 
 - **Read [`AGENTIC-BOOTSTRAP.md` Part 6 — How to extend this bootstrap](./AGENTIC-BOOTSTRAP.md)** before writing the change. Part 6 has battle-tested recipes for the common contribution patterns; following the recipe keeps your PR small and the review fast.
 - **Open an issue or discussion first** for anything substantial — a new ARCH slot, a new tool adapter, a new feature gate that asks a new question. Lightweight changes (typo, clarification, a new diagram example) can go straight to a PR.
-- **Bump [`BOOTSTRAP_CHANGELOG.md`](./BOOTSTRAP_CHANGELOG.md)** in the same PR. Add a bullet to `[Unreleased]` describing what changed. The version marker at the top of `AGENTIC-BOOTSTRAP.md` (`<!-- bootstrap-version: <YYYY-MM-DD> -->`) gets bumped when the maintainer cuts a release; you don't need to bump it in your PR.
+- **Bump [`CHANGELOG.md`](./CHANGELOG.md)** in the same PR. Add a bullet to `[Unreleased]` describing what changed. The version marker at the top of `AGENTIC-BOOTSTRAP.md` (`<!-- bootstrap-version: <YYYY-MM-DD> -->`) gets bumped when the maintainer cuts a release; you don't need to bump it in your PR.
 
 ## Common contribution patterns
 
@@ -57,7 +57,7 @@ If the new tool reads `AGENTS.md` natively (like Codex CLI and OpenCode), no ada
 
 Used for opt-in workflow rules (currently: `CHANGES`, `UI_COMPONENTS`, `METRICS`, `TESTING`). To add a new one:
 
-1. **Part 2** — add the question to the **Feature gates** tier; pick the next available Q-number. If the new question slots between existing ones, follow the renumbering procedure (`sed` high-to-low; see how `TESTING` was inserted in `BOOTSTRAP_CHANGELOG.md`'s 2026-06-10 entry for the worked example).
+1. **Part 2** — add the question to the **Feature gates** tier; pick the next available Q-number. If the new question slots between existing ones, follow the renumbering procedure (`sed` high-to-low; see how `TESTING` was inserted in `CHANGELOG.md`'s 2026-06-10 entry for the worked example).
 2. **Part 3 decision matrix** — add an opt-in row for the new rule file, gated on the new flag.
 3. **Part 4** — write the new `### Template: `.agents/rules/<your-rule>.md` *(opt-in, write only if `<FLAG>`)*` section.
 4. **`AGENTS.md` template** — add a `{{IF_<FLAG>}}- [...](your-rule.md) — <one-line>` line to the Rules list.
@@ -88,7 +88,7 @@ The five template families (`.gitignore`, manifest, linter, `Makefile`, `TRUSTED
 
 Before opening the PR, run a smoke check:
 
-1. **Consistency lint (required).** Run `python scripts/lint_bootstrap.py` from the repo root. It validates four properties of `AGENTIC-BOOTSTRAP.md`: Q-numbers are sequential 1..N with no gaps; every `{{IF_<FLAG>}}` reference in Part 4 templates matches a key in `bootstrap.json`'s `answers` schema (or is a documented derived flag); every row in the Part 3 decision matrix points to a Part 4 template that exists; the `<!-- bootstrap-version: ... -->` header matches the most recent dated entry in `BOOTSTRAP_CHANGELOG.md`. CI runs the same script on every PR — failing locally first saves you a round trip. If your change introduces a new derived flag or a new IF_FLAG pattern the lint doesn't recognise, update `DERIVED_FLAGS` in `scripts/lint_bootstrap.py` or refine the relevant check in the same PR.
+1. **Consistency lint (required).** Run `python scripts/lint_bootstrap.py` from the repo root. It validates four properties of `AGENTIC-BOOTSTRAP.md`: Q-numbers are sequential 1..N with no gaps; every `{{IF_<FLAG>}}` reference in Part 4 templates matches a key in `bootstrap.json`'s `answers` schema (or is a documented derived flag); every row in the Part 3 decision matrix points to a Part 4 template that exists; the `<!-- bootstrap-version: ... -->` header matches the most recent dated entry in `CHANGELOG.md`. CI runs the same script on every PR — failing locally first saves you a round trip. If your change introduces a new derived flag or a new IF_FLAG pattern the lint doesn't recognise, update `DERIVED_FLAGS` in `scripts/lint_bootstrap.py` or refine the relevant check in the same PR.
 2. **Manual bootstrap.** Spin up a fresh empty directory; ask an agent (Claude Code is easiest if you have it) to follow the modified `AGENTIC-BOOTSTRAP.md` against it; confirm the bootstrap produces the expected files for a stack that exercises your change. For an ARCH-template contribution: pick that ARCH, confirm the template renders correctly; for a feature-gate contribution: answer yes to the new question, confirm the rule file lands.
 3. **Re-run check.** Run the bootstrap a second time against the same directory; confirm re-run mode picks up the already-bootstrapped project and only asks for any newly-added interview keys.
 4. **Doctor check.** Invoke doctor mode (*"run bootstrap-doctor against this repo"*), confirm the report surfaces nothing unexpected.
@@ -99,7 +99,7 @@ Before opening the PR, run a smoke check:
 - **Branch from `main`**. Open the PR against `main`.
 - **One PR per change**. Don't bundle a new ARCH slot with a new tool adapter — review them separately.
 - **Reference the issue or discussion** if there was one.
-- **Update [`BOOTSTRAP_CHANGELOG.md`'s `[Unreleased]` section](./BOOTSTRAP_CHANGELOG.md)** in the same PR.
+- **Update [`CHANGELOG.md`'s `[Unreleased]` section](./CHANGELOG.md)** in the same PR.
 - **Tag a maintainer** for review if you don't get one within ~5 business days.
 
 ## Code of conduct

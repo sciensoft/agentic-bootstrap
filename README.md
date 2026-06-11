@@ -4,7 +4,7 @@
 
 *By [Alexandre Souza](https://github.com/AlexzSouz) · [MIT licensed](./LICENSE) · [github.com/sciensoft/agentic-bootstrap](https://github.com/sciensoft/agentic-bootstrap)*
 
-➡️ **[60-second quickstart](./QUICKSTART.md)** · **[See the output (examples/)](./examples/)** · **[Changelog](./BOOTSTRAP_CHANGELOG.md)** · **[Contribute](./CONTRIBUTING.md)**
+➡️ **[60-second quickstart](./QUICKSTART.md)** · **[See the output (examples/)](./examples/)** · **[Changelog](./CHANGELOG.md)** · **[Contribute](./CONTRIBUTING.md)**
 
 ---
 
@@ -126,7 +126,7 @@ Every file the bootstrap writes is classified in [Part 3's decision matrix](./AG
 
 > **The contract:** *"Feel free to re-run the bootstrap whenever the file is updated. Nothing you own will be touched."*
 
-Cached interview answers live in `.agents/bootstrap.json` (committed, shared with the team). On re-run the agent only asks you about *new* questions added to a newer version of the bootstrap, and surfaces the version delta in the Step 8 report so you see what changed — driven by [`BOOTSTRAP_CHANGELOG.md`](./BOOTSTRAP_CHANGELOG.md).
+Cached interview answers live in `.agents/bootstrap.json` (committed, shared with the team). On re-run the agent only asks you about *new* questions added to a newer version of the bootstrap, and surfaces the version delta in the Step 8 report so you see what changed — driven by [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## Audit-only mode (doctor)
 
@@ -147,7 +147,7 @@ These shape every decision in the artifact:
 3. **Project-agnostic.** No domain-specific bleed.
 4. **Interactive interview, not static dump.** Opt-in files appear only when the matching flag is yes.
 5. **Agent-executable.** The file is itself a playbook. Part 1 reads top-to-bottom and tells the agent what to do.
-6. **Easy to update.** Edit the file in place; the next bootstrap reflects the change. The change log lives in `BOOTSTRAP_CHANGELOG.md`.
+6. **Easy to update.** Edit the file in place; the next bootstrap reflects the change. The change log lives in `CHANGELOG.md`.
 7. **Idempotent re-runs.** State lives in `.agents/bootstrap.json`; ownership is encoded in the matrix.
 8. **Failure-safe refinement.** Web-search-driven best-practices refinement falls back to a sensible stub when search isn't available — the bootstrap never blocks.
 9. **Conventions over preferences.** The bootstrap is opinionated. That's the point.
@@ -169,7 +169,7 @@ These shape every decision in the artifact:
 
 - [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) — **the artifact.** What you hand to your agent.
 - [`QUICKSTART.md`](./QUICKSTART.md) — 60-second quickstart for human readers.
-- [`BOOTSTRAP_CHANGELOG.md`](./BOOTSTRAP_CHANGELOG.md) — version history.
+- [`CHANGELOG.md`](./CHANGELOG.md) — version history.
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — how to extend the bootstrap.
 - [`examples/`](./examples/) — three fully-bootstrapped sample projects.
 - [`docs/`](./docs/) — the landing-page source.

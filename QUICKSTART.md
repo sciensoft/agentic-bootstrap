@@ -97,7 +97,7 @@ The bootstrap is **idempotent**. Run it again any time you want to pick up new r
 > follow AGENTIC-BOOTSTRAP.md to bootstrap this repo
 ```
 
-The agent reads `.agents/bootstrap.json` to skip questions you've already answered. Only newly-added interview keys get re-asked. The version delta is named in the Step 8 report so you see what's changed since your last run — driven by [`BOOTSTRAP_CHANGELOG.md`](./BOOTSTRAP_CHANGELOG.md).
+The agent reads `.agents/bootstrap.json` to skip questions you've already answered. Only newly-added interview keys get re-asked. The version delta is named in the Step 8 report so you see what's changed since your last run — driven by [`CHANGELOG.md`](./CHANGELOG.md).
 
 ## Audit-only mode (doctor)
 

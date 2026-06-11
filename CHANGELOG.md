@@ -31,7 +31,7 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ### Added
 
-- Bootstrap version header + `BOOTSTRAP_CHANGELOG.md` + Step 8 upgrade narrative — re-runs now name the version delta and surface relevant changes.
+- Bootstrap version header + `CHANGELOG.md` + Step 8 upgrade narrative — re-runs now name the version delta and surface relevant changes.
 - Bootstrap-doctor mode — audit-only invocation that produces a structured drift report against an existing project (no writes).
 - `CONTRIBUTING.md` for this repo — how to add ARCH templates, tool adapters, feature gates, and language scaffolds.
 - `QUICKSTART.md` — 60-second human-readable quickstart, separate from the operational prompt.
