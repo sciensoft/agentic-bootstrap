@@ -1,23 +1,16 @@
 name: lint-bootstrap
 
 # Runs scripts/lint_bootstrap.py on every PR and on pushes to the main
-# branches. Catches cross-reference drift inside AGENTIC-BOOTSTRAP.md
-# before it ships. See scripts/lint_bootstrap.py for the four checks.
+# branches. Runs unconditionally (no paths filter) so the check always
+# reports a status — required by the develop branch protection ruleset,
+# which would block PRs with "Waiting for status" if the workflow were
+# path-filtered and the PR touched none of the watched files.
+# See scripts/lint_bootstrap.py for the four checks.
 
 on:
   pull_request:
-    paths:
-      - 'AGENTIC-BOOTSTRAP.md'
-      - 'CHANGELOG.md'
-      - 'scripts/lint_bootstrap.py'
-      - '.github/workflows/lint-bootstrap.yml'
   push:
     branches: [main, develop]
-    paths:
-      - 'AGENTIC-BOOTSTRAP.md'
-      - 'CHANGELOG.md'
-      - 'scripts/lint_bootstrap.py'
-      - '.github/workflows/lint-bootstrap.yml'
 
 jobs:
   lint:
