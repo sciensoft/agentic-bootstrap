@@ -1,0 +1,64 @@
+name: Bug report
+description: Something the bootstrap did wrong, didn't do, or did inconsistently.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: bootstrap-version
+    attributes:
+      label: Bootstrap version
+      description: The `<!-- bootstrap-version: YYYY-MM-DD -->` header from your `AGENTIC-BOOTSTRAP.md` (or "I cloned `develop` at <date>").
+      placeholder: "2026-06-12"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Which agentic tool were you running the bootstrap with?
+      options:
+        - Claude Code
+        - Cursor
+        - Aider
+        - OpenAI Codex CLI
+        - OpenCode
+        - Continue.dev
+        - Windsurf
+        - GitHub Copilot
+        - Other (mention in the body)
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: One or two sentences. *The agent should have…*
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened?
+      description: Paste the agent's output, the file diff, or describe the divergence.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: From a clean directory. The minimum sequence that triggers it.
+      placeholder: |
+        1. mkdir foo && cd foo
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: OS, agent version, relevant `bootstrap.json` keys, screenshots — anything that helps.
