@@ -1,88 +1,96 @@
-<!-- best-practices: stub · refinement deferred · reason: LANG=Other (markdown-content project, no single language to refine) -->
-# Best Practices
+<!-- best-practices: custom · authored for a markdown-content / single-file scaffold project · accessed: 2026-06-11 -->
 
-> **This file is the generic baseline.** It contains language-agnostic patterns that apply across most projects. For *much* more value, refine it from current web sources for your specific Other / mixed + framework stack — see [§ Enable refinement](#enable-refinement) at the bottom of this file.
+# Best Practices — Markdown-content discipline for `agentic-bootstrap`
 
-Patterns and conventions established in this project. Apply them when adding new features or refactoring. Expand this file with language- or framework-specific idioms as the project matures — the sections below are the language-agnostic core.
+This project is a **markdown-content scaffold**: the artifact is [`AGENTIC-BOOTSTRAP.md`](../../AGENTIC-BOOTSTRAP.md), the supporting docs are [`README.md`](../../README.md) / [`QUICKSTART.md`](../../QUICKSTART.md) / [`CONTRIBUTING.md`](../../CONTRIBUTING.md) / [`CHANGELOG.md`](../../CHANGELOG.md) / the landing page at [`docs/index.html`](../../docs/index.html), and the only executable code is [`scripts/lint_bootstrap.py`](../../scripts/lint_bootstrap.py) — a Python helper that validates four cross-reference invariants inside the bootstrap file.
 
-## Architecture
+Best practices here are about **content discipline** — how to keep the markdown trustworthy, readable, and amenable to both agent and human consumption — not application-development idioms. The bootstrap's shipped `best-practices.md` template options are *refined* (web-driven, for Python / TypeScript / Go / Rust) or *stub* (generic skeleton). Neither fit; this file was hand-written. A future Markdown-content variant for the bootstrap itself is tracked at [`.docs/todos/markdown-content-best-practices-variant.md`](../../.docs/todos/markdown-content-best-practices-variant.md).
 
-### Repository pattern
+## 1. Cross-reference discipline
 
-Every external data source is hidden behind a repository class.
+The bootstrap's value depends on its internal links resolving cleanly. [`scripts/lint_bootstrap.py`](../../scripts/lint_bootstrap.py) enforces four invariants on `AGENTIC-BOOTSTRAP.md`:
 
-- Repositories expose intent-revealing methods (`load_projects`, `load_commits`), not raw paths or URLs.
-- Separation of concerns inside the class: private helpers handle discovery/parsing; public methods compose them.
-- Always sort results deterministically (by date ascending unless otherwise specified).
+1. Q-numbers in Part 2 are sequential `1..N` with no gaps.
+2. Every `{{IF_<FLAG>}}` reference in Part 4 templates matches a key in `bootstrap.json`'s `answers` schema (or is a documented derived flag).
+3. Every row in the Part 3 decision matrix points to a Part 4 template that exists.
+4. The `<!-- bootstrap-version: ... -->` header matches the most recent dated entry in [`CHANGELOG.md`](../../CHANGELOG.md).
 
-### Service pattern
+Run `python scripts/lint_bootstrap.py` (or `make lint`) before pushing — CI runs the same script and is a required status check on `develop` (see [ADR-0001](../../.docs/adrs/0001-develop-trunk-with-ruleset-protection.md)).
 
-Business logic lives in services (classes, or module-level functions for genuinely stateless services).
+For Markdown links anywhere in the repo:
 
-- Services receive collaborators via `__init__` (never instantiate them internally).
-- Services own data-loading orchestration — presentation handlers must not call repositories directly for computed data.
-- Expose small focused methods and a high-level aggregator for UI consumption.
-- Keep pure helpers as private members.
+- Prefer **repo-relative paths** (`./CONTRIBUTING.md`, `../adrs/0004-...`) over absolute URLs that 404 in forks.
+- Anchor links use the GitHub-rendered slug — change a heading, you change the slug; grep for any links pointing at it and update in the same commit.
+- External links cite the access date for time-sensitive sources (release notes, doc pages that may revise).
 
-### Dependency Injection & Inversion
+## 2. Heading hierarchy
 
-- **Constructor injection**: dependencies are passed to `__init__`, never instantiated inside methods.
-- **Central wiring**: a single composition root (often `application/container.py` or equivalent) composes the graph. It exposes factory functions returning singletons.
-- **Testability**: the container exposes a `reset()` (or equivalent) that clears cached instances so tests can swap fakes without touching production code paths.
-- **Fail fast**: constructors validate required deps (e.g. `raise ValueError("XService requires a YRepository")`).
+- **H1 (`#`) appears at most once per file**, at the very top. It IS the document title.
+- **H2 (`##`) starts every section.** Don't skip from H1 to H3.
+- Heading text should be **stable** — GitHub auto-generates anchors from heading text; renaming a heading silently breaks every deep link to it.
+- For long files (`AGENTIC-BOOTSTRAP.md`, `workflow.md`), the H2 set IS the table of contents — keep it skimmable.
 
-## Code style
+## 3. Code fences
 
-- **Imports**: absolute across layers; relative imports only within the same package.
-- **Async**: use the runtime's async primitives (`async`/`await` in Python or JS/TS, goroutines in Go, …) and run independent I/O concurrently where it helps. Don't mix sync and async carelessly inside a single call path.
-- **Privacy**: prefer language-idiomatic privacy markers (`_underscore` for module-private in Python; `private` in TS; lowercase for unexported in Go). Reserve aggressive privacy mechanisms (double-underscore name mangling, sealed classes, etc.) for actual collision avoidance — don't reach for them as "more private".
-- **Dates**: timezone-aware end-to-end. Never rely on system locale or naive datetimes for boundary work.
-- **Avoid mutation**: prefer non-mutating operations where the language has them (`sorted(xs)` over `xs.sort()` in Python, spread/`map` over in-place updates in JS, immutable structs where the language supports them).
-- **Type hints**: required for public function signatures and class attributes wherever the language supports them.
-- **Validation**: validate at boundaries (UI input, external APIs, file parsing). Trust internal data shapes once they cross the boundary.
-- **Errors**: raise specific exceptions in infrastructure; the application layer catches and converts to user-facing strings.
+- **Every fenced block carries a language tag** — `bash`, `json`, `yaml`, `mermaid`, `text` for plain output. Syntax highlighting helps human readers; agents use the tag as a signal too.
+- For shell examples that mix input and output, prefix only the lines the reader is expected to type with `$` and a space, or split into separate blocks — input first, expected output second.
+- For JSON, validate the snippet before paste: `python3 -m json.tool < snippet.json`.
+- For YAML, **watch out for plain scalars containing a colon followed by a space** — that two-character sequence is parsed as a key separator and silently breaks the document. Wrap in single quotes when in doubt. This rule exists because we shipped [`.github/ISSUE_TEMPLATE/bug.yml`](../../.github/ISSUE_TEMPLATE/bug.yml) with exactly that bug and it took a missing-template screenshot to catch it (see [`1781155000.fix_bug_yml_yaml_parse.md`](../../.docs/prompts/1781155000.fix_bug_yml_yaml_parse.md)).
 
-## File & Naming Conventions
+## 4. Mermaid diagrams
 
-- Module files: lowercase with the language's idiomatic separator (`snake_case.py`, `kebab-case.ts`, `lowercase.go`). One class per file for service/repository classes; small related helpers may co-locate.
-- Services: `<feature>_service.<ext>` exporting a `<Feature>Service` class.
-- Repositories: `<entity>_repository.<ext>` exporting a `<Entity>Repository` class.
-- Domain protocols / interfaces live under a `domain/interfaces/` (or `domain/protocols/`, or your language's equivalent) directory.
-- Infrastructure adapters: `<provider>_client.<ext>` (e.g. `s3_client.ts`, `youtube_client.py`).
-- Constants: `UPPER_SNAKE_CASE` at module level.
-- Private members: `_single_underscore` (Python) or the equivalent for your language.
-- Package directories use lowercase, no separators.
+- **Caption every kept diagram** with one sentence explaining what the reader should take away. Without a caption the diagram is decoration, not communication.
+- **Validate the syntax** — broken Mermaid renders as plain text inside a code block on GitHub, not as an error. Test non-trivial diagrams at the [Mermaid Live Editor](https://mermaid.live).
+- Prefer the **structural types** (flowchart, sequence, state, ER, C4Context, quadrantChart) over the **decorative types** (pie, journey, mindmap) — structural diagrams compose well into ADRs; decorative ones rarely add information.
+- Keep diagrams under ~30 nodes. Past that, split into two simpler diagrams.
 
-## Data & Formatting
+## 5. Prose style
 
-- Always sort returned collections — dates ascending by default, stats descending by value.
-- Format numbers and dates via a locale-aware library (Babel for Python, Intl for JS, `golang.org/x/text` for Go) where the audience matters.
-- Section copy should be **generic** and explain what the stats represent — never hard-code narrative from a specific dataset.
+- **Concise > thorough.** A clear sentence beats a clear paragraph.
+- **Em-dash for asides.** Avoid Oxford-comma-laden parentheticals when an em-dash carries the same meaning with less noise.
+- **No prose-bloat headings.** *"Things to consider when you want to do X"* → just *"X."*
+- **Active voice for instructions.** *"Run `make lint`"* not *"The lint command should be run."*
+- **Name the constraint, not the wish.** *"GitHub blocks force-push to develop"* beats *"force-pushing to develop is discouraged."*
 
-## What NOT to do
+## 6. Linking discipline
 
-- Don't instantiate repositories in presentation handlers or services — get them from the container.
-- Don't compute logic inside route handlers — delegate to application services.
-- Don't add comments that restate the code; only document non-obvious *why*.
-- Don't reach for a custom decorator/metaclass when a plain function or class fits.
-- Don't track build artifacts or virtual envs in git — gitignore them.
-- Don't bundle multiple unrelated changes in one commit; one prompt + one commit per request (see `.agents/rules/workflow.md`).
+- When fact `F` lives in `N` files, **name one as the source-of-truth** and treat the others as derivatives. Example: the bootstrap-version is canonical in `AGENTIC-BOOTSTRAP.md`'s header; `CHANGELOG.md` derives from it; `README.md` references both.
+- When facts collide between source-of-truth and derivatives, the source-of-truth wins. The lint script enforces this for the four invariants above.
+- Cite ADRs by number — `[ADR-0004](../../.docs/adrs/0004-single-file-agent-executable-delivery-model.md)` — so the link survives heading renames.
 
-## Enable refinement
+## 7. File location discipline
 
-The bootstrap tried to refine this file from current Other / mixed + framework sources but couldn't reach the web from your agent host. Once you fix that, ask any agent to *"re-run the bootstrap's Step 4b best-practices refinement"* and a stack-specific version will replace this stub. **How to enable web access per host:**
-
-| Agent host | What to enable |
+| Location | Role |
 | --- | --- |
-| **Claude Code** | The `WebSearch` and `WebFetch` tools ship with the CLI. If calls prompt for permission, add `"WebSearch"` and `"WebFetch(domain:*)"` (or specific allowed domains) to the `permissions.allow` array in `.claude/settings.json`. For headless / cron runs, also pre-allow the domains you expect to fetch. |
-| **Cursor** | Web search is built in (the `@web` symbol). If the agent doesn't pick it up automatically, prompt it explicitly: *"Use @web to research Other / mixed best practices, then refine .agents/rules/best-practices.md."* |
-| **OpenAI Codex CLI** | The `--web` flag / web-tool capability must be enabled in your Codex config. See `codex --help` for the current flag name; web access is opt-in per session. |
-| **Aider** | Aider doesn't ship native web search. Either pipe sources in via `aider --read <url-or-path>` after fetching them yourself (`curl`), or use the `/web` slash command if your Aider build supports it (newer versions). |
-| **OpenCode** | Web search is available via the platform's tool config. Enable it in your OpenCode settings before re-running the refinement prompt. |
-| **Continue.dev** | The `@web` context provider is opt-in — add `"web"` to your `.continue/config.json`'s `contextProviders` array. |
-| **Windsurf** | Web search is available via the platform's tool palette. Confirm it's enabled in your Windsurf workspace settings. |
-| **GitHub Copilot** | Copilot Chat in supported IDEs has the `@web` participant (Copilot Workspace + recent VS Code Insiders). If your host is older / web-less, fetch sources manually and paste excerpts into the chat, then ask Copilot to refine the file. |
+| Repo root | Maintainer-authored content: `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `LICENSE`, `SECURITY.md`, `QUICKSTART.md`, `AGENTIC-BOOTSTRAP.md`, `CLAUDE.md`, `AGENTS.md`, `CODE_OF_CONDUCT.md`, `Makefile` |
+| `docs/` | Landing-page source: `index.html`, `CNAME`, `favicon.svg`. GitHub Pages publishes from here. |
+| `.docs/` | Agent-authored project history: ADRs, prompts, todos, security audits. Hidden from casual browsing but committed. |
+| `.agents/rules/` | The discipline files that govern agent behaviour. Canon under the re-run policy — the bootstrap may overwrite them. |
+| `examples/` | Fully-bootstrapped sample projects. Don't drift content here; regenerate when conventions change. |
+| `scripts/` | Executable helpers (currently just `lint_bootstrap.py`). |
 
-**Can the agent self-configure?** Sometimes. If your host's gap is *permissions* (the tool exists but is gated), an agent with write access to the host's config file can add the right entry — Claude Code can edit `.claude/settings.json`, Continue.dev can edit `.continue/config.json`. Ask the agent to enable web search by editing its own config, then re-run the refinement. If your host's gap is *capability* (the tool doesn't exist), no agent can give itself a new tool — switch hosts or fetch sources manually.
+## 8. PR hygiene
 
-When refinement runs successfully, the marker comment at the top of this file flips from `stub` to `refined` and `bootstrap.json`'s `BEST_PRACTICES_REFINED` flag becomes `true`. Re-running the bootstrap after that point leaves this file alone (it becomes user-owned).
+- **Bump `CHANGELOG.md`'s `[Unreleased]` section** in the same PR as any `AGENTIC-BOOTSTRAP.md` change. The lint validates the `bootstrap-version` header matches the latest dated entry — a stale changelog will fail.
+- **Run the lint locally** before pushing: `python scripts/lint_bootstrap.py` or `make lint`.
+- **One PR = one logical change.** Squash-merge is the repo policy; your branch history can be messy, but the merged commit should read as one focused unit.
+- **For YAML / JSON files**, validate locally before push: `python3 -c "import yaml; yaml.safe_load(open('<file>'))"` or `python3 -m json.tool <file>`.
+- **Direct push to `develop` is blocked** by the ruleset — open a feature branch + PR + self-merge once `lint` is green (see [ADR-0001](../../.docs/adrs/0001-develop-trunk-with-ruleset-protection.md)).
+
+## 9. ADR + prompt + TODO discipline
+
+The full discipline lives in [`workflow.md`](./workflow.md), [`workflow-todos.md`](./workflow-todos.md), and the supporting rules. Short version for this project:
+
+- **Every artifact-producing request** gets a `.docs/prompts/<unix-ts>.<snake_slug>.md` file recording what was asked, why, and what landed.
+- **Architectural decisions** (rename a load-bearing file; flip a re-run policy; add a tool adapter; change the deployment model; restructure intake) get an ADR under `.docs/adrs/`.
+- **Deferred ideas** get a `.docs/todos/<kebab-slug>.md` file with `Area`, `Refs`, `Context`, `Deferred because`, `Revisit when`.
+
+## 10. What this file is NOT
+
+This is **not a coding style guide.** There is (almost) no application code here. Any future addition to `scripts/` should pull in a language-specific best-practices addition; until then, keep the discussion at the Markdown-content level.
+
+---
+
+## Enabling refinement (future maintainers)
+
+If a future maintainer wants this file replaced by the bootstrap's refined template (synthesized live from web sources), see the **"Enable refinement"** section in the stub variant inside Part 4 of `AGENTIC-BOOTSTRAP.md` — set the agent's host to allow web search, then ask *"re-run the bootstrap's Step 4b best-practices refinement."* For a markdown-content project, refinement targeted at a programming language won't add much value; the long-term path is the **Markdown-content variant** tracked at [`.docs/todos/markdown-content-best-practices-variant.md`](../../.docs/todos/markdown-content-best-practices-variant.md), paired with Q4 inclusivity ([`.docs/todos/expand-q4-language-coverage.md`](../../.docs/todos/expand-q4-language-coverage.md)).
