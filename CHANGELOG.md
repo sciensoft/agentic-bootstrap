@@ -9,6 +9,15 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Added
+
+- **Bootstrap-hardening prose against step-skipping agents.** Five focused additions to make a weaker / less-careful model's failure mode more visible and harder to fall into, triggered by a real Aider + `deepseek-r1:14b` debug session where the agent skipped Steps 0–3 and wrote files containing literal `{{PROJECT_NAME}}` etc. unsubstituted:
+  - **`STOP` callout** above Part 1 — high-visibility block reading *"this is a multi-step playbook, not a list of files to create"* with the ordered step list inline. Sits between the *Before you start* sub-section and the Part 1 heading.
+  - **`Before you start` sub-section** under *How to use* — names the failure modes explicitly (literal `{{PLACEHOLDER}}` tokens in output, Step 2 skipped, all 17 questions dumped at once) so the agent has the pattern to refuse if it's tempted.
+  - **Model-capability note** inside *Before you start* — names the model classes that handle the playbook reliably (Claude Sonnet / Opus, GPT-4 class, Gemini 1.5 / 2.x, full DeepSeek-V3, Qwen 2.5 Coder 32B+) and the failure mode of smaller distilled reasoning models. Same copy as the landing-page advisory shipped in `feat/landing-bootstrap-tips`.
+  - **Step 0 imperative opener** — *"Your first action: read this entire file. Do not write anything yet."* leads the section instead of being buried mid-paragraph.
+  - **Step 4 gate check** — before the existing performance tip, an explicit *"do not start Step 4 unless Steps 0–3 are complete"* with the `{{PLACEHOLDER}} + {{IF_FLAG}}` reasoning attached. Makes the dependency between Step 2 and Step 4 visible at the entry point an offset-read-capable agent might hit directly.
+
 ### Changed
 
 - **Category B editorial passes (Step 0 + Doctor mode + Q14).** Three independent tightening passes shipped together:
