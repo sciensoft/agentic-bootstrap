@@ -272,8 +272,36 @@ Questions are grouped into six tiers reflecting how they're used: **bootstrap be
 | # | Question | Affects |
 | --- | --- | --- |
 | Q1 | **Project name + one-line purpose.** "What's the project called, and what does it do in one sentence?" | `AGENTS.md` title + purpose stub. `{{PROJECT_NAME}}` also flows into every per-tool adapter that names the project. |
-| Q2 | **Which agentic coding assistants will work in this repo?** "Multi-pick. The bootstrap writes one tool-agnostic spine (`AGENTS.md` + `.agents/rules/`) plus thin per-tool adapter files for whichever assistants you pick. Pick at least one. **Claude Code** (`CLAUDE.md` adapter + `.claude/settings.json`); **Cursor** (`.cursor/rules/agents.mdc` adapter); **Aider** (`.aider.conf.yml` with `read:` list); **OpenAI Codex CLI** (reads `AGENTS.md` natively — no extra file); **OpenCode** (reads `AGENTS.md` natively — no extra file); **Continue.dev** (`.continue/config.json` rules entry); **Windsurf** (`.windsurfrules` adapter); **GitHub Copilot** (`.github/copilot-instructions.md` adapter)." Asked early — it gates Q3 and decides which adapters get written. | `AGENTS_USED` set — any subset of `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the conditional dispatch for every per-tool adapter file. |
-| Q3 | **Agent autonomy posture?** "Single-pick capturing how much autonomy you grant every assistant in `AGENTS_USED` by default. **Cautious**: every action prompts for approval; safest for shared / team / open-source projects. **Read-only autonomy**: pre-allow safe read-only operations (file reads, searches, `git status/log/diff`); writes / edits / shell commands still prompt. **Trusted dev**: read-only + safe git workflow + language-specific build / test commands (`uv:*` / `npm:*` / `go:*` / `cargo:*` picked from Q4 `LANG`); daily dev friction-free; force-push / hard-reset / `clean -f` still require approval. **Full bypass**: no prompts at all; only safe in dedicated dev VMs / containers / trusted personal workspaces." Asked early so the chosen posture takes effect for the rest of the bootstrap's file writes. The bootstrap maps this one intent into each picked tool's native permission config — see Part 1 multi-value dispatch for the per-tool mapping. | `POSTURE` value in `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS}`. Drives the per-tool permission config written for every entry in `AGENTS_USED` (Claude `.claude/settings.json`, Cursor `.cursor/settings.json`, Aider keys in `.aider.conf.yml`, Codex `.codex/config.toml`, Continue.dev keys in `.continue/config.json`, Windsurf `.windsurf/settings.json`). OpenCode and GitHub Copilot don't have file-based permission models the bootstrap can write; their adapters carry a short note documenting the posture intent for the user to apply manually in each tool's own UI. |
+| Q2 | **Which agentic coding assistants will work in this repo?** "Multi-pick from the **Supported tools** table that follows — pick at least one. The bootstrap writes a tool-agnostic spine (`AGENTS.md` + `.agents/rules/`) plus a thin per-tool adapter file for each tool you pick. Asked early — it gates Q3 and decides which adapters get written." | `AGENTS_USED` set — any subset of `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the conditional dispatch for every per-tool adapter file. |
+| Q3 | **Agent autonomy posture?** "Single-pick from the **Posture options** table that follows. The posture is tool-agnostic — the bootstrap maps the chosen intent into each picked tool's native permission config (see Part 1 multi-value dispatch). Asked early so the chosen posture takes effect for the rest of the bootstrap's file writes." | `POSTURE` value in `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS}`. Drives the per-tool permission config written for every entry in `AGENTS_USED` (Claude `.claude/settings.json`, Cursor `.cursor/settings.json`, Aider keys in `.aider.conf.yml`, Codex `.codex/config.toml`, Continue.dev keys in `.continue/config.json`, Windsurf `.windsurf/settings.json`). OpenCode and GitHub Copilot don't have file-based permission models the bootstrap can write; their adapters carry a short note documenting the posture intent for the user to apply manually in each tool's own UI. |
+
+#### Supported tools — for Q2
+
+Multi-pick from the eight supported assistants. Two read `AGENTS.md` natively and need no adapter file; the other six get a thin adapter that points at `AGENTS.md`:
+
+| Tool | Adapter | AGENTS.md natively? |
+| --- | --- | --- |
+| **Claude Code** | `CLAUDE.md` + `.claude/settings.json` | via adapter ref |
+| **Cursor** | `.cursor/rules/agents.mdc` | via adapter ref |
+| **Aider** | `.aider.conf.yml` (with `read:` list) | via adapter ref |
+| **OpenAI Codex CLI** | — | ✓ native |
+| **OpenCode** | — | ✓ native |
+| **Continue.dev** | `.continue/config.json` | via adapter ref |
+| **Windsurf** | `.windsurfrules` | via adapter ref |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | via adapter ref |
+
+#### Posture options — for Q3
+
+Single-pick the autonomy level the agent gets by default:
+
+| Slot | Pre-allowed | Still prompts | Fits when |
+| --- | --- | --- | --- |
+| `CAUTIOUS` | nothing | everything | shared / team / OSS · first-time contributors |
+| `READONLY` | reads · `git status/log/diff` | writes · shell · edits | trust during exploration · friction during writes |
+| `TRUSTED_DEV` | reads + safe git + language toolchain | force-push · hard-reset · `clean -f` | daily personal dev · team OK if settings reviewed |
+| `BYPASS` | everything | nothing | dedicated dev VM · container · throwaway workspace only |
+
+For `TRUSTED_DEV`, the language toolchain pre-allow set is picked from Q4 `LANG` — `uv:*` for Python, `npm:*` for TypeScript / Node, `go:*` for Go, `cargo:*` for Rust.
 
 ### Project identity
 
