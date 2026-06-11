@@ -27,6 +27,11 @@ curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENT
 # 4. Get a disciplined, tool-agnostic scaffold + first commit
 ```
 
+> **Before you run — two things to verify.**
+>
+> 1. **Capable model.** This is an 80-template multi-step orchestration. Best results with Claude Sonnet / Opus, GPT-4 class, Gemini 1.5 / 2.x, full DeepSeek-V3, or Qwen 2.5 Coder 32B+. Smaller distilled reasoning models may skip steps; use a bigger model for this one-time scaffold.
+> 2. **Context window fits ~80k tokens.** The bootstrap reads at ~80k tokens. Verify your model + runtime + tool can carry that much in one window. Common failure modes: model architecturally capped below 128k (most Qwen 2.5 builds, Codestral, Phi-4); runtime serving a smaller context than the model supports (Ollama, vLLM, llama.cpp all have separate caps); agent re-sending the file every turn vs chunked tool reads. When the math doesn't fit, use a hosted API for this one-time scaffold — the cost is rounding error against a single dev day.
+
 Full quickstart with the question breakdown, the produced tree, and the positioning table: [`QUICKSTART.md`](./QUICKSTART.md).
 
 ## What lands in your repo
