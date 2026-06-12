@@ -103,6 +103,13 @@
       background: linear-gradient(180deg, rgba(39, 39, 42, 0.5) 0%, rgba(24, 24, 27, 0.5) 100%);
       border: 1px solid rgba(255, 255, 255, 0.06);
       transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+      /* Mobile overflow guard for cards in grid/flex parents:
+         min-width: 0 lets the card shrink below its content's intrinsic width;
+         overflow-wrap: anywhere breaks long unbreakable strings (like
+         `font-mono` directory paths) when they would otherwise blow past
+         the viewport. Applies to every .card site-wide. */
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
     .card:hover {
