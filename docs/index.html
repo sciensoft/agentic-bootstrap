@@ -38,6 +38,13 @@
       var STORAGE_KEY = 'ab_hero_variant_v1';
       var EXPERIMENT_ID = 'hero_2026_q3';
       var BOT_RE = /bot|crawl|spider|slurp|bing|google|duck|baidu|yandex|facebook|whatsapp|slack|twitter|linkedin|preview|fetch/i;
+
+      // Temporary override — pin all non-bot visitors to a single variant
+      // while we gather baseline data. The random engine, localStorage
+      // stickiness, and bot handling stay intact; set FORCE_VARIANT to
+      // null to resume the A/B/C split. See ADR-0009 § Consequences.
+      var FORCE_VARIANT = 'B';
+
       var ua = (navigator && navigator.userAgent) || '';
       var isBot = BOT_RE.test(ua);
       var variant;
@@ -50,18 +57,22 @@
         return 'C';
       }
 
-      if (isBot) {
+      if (FORCE_VARIANT === 'A' || FORCE_VARIANT === 'B' || FORCE_VARIANT === 'C') {
+        // Force path — bypass localStorage read AND write so previously-
+        // assigned visitors keep their stored value when the override lifts.
+        variant = FORCE_VARIANT;
+      } else if (isBot) {
         variant = 'B';
       } else {
         try { variant = globalThis.localStorage.getItem(STORAGE_KEY); }
-        catch (e) { variant = null; }
+        catch { variant = null; }
         if (variant !== 'A' && variant !== 'B' && variant !== 'C') {
           variant = pickWeighted();
           try { globalThis.localStorage.setItem(STORAGE_KEY, variant); } catch { /* private mode — silent no-op */ }
         }
       }
 
-      document.documentElement.setAttribute('data-hero-variant', variant);
+      document.documentElement.dataset.heroVariant = variant;
       globalThis.__abHeroVariant = variant;
       globalThis.__abExperimentId = EXPERIMENT_ID;
 
