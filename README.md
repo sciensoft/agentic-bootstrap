@@ -1,6 +1,6 @@
 # Agentic Bootstrap
 
-**One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — tool-agnostic, cross-stack, idempotent.**
+**A persistent operating model for AI-assisted software engineering. One markdown file installs the substrate; every agent inherits it.**
 
 [**🌐 agentic-bootstrap.md →**](https://agentic-bootstrap.md) · [Quickstart](./QUICKSTART.md) · [Examples](./examples/) · [Changelog](./CHANGELOG.md) · [Contribute](./CONTRIBUTING.md)
 
@@ -8,9 +8,13 @@
 
 ---
 
-Every project grows good engineering habits eventually — usually after the third *"why did we do it that way?"*, the first security scare, the fifth time the agent re-derives the same context. **The bootstrap installs them on day one.**
+> **AI sessions end. Engineering knowledge shouldn't.**
 
-Hand [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) to your coding agent, say *"follow this bootstrap"*, and walk away with the discipline most projects don't get for months: an `AGENTS.md` brief every assistant reads, workflow rules under `.agents/rules/`, ADRs for load-bearing decisions, a prompt history that captures the *why*, a security rubric you actually walk, a testing pyramid (opt-in), permissions matched to risk, and a thin adapter file for each of the eight agentic tools the project supports.
+Every AI session walks into your repo without the engineering context it needs. Architectural reasoning gets re-derived. Conventions drift. Deferred ideas evaporate. `git` remembers the code; nothing remembers the engineering behind it.
+
+The bootstrap installs the missing substrate. Architectural intent, conventions, decision rationale, deferred ideas, security expectations — everything a senior engineer would bring to every change — captured as version-controlled artifacts every agent inherits. **Your repo becomes the memory; agents become consumers of it.**
+
+Hand [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) to your coding agent, say *"follow this bootstrap"*, and walk away with the substrate: an `AGENTS.md` brief every assistant reads, workflow rules under `.agents/rules/`, ADRs for load-bearing decisions, a prompt history that captures the *why*, a security rubric you actually walk, a testing pyramid (opt-in), a TODO directory where deferred ideas wait with revisit triggers, permissions matched to risk, and a thin adapter file for each of the eight agentic tools the project supports.
 
 No templates to clone. No CLI to install. No external fetches. Just one file your agent reads end-to-end.
 
@@ -34,20 +38,22 @@ curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENT
 
 Full quickstart with the question breakdown, the produced tree, and the positioning table: [`QUICKSTART.md`](./QUICKSTART.md).
 
-## What lands in your repo
+## What the repo gains
 
-| Habit | What lands |
+The bootstrap doesn't ship "features." It installs the artifacts that become your repo's engineering memory — read on every AI session, version-controlled forever.
+
+| What the repo gains | What lands |
 | --- | --- |
-| **Cross-tool brief every assistant reads.** | `AGENTS.md` at the root — purpose, rules, run, architecture map. The eight major agentic tools either read it natively (Codex CLI, OpenCode) or read a thin adapter that points back to it (Claude Code, Cursor, Aider, Continue.dev, Windsurf, Copilot). |
-| **Decisions don't fade into commit messages.** | `.docs/adrs/` with a Nygard-format template. Every load-bearing decision gets its own file — with a Mermaid diagram picked from 22+ types based on the decision's shape. |
-| **The *why* lives next to the *what*.** | `.docs/prompts/<ts>.<slug>.md` — every artifact-producing request leaves a prompt file. `git log` + prompts reconstruct the whole story. |
-| **Tests ship with the code (opt-in).** | `.agents/rules/workflow-testing.md` — pyramid-shaped, mock at boundaries not internals, bug fixes start with a failing regression test. Tests + code land in the same commit, always. |
-| **Security gets a checklist, not a vibe.** | `.docs/security/methodology.md` — OWASP Top 10 + OWASP LLM Top 10 rubric you walk before merging anything risky. |
-| **Best practices, refined for your stack.** | When your agent has web search, the bootstrap probes current sources for your language + framework and synthesises a `best-practices.md` with inline citations. Falls back to a stub with per-agent enablement guidance when search isn't available. Never blocked. |
-| **Deferred ideas don't drown in a ticket backlog.** | `.docs/todos/` — one file per idea, each with a *Revisit when* trigger. Sweep when a commit satisfies it; `git rm` to retire. |
-| **Permissions match risk (Claude Code).** | Four `.claude/settings.json` postures with explicit deny-patterns for `git push --force`, `rm -rf`, `git reset --hard`. |
-| **Boring conventional files exist from day one.** | `.gitignore`, `.editorconfig`, `Makefile`, linter configs, `SECURITY.md`, `CHANGELOG.md` — language-aware where it matters. |
-| **Re-runs never break what you own.** | The Canon / Mixed / Sacred [ownership model](#the-ownership-model-why-re-runs-are-safe) — the bootstrap evolves; your edits stay safe. |
+| **The shared engineering contract every AI inherits.** | `AGENTS.md` at the root — purpose, rules, run, architecture map. The eight major agentic tools either read it natively (Codex CLI, OpenCode) or read a thin adapter that points back to it (Claude Code, Cursor, Aider, Continue.dev, Windsurf, Copilot). |
+| **The evolving history of the system's architectural thinking.** | `.docs/adrs/` with a Nygard-format template. Every load-bearing decision gets its own file — with a Mermaid diagram picked from 22+ types based on the decision's shape. |
+| **The *why* preserved next to the *what*.** | `.docs/prompts/<ts>.<slug>.md` — every artifact-producing request leaves a prompt file. `git log` + prompts reconstruct the whole story. |
+| **A testing posture that survives every contributor (opt-in).** | `.agents/rules/workflow-testing.md` — pyramid-shaped, mock at boundaries not internals, bug fixes start with a failing regression test. Tests + code land in the same commit, always. |
+| **Security expectations encoded as a rubric, not a vibe.** | `.docs/security/methodology.md` — OWASP Top 10 + OWASP LLM Top 10 rubric you walk before merging anything risky. |
+| **Stack-specific best practices the agent can cite.** | When your agent has web search, the bootstrap probes current sources for your language + framework and synthesises a `best-practices.md` with inline citations. Falls back to a stub with per-agent enablement guidance when search isn't available. Never blocked. |
+| **Discoveries made during implementation, preserved instead of forgotten.** | `.docs/todos/` — one file per idea, each with a *Revisit when* trigger. Sweep when a commit satisfies it; `git rm` to retire. |
+| **A blast-radius the agent can't quietly exceed (Claude Code).** | Four `.claude/settings.json` postures with explicit deny-patterns for `git push --force`, `rm -rf`, `git reset --hard`. |
+| **The boring conventional files that always end up needed.** | `.gitignore`, `.editorconfig`, `Makefile`, linter configs, `SECURITY.md`, `CHANGELOG.md` — language-aware where it matters. |
+| **A re-runnable substrate that never overwrites what you own.** | The Canon / Mixed / Sacred [ownership model](#the-ownership-model-why-re-runs-are-safe) — the bootstrap evolves; your edits stay safe. |
 
 ## Examples — see the output before running
 

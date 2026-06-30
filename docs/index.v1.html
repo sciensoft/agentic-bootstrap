@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agentic Bootstrap — Your repo remembers the engineering, not just the code</title>
+  <title>Agentic Bootstrap — Day-one discipline. Any Agent. One prompt.</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="mask-icon" href="favicon.svg" color="#7c3aed">
   <meta name="theme-color" content="#7c3aed">
   <meta name="description"
-    content="AI sessions end. Engineering knowledge shouldn't. One markdown file installs the substrate every AI agent inherits — architecture, conventions, decisions, deferred ideas, security expectations. A persistent operating model for AI-assisted software engineering. Tool-agnostic. Cross-stack. Idempotent. Works with Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, GitHub Copilot, Aider, OpenCode.">
-  <meta property="og:title" content="Agentic Bootstrap — your repo remembers the engineering, not just the code">
-  <meta property="og:description" content="AI sessions end. Engineering knowledge shouldn't. One markdown file installs the engineering-memory substrate every AI agent inherits — architecture, conventions, decisions, deferred ideas, security expectations.">
+    content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline, the first commit. Tool-agnostic, cross-stack, idempotent. Works with Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, GitHub Copilot, Aider, OpenCode.">
+  <meta property="og:title" content="Agentic Bootstrap — the day-one discipline a Senior Engineer would have set up">
+  <meta property="og:description" content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one. Tool-agnostic, cross-stack, idempotent.">
   <meta property="og:type" content="website">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,50 +28,6 @@
     gtag('js', new Date());
 
     gtag('config', 'G-B9N6RPX058');
-
-    // ------------------------------------------------------------------
-    // Hero A/B/C experiment — pick a variant, stamp <html>, fire view event.
-    // Runs synchronously in <head> so the CSS attribute selector below can
-    // hide non-matching variants before <body> renders (no flash).
-    // ------------------------------------------------------------------
-    (function () {
-      var STORAGE_KEY = 'ab_hero_variant_v1';
-      var EXPERIMENT_ID = 'hero_2026_q3';
-      var BOT_RE = /bot|crawl|spider|slurp|bing|google|duck|baidu|yandex|facebook|whatsapp|slack|twitter|linkedin|preview|fetch/i;
-      var ua = (navigator && navigator.userAgent) || '';
-      var isBot = BOT_RE.test(ua);
-      var variant;
-
-      function pickWeighted() {
-        // 50% B (favored), 25% A, 25% C.
-        var r = Math.random();
-        if (r < 0.25) return 'A';
-        if (r < 0.75) return 'B';
-        return 'C';
-      }
-
-      if (isBot) {
-        variant = 'B';
-      } else {
-        try { variant = globalThis.localStorage.getItem(STORAGE_KEY); }
-        catch (e) { variant = null; }
-        if (variant !== 'A' && variant !== 'B' && variant !== 'C') {
-          variant = pickWeighted();
-          try { globalThis.localStorage.setItem(STORAGE_KEY, variant); } catch { /* private mode — silent no-op */ }
-        }
-      }
-
-      document.documentElement.setAttribute('data-hero-variant', variant);
-      globalThis.__abHeroVariant = variant;
-      globalThis.__abExperimentId = EXPERIMENT_ID;
-
-      if (!isBot) {
-        gtag('event', 'experiment_view', {
-          experiment_id: EXPERIMENT_ID,
-          variant: variant
-        });
-      }
-    })();
   </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -110,13 +66,6 @@
     body {
       background-color: #09090b;
     }
-
-    /* Hero A/B/C — only the matching variant is visible.
-       The data-hero-variant attribute is set in <head> before <body>
-       renders, so no flash of wrong content. */
-    html:not([data-hero-variant="A"]) [data-hero-variant-block="A"] { display: none !important; }
-    html:not([data-hero-variant="B"]) [data-hero-variant-block="B"] { display: none !important; }
-    html:not([data-hero-variant="C"]) [data-hero-variant-block="C"] { display: none !important; }
 
     /* Subtle grid background */
     .grid-bg {
@@ -344,72 +293,24 @@
     <div class="max-w-7xl mx-auto px-6 relative">
       <div class="grid lg:grid-cols-12 gap-12 items-center">
         <div class="lg:col-span-7">
-
-          <!-- ============================================================ -->
-          <!-- Hero A/B/C — eyebrow + H1 + lede vary per variant.            -->
-          <!-- CTAs, badges, and the Works-with strip below stay shared.    -->
-          <!-- Variant assignment + display is handled in <head>.            -->
-          <!-- ============================================================ -->
-
-          <!-- Variant A — Provocation-led: "We've been versioning the wrong thing." -->
-          <div data-hero-variant-block="A">
-            <div
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-              We've been versioning the wrong thing.
-            </div>
-            <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-              <span class="block">Your repo can remember</span>
-              <span class="block text-gradient">the engineering,</span>
-              <span class="block">not just the code.</span>
-            </h1>
-            <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-              <span class="text-zinc-100 font-medium">A persistent operating model for AI-assisted software engineering.</span>
-              Installed in <span class="text-zinc-200 font-medium">one file</span>, inherited by every agent — architecture, conventions, decisions, deferred ideas, security expectations.
-              <span class="text-zinc-200 font-medium">Tool-agnostic. Cross-stack. Idempotent.</span>
-            </p>
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
+            Workflow discipline · for AI coding · tool-agnostic
           </div>
-
-          <!-- Variant B — Recognition-led: "AI sessions end. Engineering knowledge shouldn't." -->
-          <div data-hero-variant-block="B">
-            <div
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-              An engineering memory system for AI-coded repos
-            </div>
-            <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-              <span class="block text-gradient">AI sessions end.</span>
-              <span class="block">Engineering knowledge</span>
-              <span class="block">shouldn't.</span>
-            </h1>
-            <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-              <span class="text-zinc-100 font-medium">One file installs the substrate every agent inherits</span> —
-              architecture, conventions, decisions, deferred ideas, security expectations. Captured as version-controlled artifacts your repo carries across sessions, contributors, and model upgrades.
-              <span class="text-zinc-200 font-medium">Re-runnable. Tool-agnostic.</span>
-            </p>
-          </div>
-
-          <!-- Variant C — Reframe-led: "Your repo remembers the engineering." -->
-          <div data-hero-variant-block="C">
-            <div
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-              A persistent operating model for AI-assisted software engineering
-            </div>
-            <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-              <span class="block">Your repo</span>
-              <span class="block text-gradient">remembers the</span>
-              <span class="block">engineering.</span>
-            </h1>
-            <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-              Every AI session walks into the same context: <span class="text-zinc-100 font-medium">architecture, conventions, decisions, deferred ideas, security rubric.</span>
-              The bootstrap installs the substrate in <span class="text-zinc-200 font-medium">one file</span>. Every agent inherits it.
-              <span class="text-zinc-200 font-medium">Re-runnable across versions and tools.</span>
-            </p>
-          </div>
+          <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
+            <span class="block text-gradient">The day-one discipline.</span>
+            <span class="block">In any <span class="underline decoration-accent-400 decoration-[3px] underline-offset-[10px]">Agent</span>.</span>
+            <span class="block">In one prompt.</span>
+          </h1>
+          <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
+            <span class="text-zinc-100 font-medium">One markdown file. Any agentic coding assistant. One prompt.</span>
+            Your repo grows the discipline a <span class="text-gradient font-semibold">Senior Engineer would have set up on day one</span> —
+            workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline — then bundles every change into <span class="text-zinc-200 font-medium">one focused git commit</span>.
+            <span class="text-zinc-200 font-medium">Tool-agnostic. Cross-stack. Idempotent.</span>
+          </p>
           <div class="mt-9 flex flex-wrap items-center gap-3">
             <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC-BOOTSTRAP.md"
-              data-ab-event="cta_get_bootstrap"
               class="btn-primary inline-flex items-center gap-2 font-semibold px-5 py-3 rounded-xl">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -420,7 +321,6 @@
               Get AGENTIC-BOOTSTRAP.md
             </a>
             <a href="https://github.com/sciensoft/agentic-bootstrap"
-              data-ab-event="cta_github"
               class="inline-flex items-center gap-2 font-medium px-5 py-3 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
               View on GitHub
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -510,7 +410,7 @@
   </section>
 
   <!-- How it works -->
-  <section id="how" data-hero-end class="py-24 border-t border-white/5">
+  <section id="how" class="py-24 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-6">
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">60-second demo</p>
@@ -1322,54 +1222,6 @@
         } catch { /* clipboard write failed — silent no-op */ }
       });
     });
-  </script>
-
-  <script>
-    // ------------------------------------------------------------------
-    // Hero A/B/C experiment — attribute downstream signals to the variant.
-    // The variant itself was chosen in <head> (see window.__abHeroVariant).
-    // We instrument: primary CTA click, secondary CTA click, scroll past
-    // the hero (engagement floor), and a 30s dwell signal.
-    // ------------------------------------------------------------------
-    (function () {
-      var variant = globalThis.__abHeroVariant;
-      var experimentId = globalThis.__abExperimentId;
-      if (!variant || typeof gtag !== 'function') return;
-
-      function track(name, extra) {
-        var params = { experiment_id: experimentId, variant: variant };
-        if (extra) for (var k in extra) { if (Object.hasOwn(extra, k)) params[k] = extra[k]; }
-        gtag('event', name, params);
-      }
-
-      // CTA clicks — any <a data-ab-event="..."> fires its event name on click.
-      document.querySelectorAll('a[data-ab-event]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          track(el.dataset.abEvent);
-        });
-      });
-
-      // Scroll-past-hero — fired once when the next section reaches ≥ 50% in view.
-      var heroEnd = document.querySelector('[data-hero-end]');
-      if (heroEnd && 'IntersectionObserver' in globalThis) {
-        var fired = false;
-        var observer = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting && !fired) {
-              fired = true;
-              track('scroll_past_hero');
-              observer.disconnect();
-            }
-          });
-        }, { threshold: 0.5 });
-        observer.observe(heroEnd);
-      }
-
-      // 30s engaged — fired if the tab is still focused after 30 seconds.
-      setTimeout(function () {
-        if (!document.hidden) track('engaged_30s');
-      }, 30000);
-    })();
   </script>
 </body>
 

@@ -15,5 +15,6 @@ This directory holds the [Architecture Decision Records (ADRs)](https://cognitec
 | [0006](./0006-keep-changelog-md-always-not-opt-in.md) | Keep `CHANGELOG.md` always-written, not gated by `CONTRIB` | Accepted | 2026-06-11 |
 | [0007](./0007-structured-contribution-intake.md) | Structured contribution intake — issue templates, PR template, CODEOWNERS, SECURITY.md | Accepted | 2026-06-11 |
 | [0008](./0008-offset-read-template-index.md) | Offset-read template index for Part 4 | Accepted | 2026-06-11 |
+| [0009](./0009-reposition-as-engineering-memory-system-with-ab-test.md) | Reposition as engineering-memory system; validate via gtag-based A/B/C hero test | Accepted | 2026-06-30 |
 
 (Append new ADRs as `NNNN-<kebab-slug>.md` and add a row here in the same commit. See `.agents/rules/workflow.md` for when an ADR is required.)
