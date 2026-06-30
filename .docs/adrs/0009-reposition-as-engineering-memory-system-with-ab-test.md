@@ -1,7 +1,11 @@
 # 9. Reposition as engineering-memory system; validate via gtag-based A/B/C hero test
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0010](./0010-reposition-as-engineering-operating-model.md)
 - **Date**: 2026-06-30
+
+> **Superseded.** [ADR-0010](./0010-reposition-as-engineering-operating-model.md) re-frames the positioning around the *category shift* (agentic AI made engineering knowledge abundant; the bootstrap makes it durable) rather than the *memory-system consequence* this ADR settled on. The A/B/C experiment **infrastructure** introduced here — `data-hero-variant-block` markup, `localStorage` stickiness, `FORCE_VARIANT`, `gtag`-based events, bot pinning — survives intact under ADR-0010; only the variant set in `<body>` and the strategic copy changed. The body below is preserved verbatim for history.
+
+---
 
 ## Context
 

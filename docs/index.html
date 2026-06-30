@@ -33,28 +33,36 @@
     // Hero A/B/C experiment — pick a variant, stamp <html>, fire view event.
     // Runs synchronously in <head> so the CSS attribute selector below can
     // hide non-matching variants before <body> renders (no flash).
+    // Currently single-variant (only "A" ships) under ADR-0010; the engine
+    // (localStorage, bot pinning, gtag instrumentation, force override) is
+    // preserved end-to-end so re-enabling a multi-arm test is a localised
+    // change. See ADR-0010 § Decision; ADR-0009 (superseded) for history.
     // ------------------------------------------------------------------
     (function () {
       var STORAGE_KEY = 'ab_hero_variant_v1';
       var EXPERIMENT_ID = 'hero_2026_q3';
       var BOT_RE = /bot|crawl|spider|slurp|bing|google|duck|baidu|yandex|facebook|whatsapp|slack|twitter|linkedin|preview|fetch/i;
 
-      // Temporary override — pin all non-bot visitors to a single variant
-      // while we gather baseline data. The random engine, localStorage
-      // stickiness, and bot handling stay intact; set FORCE_VARIANT to
-      // null to resume the A/B/C split. See ADR-0009 § Consequences.
-      var FORCE_VARIANT = 'B';
+      // Single-variant force — only "A" currently ships post ADR-0010. The
+      // random engine, localStorage stickiness, and bot handling stay
+      // intact. To re-enable a multi-arm test: add new sibling
+      // <div data-hero-variant-block="..."> blocks in <body>, restore
+      // weights in pickWeighted() below, and set this to null.
+      var FORCE_VARIANT = 'A';
 
       var ua = (navigator && navigator.userAgent) || '';
       var isBot = BOT_RE.test(ua);
       var variant;
 
       function pickWeighted() {
-        // 50% B (favored), 25% A, 25% C.
-        var r = Math.random();
-        if (r < 0.25) return 'A';
-        if (r < 0.75) return 'B';
-        return 'C';
+        // Single-variant — only "A" ships. To re-enable an A/B/C split,
+        // add new <div data-hero-variant-block="..."> elements in <body>
+        // and restore weighted branches here, e.g.:
+        //   var r = Math.random();
+        //   if (r < 0.25) return 'A';
+        //   if (r < 0.75) return 'B';
+        //   return 'C';
+        return 'A';
       }
 
       if (FORCE_VARIANT === 'A' || FORCE_VARIANT === 'B' || FORCE_VARIANT === 'C') {
@@ -353,69 +361,31 @@
     <div class="absolute inset-0 glow-hero pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto px-6 relative">
-      <div class="grid lg:grid-cols-12 gap-12 items-center">
-        <div class="lg:col-span-7">
+      <div class="max-w-3xl">
 
           <!-- ============================================================ -->
-          <!-- Hero A/B/C — eyebrow + H1 + lede vary per variant.            -->
-          <!-- CTAs, badges, and the Works-with strip below stay shared.    -->
-          <!-- Variant assignment + display is handled in <head>.            -->
+          <!-- Hero — currently single curiosity-led variant (ADR-0010).    -->
+          <!-- The A/B/C engine (FORCE_VARIANT, pickWeighted, localStorage  -->
+          <!-- stickiness, bot pinning, CSS hide-show on the variant-block  -->
+          <!-- attribute) survives intact in head. To launch a new          -->
+          <!-- multi-arm test, add sibling variant blocks here and restore  -->
+          <!-- the weighted roll in pickWeighted.                           -->
           <!-- ============================================================ -->
 
-          <!-- Variant A — Provocation-led: "We've been versioning the wrong thing." -->
+          <!-- Variant A — Curiosity-led: category shift, no mechanism, no artifact names. -->
           <div data-hero-variant-block="A">
             <div
               class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
               <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-              We've been versioning the wrong thing.
+              An engineering operating model for human–AI software development
             </div>
             <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-              <span class="block">Your repo can remember</span>
-              <span class="block text-gradient">the engineering,</span>
-              <span class="block">not just the code.</span>
+              <span class="block">Software engineering changed.</span>
+              <span class="block text-gradient">Repositories haven't.</span>
             </h1>
             <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-              <span class="text-zinc-100 font-medium">A persistent operating model for AI-assisted software engineering.</span>
-              Installed in <span class="text-zinc-200 font-medium">one file</span>, inherited by every agent — architecture, conventions, decisions, deferred ideas, security expectations.
-              <span class="text-zinc-200 font-medium">Tool-agnostic. Cross-stack. Idempotent.</span>
-            </p>
-          </div>
-
-          <!-- Variant B — Recognition-led: "AI sessions end. Engineering knowledge shouldn't." -->
-          <div data-hero-variant-block="B">
-            <div
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-              An engineering memory system for AI-coded repos
-            </div>
-            <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-              <span class="block text-gradient">AI sessions end.</span>
-              <span class="block">Engineering knowledge</span>
-              <span class="block">shouldn't.</span>
-            </h1>
-            <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-              <span class="text-zinc-100 font-medium">One file installs the substrate every agent inherits</span> —
-              architecture, conventions, decisions, deferred ideas, security expectations. Captured as version-controlled artifacts your repo carries across sessions, contributors, and model upgrades.
-              <span class="text-zinc-200 font-medium">Re-runnable. Tool-agnostic.</span>
-            </p>
-          </div>
-
-          <!-- Variant C — Reframe-led: "Your repo remembers the engineering." -->
-          <div data-hero-variant-block="C">
-            <div
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-              A persistent operating model for AI-assisted software engineering
-            </div>
-            <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-              <span class="block">Your repo</span>
-              <span class="block text-gradient">remembers the</span>
-              <span class="block">engineering.</span>
-            </h1>
-            <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-              Every AI session walks into the same context: <span class="text-zinc-100 font-medium">architecture, conventions, decisions, deferred ideas, security rubric.</span>
-              The bootstrap installs the substrate in <span class="text-zinc-200 font-medium">one file</span>. Every agent inherits it.
-              <span class="text-zinc-200 font-medium">Re-runnable across versions and tools.</span>
+              Agentic AI has made engineering knowledge <span class="text-zinc-100 font-medium">abundant</span>.
+              AGENTIC_BOOTSTRAP makes it <span class="text-zinc-100 font-medium">durable</span>.
             </p>
           </div>
           <div class="mt-9 flex flex-wrap items-center gap-3">
@@ -483,39 +453,6 @@
             </div>
             <p class="mt-2 text-xs text-zinc-500">One tool-agnostic spine — <span class="font-mono text-zinc-400">AGENTS.md</span> + <span class="font-mono text-zinc-400">.agents/rules/</span> — plus a thin adapter file per assistant you pick.</p>
           </div>
-        </div>
-
-        <div class="lg:col-span-5">
-          <!-- IMAGE SLOT: Hero illustration. Replace the div below with an <img> tag. Suggested: terminal screenshot or product mark. -->
-          <div class="relative">
-            <div
-              class="absolute -inset-4 bg-gradient-to-br from-accent-500/20 via-violet-500/10 to-transparent blur-2xl">
-            </div>
-            <div class="relative codeblock rounded-2xl p-5 font-mono text-[13px] leading-relaxed">
-              <div class="flex items-center gap-1.5 pb-3 border-b border-white/5 mb-3">
-                <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-                <span class="ml-3 text-xs text-zinc-500">~/my-new-project</span>
-              </div>
-              <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · codex · cn · …</span></div>
-              <div class="text-zinc-500 mt-1">› follow AGENTIC-BOOTSTRAP.md to bootstrap this repo</div>
-              <div class="mt-3 text-zinc-400">
-                <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
-                <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude, Cursor, Codex</span><br>
-                <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
-                <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
-                <span class="tk-c">… 11 more questions, one commit later …</span>
-              </div>
-              <div class="mt-3">
-                <span class="tk-c"># Scaffold written:</span><br>
-                <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span> <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
-                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.cursor/rules/</span> <span class="tk-c">·</span> <span class="tk-p">.aider.conf.yml</span> <span class="tk-c"># adapters</span><br>
-                <span class="tk-c">+ first commit recording the bootstrap itself</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </section>
