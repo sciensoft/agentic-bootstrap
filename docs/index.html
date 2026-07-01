@@ -417,7 +417,7 @@
               </div>
               <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · codex ·
                   cn · …</span></div>
-              <div class="text-zinc-500 mt-1 hero-prompt-line">› follow AGENTIC_BOOTSTRAP.md and <span data-hero-typing>let's engineer this together</span><span class="hero-cursor" aria-hidden="true">▍</span></div>
+              <div class="text-zinc-500 mt-1 hero-prompt-line">› <span data-hero-typing>follow AGENTIC_BOOTSTRAP.md and let's engineer this together</span><span class="hero-cursor" aria-hidden="true">▍</span></div>
               <div class="mt-3 text-zinc-400">
                 <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
                 <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude, Cursor, Codex</span><br>
@@ -1382,15 +1382,19 @@
       });
     });
 
-    // Hero prompt-line typewriter: cycles through directive endings after the
-    // static "follow AGENTIC_BOOTSTRAP.md and " prefix. Types the first entry,
-    // holds so the reader can catch it, backspaces character-by-character,
-    // types the next. Skips on prefers-reduced-motion (renders the first
-    // variant statically so the sentence still reads complete).
+    // Hero prompt-line typewriter: types the WHOLE line on first paint
+    // ("follow AGENTIC_BOOTSTRAP.md and let's engineer this together"), then
+    // on every subsequent cycle only backspaces down to the fixed prefix
+    // "follow AGENTIC_BOOTSTRAP.md and " and re-types a new suffix. That way
+    // the first-time visitor sees the whole intent get typed, and returning
+    // eye-passes see the intent being re-phrased. Skips on
+    // prefers-reduced-motion (renders the first variant statically so the
+    // sentence still reads complete).
     (function () {
       const el = document.querySelector('[data-hero-typing]');
       if (!el) return;
 
+      const prefix = "follow AGENTIC_BOOTSTRAP.md and ";
       const variants = [
         "let's engineer this together",
         "let's build this together",
@@ -1401,7 +1405,7 @@
 
       const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReduced) {
-        el.textContent = variants[0];
+        el.textContent = prefix + variants[0];
         return;
       }
 
@@ -1411,19 +1415,17 @@
       const THINK_MS = 350;
 
       let variantIdx = 0;
-      let charIdx = 0;
       let text = '';
 
-      // Server-rendered initial text ("let's engineer this together") is
-      // wiped and re-typed on first paint so the animation reads the same
-      // whether the visitor lands during load or after.
+      // Wipe the server-rendered seed so the first cycle types the whole
+      // line from empty on every load (never mid-animation from a stale
+      // starting state).
       el.textContent = '';
 
       function type() {
-        const target = variants[variantIdx];
-        if (charIdx < target.length) {
-          charIdx++;
-          text = target.slice(0, charIdx);
+        const target = prefix + variants[variantIdx];
+        if (text.length < target.length) {
+          text = target.slice(0, text.length + 1);
           el.textContent = text;
           setTimeout(type, TYPE_MS);
         } else {
@@ -1432,13 +1434,15 @@
       }
 
       function erase() {
-        if (text.length > 0) {
+        // Erase down to the prefix, not below — after the first typing cycle
+        // the "follow AGENTIC_BOOTSTRAP.md and " prefix stays on screen and
+        // only the suffix is swapped.
+        if (text.length > prefix.length) {
           text = text.slice(0, -1);
           el.textContent = text;
           setTimeout(erase, ERASE_MS);
         } else {
           variantIdx = (variantIdx + 1) % variants.length;
-          charIdx = 0;
           setTimeout(type, THINK_MS);
         }
       }
