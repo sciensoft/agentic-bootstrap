@@ -11,7 +11,8 @@
   <meta name="description"
     content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline, the first commit. Tool-agnostic, cross-stack, idempotent. Works with Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, GitHub Copilot, Aider, OpenCode.">
   <meta property="og:title" content="Agentic Bootstrap — the day-one discipline a Senior Engineer would have set up">
-  <meta property="og:description" content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one. Tool-agnostic, cross-stack, idempotent.">
+  <meta property="og:description"
+    content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one. Tool-agnostic, cross-stack, idempotent.">
   <meta property="og:type" content="website">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -254,6 +255,31 @@
       border-radius: 3px;
     }
 
+    /* Hero terminal typewriter — reserve two lines of vertical space on the
+       prompt line so shorter variants don't cause the rest of the terminal
+       codeblock to shift up/down as the animation cycles. */
+    .hero-prompt-line {
+      min-height: 3.25em;
+    }
+
+    .hero-cursor {
+      display: inline-block;
+      width: 0.55em;
+      color: currentColor;
+      animation: hero-cursor-blink 1.05s steps(2, start) infinite;
+    }
+
+    @keyframes hero-cursor-blink {
+      to {
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-cursor {
+        animation: none;
+      }
+    }
   </style>
 </head>
 
@@ -300,11 +326,13 @@
           </div>
           <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
             <span class="block">Keep the flow,</span>
-            <span class="block">and the <span class="text-gradient">engineering</span>.</span>
+            <span class="block">and the <span class="text-gradient">Engineering</span>.</span>
           </h1>
           <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
-            <span class="text-zinc-100 font-medium">The fastest engineering conversations now happen between engineers and agentic AI.</span>
-            <span class="text-gradient font-semibold">AGENTIC_BOOTSTRAP</span> continuously turns their architecture, decisions, trade-offs, and future ideas into lasting project knowledge—<span class="text-zinc-100 font-medium">without breaking the flow</span>.
+            <span class="text-zinc-100 font-medium">Work naturally with your agentic AI.</span>
+            <span class="text-gradient font-semibold">AGENTIC_BOOTSTRAP</span> continuously turns the architecture,
+            decisions, trade-offs, and future ideas created along the way into lasting project knowledge<span
+              class="text-zinc-100 font-medium">—without interrupting your flow.</span>
           </p>
           <div class="mt-9 flex flex-wrap items-center gap-3">
             <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC-BOOTSTRAP.md"
@@ -367,7 +395,10 @@
               <span class="text-zinc-700">·</span>
               <span class="font-medium">OpenCode</span>
             </div>
-            <p class="mt-2 text-xs text-zinc-500">One tool-agnostic spine — <span class="font-mono text-zinc-400">AGENTS.md</span> + <span class="font-mono text-zinc-400">.agents/rules/</span> — plus a thin adapter file per assistant you pick.</p>
+            <p class="mt-2 text-xs text-zinc-500">One tool-agnostic spine — <span
+                class="font-mono text-zinc-400">AGENTS.md</span> + <span
+                class="font-mono text-zinc-400">.agents/rules/</span> — plus a thin adapter file per assistant you pick.
+            </p>
           </div>
         </div>
 
@@ -384,8 +415,9 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
                 <span class="ml-3 text-xs text-zinc-500">~/my-new-project</span>
               </div>
-              <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · codex · cn · …</span></div>
-              <div class="text-zinc-500 mt-1">› follow AGENTIC-BOOTSTRAP.md to bootstrap this repo</div>
+              <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · codex ·
+                  cn · …</span></div>
+              <div class="text-zinc-500 mt-1 hero-prompt-line">› follow AGENTIC_BOOTSTRAP.md and <span data-hero-typing>let's engineer this together</span><span class="hero-cursor" aria-hidden="true">▍</span></div>
               <div class="mt-3 text-zinc-400">
                 <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
                 <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude, Cursor, Codex</span><br>
@@ -395,8 +427,11 @@
               </div>
               <div class="mt-3">
                 <span class="tk-c"># Scaffold written:</span><br>
-                <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span> <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
-                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.cursor/rules/</span> <span class="tk-c">·</span> <span class="tk-p">.aider.conf.yml</span> <span class="tk-c"># adapters</span><br>
+                <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.cursor/rules/</span>
+                <span class="tk-c">·</span> <span class="tk-p">.aider.conf.yml</span> <span class="tk-c">#
+                  adapters</span><br>
                 <span class="tk-c">+ first commit recording the bootstrap itself</span>
               </div>
             </div>
@@ -418,19 +453,24 @@
 
       <div class="mt-10 max-w-2xl reveal">
         <div class="flex items-start gap-3">
-          <svg viewBox="0 0 24 24" class="w-4 h-4 flex-shrink-0 text-zinc-500 mt-0.5" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 flex-shrink-0 text-zinc-500 mt-0.5" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
             <line x1="12" y1="9" x2="12" y2="13" />
             <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
           <div class="flex-1">
-            <p class="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-2">Before you run · two requirements</p>
+            <p class="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-2">Before you run · two requirements
+            </p>
             <p class="text-zinc-400 text-sm leading-relaxed mb-2">
-              <span class="text-zinc-300">Capable model.</span> Claude Sonnet / Opus, GPT-4 class, Gemini 1.5 / 2.x, full DeepSeek-V3, Qwen 2.5 Coder 32B+. Smaller distilled reasoners may skip steps in this multi-step playbook.
+              <span class="text-zinc-300">Capable model.</span> Claude Sonnet / Opus, GPT-4 class, Gemini 1.5 / 2.x,
+              full DeepSeek-V3, Qwen 2.5 Coder 32B+. Smaller distilled reasoners may skip steps in this multi-step
+              playbook.
             </p>
             <p class="text-zinc-400 text-sm leading-relaxed">
-              <span class="text-zinc-300">~80k context window that fits.</span> Verify your model + runtime + tool can carry it. Watch for GGUF caps at 32k (most Qwen 2.5, Codestral, Phi-4), runtime defaults (Ollama, vLLM, llama.cpp), and agents that re-send the file every turn.
+              <span class="text-zinc-300">~80k context window that fits.</span> Verify your model + runtime + tool can
+              carry it. Watch for GGUF caps at 32k (most Qwen 2.5, Codestral, Phi-4), runtime defaults (Ollama, vLLM,
+              llama.cpp), and agents that re-send the file every turn.
             </p>
             <p class="text-zinc-500 text-xs leading-relaxed mt-3">
               Can't meet both? A hosted API for the one-shot is rounding error against a single dev day.
@@ -473,7 +513,8 @@
               class="w-9 h-9 rounded-lg bg-accent-400/10 text-accent-400 font-bold grid place-items-center text-sm">02</span>
             <h3 class="text-lg font-semibold">Tell the agent</h3>
           </div>
-          <p class="text-zinc-400 leading-relaxed">Hand it to your assistant of choice — Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, Copilot, Aider, OpenCode — with one prompt.</p>
+          <p class="text-zinc-400 leading-relaxed">Hand it to your assistant of choice — Claude Code, Cursor, Codex CLI,
+            Continue.dev, Windsurf, Copilot, Aider, OpenCode — with one prompt.</p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs relative"
             data-copy="follow AGENTIC-BOOTSTRAP.md to bootstrap this repo">
             <button type="button" class="copy-btn" aria-label="Copy prompt to clipboard">
@@ -507,7 +548,8 @@
             <h3 class="text-lg font-semibold">Get the scaffold</h3>
           </div>
           <p class="text-zinc-400 leading-relaxed">17 questions, smart defaults, then the agent writes the rules, ADR
-            index, prompt log, per-tool adapters, the test scaffold — and bundles it all into one disciplined commit.</p>
+            index, prompt log, per-tool adapters, the test scaffold — and bundles it all into one disciplined commit.
+          </p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs">
             <span class="tk-c"># 28 files written · tests/ scaffolded</span><br>
             <span class="tk-c"># [main] chore: bootstrap project (1 commit)</span>
@@ -563,7 +605,9 @@
               class="text-zinc-200">AGENTS.md</span> is the primary cross-tool brief. <span
               class="text-zinc-200">.agents/rules/</span> holds the durable workflow rules. <span
               class="text-zinc-200">.docs/</span> grows with the project — ADRs, timestamped prompts, deferred TODOs,
-            security audits. Per-tool adapters (<span class="font-mono text-zinc-300">CLAUDE.md</span>, <span class="font-mono text-zinc-300">.cursor/rules/</span>, <span class="font-mono text-zinc-300">.aider.conf.yml</span>, …) are thin pointers.</p>
+            security audits. Per-tool adapters (<span class="font-mono text-zinc-300">CLAUDE.md</span>, <span
+              class="font-mono text-zinc-300">.cursor/rules/</span>, <span
+              class="font-mono text-zinc-300">.aider.conf.yml</span>, …) are thin pointers.</p>
 
           <ul class="mt-8 space-y-4 text-zinc-300">
             <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
@@ -581,9 +625,13 @@
                   class="text-zinc-100 font-medium">Security rubric</span> — OWASP-aligned methodology plus LLM-specific
                 sub-rubric. Dated audits on cadence.</span></li>
             <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
-                  class="text-zinc-100 font-medium">Tests ship with the code</span> — pyramid-shaped, mocks at boundaries only, bug fixes start with a failing regression test. Tests bundled into the same commit as the behaviour they prove.</span></li>
+                  class="text-zinc-100 font-medium">Tests ship with the code</span> — pyramid-shaped, mocks at
+                boundaries only, bug fixes start with a failing regression test. Tests bundled into the same commit as
+                the behaviour they prove.</span></li>
             <li class="flex gap-3"><span class="text-accent-400 mt-1">›</span> <span><span
-                  class="text-zinc-100 font-medium">One commit per request</span> — prompt + ADR + tests + telemetry + code, staged explicitly by path. <span class="font-mono text-zinc-400">git log</span> is the project's story; no <span class="font-mono text-zinc-400">git add -A</span> ever.</span></li>
+                  class="text-zinc-100 font-medium">One commit per request</span> — prompt + ADR + tests + telemetry +
+                code, staged explicitly by path. <span class="font-mono text-zinc-400">git log</span> is the project's
+                story; no <span class="font-mono text-zinc-400">git add -A</span> ever.</span></li>
           </ul>
         </div>
 
@@ -658,7 +706,11 @@
             </svg>
           </div>
           <h3 class="font-semibold text-lg">One request, one commit</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Every request bundles prompt file + ADR (when it matters) + tests + telemetry + code into a single focused commit. Deferred ideas land as one-file-per-entry under <span class="font-mono text-zinc-300">.docs/todos/</span> — context, deferred-because, revisit-when. No drive-by changes. No buried promises. <span class="font-mono text-zinc-300">git log</span> reads as the project's story.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Every request bundles prompt file + ADR (when it matters) +
+            tests + telemetry + code into a single focused commit. Deferred ideas land as one-file-per-entry under <span
+              class="font-mono text-zinc-300">.docs/todos/</span> — context, deferred-because, revisit-when. No drive-by
+            changes. No buried promises. <span class="font-mono text-zinc-300">git log</span> reads as the project's
+            story.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -673,7 +725,15 @@
             </svg>
           </div>
           <h3 class="font-semibold text-lg">ADRs with the right diagram</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Slim Nygard format, indexed by README. The agent picks the Mermaid type that fits — <span class="font-mono text-zinc-300">flowchart</span>, <span class="font-mono text-zinc-300">sequenceDiagram</span>, <span class="font-mono text-zinc-300">stateDiagram</span>, <span class="font-mono text-zinc-300">erDiagram</span>, <span class="font-mono text-zinc-300">C4Context</span>, <span class="font-mono text-zinc-300">gitGraph</span>, <span class="font-mono text-zinc-300">gantt</span>, and any other Mermaid type the situation calls for — guided by a picker table that maps decision-shape to diagram-type, plus readability conventions that keep diagrams legible.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Slim Nygard format, indexed by README. The agent picks the
+            Mermaid type that fits — <span class="font-mono text-zinc-300">flowchart</span>, <span
+              class="font-mono text-zinc-300">sequenceDiagram</span>, <span
+              class="font-mono text-zinc-300">stateDiagram</span>, <span
+              class="font-mono text-zinc-300">erDiagram</span>, <span class="font-mono text-zinc-300">C4Context</span>,
+            <span class="font-mono text-zinc-300">gitGraph</span>, <span class="font-mono text-zinc-300">gantt</span>,
+            and any other Mermaid type the situation calls for — guided by a picker table that maps decision-shape to
+            diagram-type, plus readability conventions that keep diagrams legible.
+          </p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -687,7 +747,10 @@
             </svg>
           </div>
           <h3 class="font-semibold text-lg">Tests ship with the code</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Pyramid-shaped: unit-heavy, integration-light, e2e-thin. Mock at boundaries, never at internals. Bug fixes start with a failing regression test that becomes the bug's tombstone. TDD encouraged but not mandated — the hard rule is <span class="text-zinc-100 font-medium">tests + code land in the same commit</span>, always. Coverage tracked, never gated by a percentage.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Pyramid-shaped: unit-heavy, integration-light, e2e-thin. Mock at
+            boundaries, never at internals. Bug fixes start with a failing regression test that becomes the bug's
+            tombstone. TDD encouraged but not mandated — the hard rule is <span class="text-zinc-100 font-medium">tests
+              + code land in the same commit</span>, always. Coverage tracked, never gated by a percentage.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -699,7 +762,8 @@
             </svg>
           </div>
           <h3 class="font-semibold text-lg">Security, built in</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">OWASP Top 10 rubric plus optional LLM sub-rubric (prompt injection, tool agency, supply chain). Dated audits as siblings.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">OWASP Top 10 rubric plus optional LLM sub-rubric (prompt
+            injection, tool agency, supply chain). Dated audits as siblings.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
@@ -712,7 +776,12 @@
             </svg>
           </div>
           <h3 class="font-semibold text-lg">Polyglot &amp; stack-aware</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Python · TypeScript · Go · Rust scaffolds (plus generic fallback for C# · Java · Ruby · PHP · Kotlin · Swift · anything else), paired with 9 architecture shapes (4-Layer DDD · Hexagonal · Microservice · Vertical Slice · 3-Tier · SPA · Flat · Monorepo · Serverless). And when your agent has web search, <span class="font-mono text-zinc-300">best-practices.md</span> gets refined live from current sources for your exact stack, with inline citations — falling back to a sensible generic baseline when search isn't available.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Python · TypeScript · Go · Rust scaffolds (plus generic fallback
+            for C# · Java · Ruby · PHP · Kotlin · Swift · anything else), paired with 9 architecture shapes (4-Layer DDD
+            · Hexagonal · Microservice · Vertical Slice · 3-Tier · SPA · Flat · Monorepo · Serverless). And when your
+            agent has web search, <span class="font-mono text-zinc-300">best-practices.md</span> gets refined live from
+            current sources for your exact stack, with inline citations — falling back to a sensible generic baseline
+            when search isn't available.</p>
         </div>
 
       </div>
@@ -725,32 +794,48 @@
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Runtime footprint</p>
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Runs once. Then steps out of the way.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever after. A template index lets capable agents skip what doesn't apply to your answers, cutting scaffold cost further. Your team never pays the playbook's token cost on a working session.</p>
+        <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever
+          after. A template index lets capable agents skip what doesn't apply to your answers, cutting scaffold cost
+          further. Your team never pays the playbook's token cost on a working session.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-3 gap-6">
 
         <div class="card rounded-2xl p-7 reveal">
           <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Scaffold · smart agent</p>
-          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~25k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Claude Code, Cursor, Codex CLI — agents whose Read tool supports <span class="font-mono text-zinc-300">offset</span> + <span class="font-mono text-zinc-300">limit</span>. Reads the operator playbook, interview, and decision matrix, then jumps straight to <span class="text-zinc-100 font-medium">only the ~15 templates</span> your answers require. Skips the other ~65.</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~25k <span
+              class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Claude Code, Cursor, Codex CLI — agents whose Read tool supports
+            <span class="font-mono text-zinc-300">offset</span> + <span class="font-mono text-zinc-300">limit</span>.
+            Reads the operator playbook, interview, and decision matrix, then jumps straight to <span
+              class="text-zinc-100 font-medium">only the ~15 templates</span> your answers require. Skips the other ~65.
+          </p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
           <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Scaffold · naive fallback</p>
-          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~80k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Agents without offset reads, or hosts that ignore the index instruction, fall through to top-to-bottom reading. <span class="text-zinc-100 font-medium">No functionality lost</span>; the bootstrap still works — you just pay the full playbook cost. Backward-compatible safety net.</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~80k <span
+              class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Agents without offset reads, or hosts that ignore the index
+            instruction, fall through to top-to-bottom reading. <span class="text-zinc-100 font-medium">No functionality
+              lost</span>; the bootstrap still works — you just pay the full playbook cost. Backward-compatible safety
+            net.</p>
         </div>
 
         <div class="card rounded-2xl p-7 reveal">
           <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Every session after</p>
-          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~10k <span class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Tools auto-load only the thin spine — <span class="font-mono text-zinc-300">AGENTS.md</span> + a few rule files under <span class="font-mono text-zinc-300">.agents/rules/</span>. Scales modestly with the feature gates you opted into. Same on every agent.</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~10k <span
+              class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Tools auto-load only the thin spine — <span
+              class="font-mono text-zinc-300">AGENTS.md</span> + a few rule files under <span
+              class="font-mono text-zinc-300">.agents/rules/</span>. Scales modestly with the feature gates you opted
+            into. Same on every agent.</p>
         </div>
 
       </div>
 
-      <p class="mt-12 text-zinc-400 text-center reveal">The bootstrap pays its token cost at scaffold time. Your team works at the runtime cost <span class="text-zinc-100 font-medium">forever after</span>.</p>
+      <p class="mt-12 text-zinc-400 text-center reveal">The bootstrap pays its token cost at scaffold time. Your team
+        works at the runtime cost <span class="text-zinc-100 font-medium">forever after</span>.</p>
     </div>
   </section>
 
@@ -784,8 +869,12 @@
             <h3 class="font-semibold">Hexagonal · Clean · Onion</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=HEXAGONAL</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">Pure <span class="font-mono">domain/</span> with <span class="font-mono">ports/</span> + symmetric <span class="font-mono">adapters/primary</span> & <span class="font-mono">/secondary</span>. Covers the Ports-and-Adapters / Clean / Onion family in one template.</p>
-          <div class="mt-4 font-mono text-[11px] text-zinc-500">domain/{model,ports/{primary,secondary},service}/ · adapters/{primary,secondary}/ · shared/</div>
+          <p class="mt-2 text-sm text-zinc-400">Pure <span class="font-mono">domain/</span> with <span
+              class="font-mono">ports/</span> + symmetric <span class="font-mono">adapters/primary</span> & <span
+              class="font-mono">/secondary</span>. Covers the Ports-and-Adapters / Clean / Onion family in one template.
+          </p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">domain/{model,ports/{primary,secondary},service}/ ·
+            adapters/{primary,secondary}/ · shared/</div>
         </div>
 
         <div class="card rounded-xl p-6 reveal">
@@ -844,8 +933,10 @@
             <h3 class="font-semibold">Microservice</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=MICROSERVICE</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">One service in a larger ecosystem. 4-Layer DDD internals plus health / readiness, retries + circuit breakers, distributed tracing, consumer-driven contracts.</p>
-          <div class="mt-4 font-mono text-[11px] text-zinc-500">presentation/{http,health,messaging}/ · application/ · domain/ · infrastructure/{clients,telemetry}/ · contracts/</div>
+          <p class="mt-2 text-sm text-zinc-400">One service in a larger ecosystem. 4-Layer DDD internals plus health /
+            readiness, retries + circuit breakers, distributed tracing, consumer-driven contracts.</p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">presentation/{http,health,messaging}/ · application/ ·
+            domain/ · infrastructure/{clients,telemetry}/ · contracts/</div>
         </div>
 
         <div class="card rounded-xl p-6 reveal">
@@ -853,8 +944,11 @@
             <h3 class="font-semibold">Vertical Slice</h3>
             <span class="text-xs font-mono text-accent-400">ARCH=VERTICAL_SLICE</span>
           </div>
-          <p class="mt-2 text-sm text-zinc-400">Organise by feature, not by layer. Each slice owns its handler / service / model / repository / tests. Features may only import from <span class="font-mono">shared/</span> — never from each other.</p>
-          <div class="mt-4 font-mono text-[11px] text-zinc-500">features/&lt;feature&gt;/{handler,service,model,repository,tests}/ · shared/{domain,infrastructure,…}/</div>
+          <p class="mt-2 text-sm text-zinc-400">Organise by feature, not by layer. Each slice owns its handler / service
+            / model / repository / tests. Features may only import from <span class="font-mono">shared/</span> — never
+            from each other.</p>
+          <div class="mt-4 font-mono text-[11px] text-zinc-500">
+            features/&lt;feature&gt;/{handler,service,model,repository,tests}/ · shared/{domain,infrastructure,…}/</div>
         </div>
       </div>
     </div>
@@ -868,19 +962,35 @@
           <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Permission postures</p>
           <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Trust on your terms.</h2>
           <p class="mt-5 text-zinc-400 text-lg leading-relaxed">Pick how much autonomy your agent gets — from "ask for
-            everything" to "no prompts ever" — and the bootstrap fans that one intent out across every tool you picked. Claude gets a <span class="font-mono text-zinc-200">.claude/settings.json</span>; Cursor gets <span class="font-mono text-zinc-200">.cursor/settings.json</span>; Codex gets <span class="font-mono text-zinc-200">.codex/config.toml</span>; Continue.dev gets a tools-autonomy block in <span class="font-mono text-zinc-200">.continue/config.json</span>; Windsurf gets <span class="font-mono text-zinc-200">.windsurf/settings.json</span>; Aider gets the matching keys in <span class="font-mono text-zinc-200">.aider.conf.yml</span>. OpenCode and Copilot don't have file-based permission models — their adapters carry a posture-intent note you apply in the IDE.</p>
+            everything" to "no prompts ever" — and the bootstrap fans that one intent out across every tool you picked.
+            Claude gets a <span class="font-mono text-zinc-200">.claude/settings.json</span>; Cursor gets <span
+              class="font-mono text-zinc-200">.cursor/settings.json</span>; Codex gets <span
+              class="font-mono text-zinc-200">.codex/config.toml</span>; Continue.dev gets a tools-autonomy block in
+            <span class="font-mono text-zinc-200">.continue/config.json</span>; Windsurf gets <span
+              class="font-mono text-zinc-200">.windsurf/settings.json</span>; Aider gets the matching keys in <span
+              class="font-mono text-zinc-200">.aider.conf.yml</span>. OpenCode and Copilot don't have file-based
+            permission models — their adapters carry a posture-intent note you apply in the IDE.
+          </p>
           <!-- Posture spectrum — small horizontal visualization of the autonomy axis -->
-          <div class="mt-8 rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/60 to-zinc-950/60 px-6 py-7">
+          <div
+            class="mt-8 rounded-xl border border-white/10 bg-gradient-to-br from-zinc-900/60 to-zinc-950/60 px-6 py-7">
             <p class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mb-7">Autonomy axis</p>
 
             <!-- the spectrum bar -->
             <div class="relative">
               <div class="h-[3px] rounded-full bg-gradient-to-r from-zinc-700 via-accent-500 to-fuchsia-500"></div>
               <!-- four stops along the bar -->
-              <span class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-zinc-500" style="left:0%"></span>
-              <span class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-accent-400" style="left:33.33%"></span>
-              <span class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-accent-400" style="left:66.66%"></span>
-              <span class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-fuchsia-400 shadow-[0_0_10px_rgba(232,121,249,0.5)]" style="left:100%"></span>
+              <span class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-zinc-500"
+                style="left:0%"></span>
+              <span
+                class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-accent-400"
+                style="left:33.33%"></span>
+              <span
+                class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-accent-400"
+                style="left:66.66%"></span>
+              <span
+                class="absolute -top-1.5 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-950 border-2 border-fuchsia-400 shadow-[0_0_10px_rgba(232,121,249,0.5)]"
+                style="left:100%"></span>
             </div>
 
             <!-- labels under each stop -->
@@ -970,8 +1080,12 @@
     <div class="max-w-7xl mx-auto px-6">
       <div class="max-w-3xl mb-10 reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Two weeks later</p>
-        <h2 class="mt-3 text-3xl md:text-4xl font-bold tracking-tight">The discipline shows up in <span class="font-mono text-zinc-100">git log</span>.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">Day 1 is one focused commit. By the second week, every change carries its prompt file, its ADR when it matters, its tests, its security checks. Reading the history reconstructs the <em>why</em>, not just the <em>what</em>.</p>
+        <h2 class="mt-3 text-3xl md:text-4xl font-bold tracking-tight">The discipline shows up in <span
+            class="font-mono text-zinc-100">git log</span>.</h2>
+        <p class="mt-4 text-zinc-400 text-lg">Day 1 is one focused commit. By the second week, every change carries its
+          prompt file, its ADR when it matters, its tests, its security checks. Reading the history reconstructs the
+          <em>why</em>, not just the <em>what</em>.
+        </p>
       </div>
       <div class="codeblock rounded-2xl p-6 md:p-8 reveal">
         <div class="flex items-center gap-1.5 pb-3 border-b border-white/5 mb-4">
@@ -981,18 +1095,31 @@
           <span class="ml-3 text-xs text-zinc-500 font-mono">~/orbital — git log --oneline --decorate</span>
         </div>
         <div class="font-mono text-[13px] md:text-sm leading-7 overflow-x-auto whitespace-pre">
-<span class="tk-c">*</span> <span class="tk-m">a3f2b1c</span> <span class="tk-k">(HEAD -> main)</span> feat(orders): cancellation flow with refund pathway
-<span class="tk-c">*</span> <span class="tk-m">d8e4c92</span> docs(adrs): 0007-saga-for-cross-service-orders + sequenceDiagram
-<span class="tk-c">*</span> <span class="tk-m">b1a7f5e</span> refactor(payments): swap Stripe wrapper for a tested adapter
-<span class="tk-c">*</span> <span class="tk-m">9c3d2a8</span> fix(auth): close session-fixation gap surfaced by 2026-06-22 audit
-<span class="tk-c">*</span> <span class="tk-m">7e1b4d6</span> chore(deps): pin pgx 5.6.0; weekly security review 2026-06-22
-<span class="tk-c">*</span> <span class="tk-m">5a8c1f3</span> feat(metrics): order-fulfilment golden signals; cardinality verified
-<span class="tk-c">*</span> <span class="tk-m">3b9e7a2</span> docs(prompts): 1750000000.tune-retry-budgets — captured before tuning
-<span class="tk-c">*</span> <span class="tk-m">0d5e9a1</span> test(orders): regression for inventory race; bug 2026-06-15
-<span class="tk-c">*</span> <span class="tk-m">1c2f8d4</span> Bootstrap project with agentic workflow conventions
+          <span class="tk-c">*</span> <span class="tk-m">a3f2b1c</span> <span class="tk-k">(HEAD -> main)</span>
+          feat(orders): cancellation flow with refund pathway
+          <span class="tk-c">*</span> <span class="tk-m">d8e4c92</span> docs(adrs): 0007-saga-for-cross-service-orders +
+          sequenceDiagram
+          <span class="tk-c">*</span> <span class="tk-m">b1a7f5e</span> refactor(payments): swap Stripe wrapper for a
+          tested adapter
+          <span class="tk-c">*</span> <span class="tk-m">9c3d2a8</span> fix(auth): close session-fixation gap surfaced
+          by 2026-06-22 audit
+          <span class="tk-c">*</span> <span class="tk-m">7e1b4d6</span> chore(deps): pin pgx 5.6.0; weekly security
+          review 2026-06-22
+          <span class="tk-c">*</span> <span class="tk-m">5a8c1f3</span> feat(metrics): order-fulfilment golden signals;
+          cardinality verified
+          <span class="tk-c">*</span> <span class="tk-m">3b9e7a2</span> docs(prompts): 1750000000.tune-retry-budgets —
+          captured before tuning
+          <span class="tk-c">*</span> <span class="tk-m">0d5e9a1</span> test(orders): regression for inventory race; bug
+          2026-06-15
+          <span class="tk-c">*</span> <span class="tk-m">1c2f8d4</span> Bootstrap project with agentic workflow
+          conventions
         </div>
         <div class="mt-5 pt-4 border-t border-white/5 text-xs text-zinc-500 leading-relaxed">
-          Every commit above ships with at least one prompt file under <span class="font-mono text-zinc-400">.docs/prompts/</span>. Architecturally significant changes — the saga ADR, the metrics surface, the Stripe-wrapper swap — carry their own ADR. The audit-driven fix cites the dated security review. The bug fix begins with a failing regression test. The bootstrap commit sets up <em>all of that</em> on day one.
+          Every commit above ships with at least one prompt file under <span
+            class="font-mono text-zinc-400">.docs/prompts/</span>. Architecturally significant changes — the saga ADR,
+          the metrics surface, the Stripe-wrapper swap — carry their own ADR. The audit-driven fix cites the dated
+          security review. The bug fix begins with a failing regression test. The bootstrap commit sets up <em>all of
+            that</em> on day one.
         </div>
       </div>
     </div>
@@ -1005,28 +1132,40 @@
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Adoption</p>
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">See it. Run it. Audit it.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">Three example projects show what the bootstrap actually produces. A 60-second quickstart walks the steps. A doctor mode audits an existing repo against the rules without writing anything.</p>
+        <p class="mt-4 text-zinc-400 text-lg">Three example projects show what the bootstrap actually produces. A
+          60-second quickstart walks the steps. A doctor mode audits an existing repo against the rules without writing
+          anything.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-3 gap-6">
-        <a href="https://github.com/sciensoft/agentic-bootstrap/tree/develop/examples" class="card rounded-2xl p-7 reveal block hover:no-underline">
+        <a href="https://github.com/sciensoft/agentic-bootstrap/tree/develop/examples"
+          class="card rounded-2xl p-7 reveal block hover:no-underline">
           <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Examples</p>
           <h3 class="mt-2 font-semibold text-lg">See the output</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Three fully-bootstrapped sample projects — <span class="font-mono text-zinc-300">python-4layer-ddd</span>, <span class="font-mono text-zinc-300">typescript-vertical-slice</span>, <span class="font-mono text-zinc-300">go-microservice</span>. Browse what lands before you run it.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Three fully-bootstrapped sample projects — <span
+              class="font-mono text-zinc-300">python-4layer-ddd</span>, <span
+              class="font-mono text-zinc-300">typescript-vertical-slice</span>, <span
+              class="font-mono text-zinc-300">go-microservice</span>. Browse what lands before you run it.</p>
           <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Browse examples/ →</span>
         </a>
 
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/QUICKSTART.md" class="card rounded-2xl p-7 reveal block hover:no-underline">
+        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/QUICKSTART.md"
+          class="card rounded-2xl p-7 reveal block hover:no-underline">
           <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Quickstart</p>
           <h3 class="mt-2 font-semibold text-lg">60 seconds, three steps</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Drop the file, prompt the agent, get the scaffold + first commit. Includes the question-by-question reference and a side-by-side comparison vs Cookiecutter / copier / a hand-typed agent brief.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Drop the file, prompt the agent, get the scaffold + first
+            commit. Includes the question-by-question reference and a side-by-side comparison vs Cookiecutter / copier /
+            a hand-typed agent brief.</p>
           <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Read QUICKSTART.md →</span>
         </a>
 
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/AGENTIC-BOOTSTRAP.md" class="card rounded-2xl p-7 reveal block hover:no-underline">
+        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/AGENTIC-BOOTSTRAP.md"
+          class="card rounded-2xl p-7 reveal block hover:no-underline">
           <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Doctor mode</p>
           <h3 class="mt-2 font-semibold text-lg">Audit without writing</h3>
-          <p class="mt-2 text-zinc-400 leading-relaxed">Already bootstrapped? Ask <em>"run bootstrap-doctor against this repo"</em> for a structured drift report — missing rule files, stale answer cache, security audits overdue, stub best-practices, ADR-index drift. No writes; pure read.</p>
+          <p class="mt-2 text-zinc-400 leading-relaxed">Already bootstrapped? Ask <em>"run bootstrap-doctor against this
+              repo"</em> for a structured drift report — missing rule files, stale answer cache, security audits
+            overdue, stub best-practices, ADR-index drift. No writes; pure read.</p>
           <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">See doctor-mode spec →</span>
         </a>
       </div>
@@ -1034,7 +1173,8 @@
       <!-- Positioning -->
       <div class="mt-20 reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Why this, not …</p>
-        <h3 class="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Not a template engine. Not a CLI. Not a hand-typed brief.</h3>
+        <h3 class="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Not a template engine. Not a CLI. Not a
+          hand-typed brief.</h3>
         <div class="mt-8 overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="text-zinc-400 border-b border-white/10">
@@ -1102,25 +1242,41 @@
       <!-- Trust signals + version -->
       <div class="mt-16 reveal flex flex-wrap items-center justify-between gap-6 pt-8 border-t border-white/5">
         <div class="flex flex-wrap items-center gap-3 text-sm">
-          <a href="https://github.com/sciensoft/agentic-bootstrap/stargazers" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
-            <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <a href="https://github.com/sciensoft/agentic-bootstrap/stargazers"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
+            <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="currentColor">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
             <span>Star on GitHub</span>
           </a>
-          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CHANGELOG.md" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
+          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CHANGELOG.md"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
             <span class="w-1.5 h-1.5 rounded-full bg-accent-400"></span>
             <span class="font-mono text-xs">v2026-06-10</span>
             <span class="text-zinc-500">Changelog</span>
           </a>
-          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CONTRIBUTING.md" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
-            <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CONTRIBUTING.md"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
+            <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
             <span>Contribute</span>
           </a>
-          <a href="https://github.com/sciensoft/agentic-bootstrap/actions/workflows/lint-bootstrap.yml" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300" title="Cross-reference lint runs on every PR — Q-numbers, IF_FLAGs, decision-matrix rows, version↔changelog match">
-            <img src="https://github.com/sciensoft/agentic-bootstrap/actions/workflows/lint-bootstrap.yml/badge.svg" alt="lint-bootstrap status" class="h-4">
+          <a href="https://github.com/sciensoft/agentic-bootstrap/actions/workflows/lint-bootstrap.yml"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300"
+            title="Cross-reference lint runs on every PR — Q-numbers, IF_FLAGs, decision-matrix rows, version↔changelog match">
+            <img src="https://github.com/sciensoft/agentic-bootstrap/actions/workflows/lint-bootstrap.yml/badge.svg"
+              alt="lint-bootstrap status" class="h-4">
             <span class="text-zinc-500">CI</span>
           </a>
         </div>
-        <div class="text-xs text-zinc-500">MIT licensed · re-runnable · failure-safe refinement · CI-linted · 8 tool adapters</div>
+        <div class="text-xs text-zinc-500">MIT licensed · re-runnable · failure-safe refinement · CI-linted · 8 tool
+          adapters</div>
       </div>
     </div>
   </section>
@@ -1130,9 +1286,15 @@
     <div class="max-w-4xl mx-auto px-6 text-center reveal">
       <p class="text-zinc-400">Found a bug, got an idea, or built something you'd like to ship?</p>
       <div class="mt-6 flex flex-wrap justify-center gap-3">
-        <a href="https://github.com/sciensoft/agentic-bootstrap/issues/new" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Open an issue</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/discussions" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Start a discussion</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/compare" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Open a PR</a>
+        <a href="https://github.com/sciensoft/agentic-bootstrap/issues/new"
+          class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Open
+          an issue</a>
+        <a href="https://github.com/sciensoft/agentic-bootstrap/discussions"
+          class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Start
+          a discussion</a>
+        <a href="https://github.com/sciensoft/agentic-bootstrap/compare"
+          class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Open
+          a PR</a>
       </div>
     </div>
   </section>
@@ -1219,6 +1381,71 @@
         } catch { /* clipboard write failed — silent no-op */ }
       });
     });
+
+    // Hero prompt-line typewriter: cycles through directive endings after the
+    // static "follow AGENTIC_BOOTSTRAP.md and " prefix. Types the first entry,
+    // holds so the reader can catch it, backspaces character-by-character,
+    // types the next. Skips on prefers-reduced-motion (renders the first
+    // variant statically so the sentence still reads complete).
+    (function () {
+      const el = document.querySelector('[data-hero-typing]');
+      if (!el) return;
+
+      const variants = [
+        "let's engineer this together",
+        "let's build this together",
+        "let's get started",
+        "let's engineer this together",
+        "let's do this right",
+      ];
+
+      const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) {
+        el.textContent = variants[0];
+        return;
+      }
+
+      const TYPE_MS = 55;
+      const ERASE_MS = 30;
+      const HOLD_MS = 2600;
+      const THINK_MS = 350;
+
+      let variantIdx = 0;
+      let charIdx = 0;
+      let text = '';
+
+      // Server-rendered initial text ("let's engineer this together") is
+      // wiped and re-typed on first paint so the animation reads the same
+      // whether the visitor lands during load or after.
+      el.textContent = '';
+
+      function type() {
+        const target = variants[variantIdx];
+        if (charIdx < target.length) {
+          charIdx++;
+          text = target.slice(0, charIdx);
+          el.textContent = text;
+          setTimeout(type, TYPE_MS);
+        } else {
+          setTimeout(erase, HOLD_MS);
+        }
+      }
+
+      function erase() {
+        if (text.length > 0) {
+          text = text.slice(0, -1);
+          el.textContent = text;
+          setTimeout(erase, ERASE_MS);
+        } else {
+          variantIdx = (variantIdx + 1) % variants.length;
+          charIdx = 0;
+          setTimeout(type, THINK_MS);
+        }
+      }
+
+      // Small delay so the animation starts after the hero settles in view.
+      setTimeout(type, 500);
+    })();
   </script>
 </body>
 
