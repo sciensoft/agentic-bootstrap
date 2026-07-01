@@ -8,11 +8,13 @@
 
 ---
 
-> **AI sessions end. Engineering knowledge shouldn't.**
+> **The best engineering now happens in conversation.**
+>
+> **It shouldn't disappear with it.**
 
-Every AI session walks into your repo without the engineering context it needs. Architectural reasoning gets re-derived. Conventions drift. Deferred ideas evaporate. `git` remembers the code; nothing remembers the engineering behind it.
+Working with agentic AI creates far more than code. Every conversation with your agentic AI produces decisions, trade-offs, conventions, and future ideas that shape your project. `git` remembers the code; nothing remembers the engineering behind it.
 
-The bootstrap installs the missing substrate. Architectural intent, conventions, decision rationale, deferred ideas, security expectations — everything a senior engineer would bring to every change — captured as version-controlled artifacts every agent inherits. **Your repo becomes the memory; agents become consumers of it.**
+The bootstrap installs the missing substrate. Architectural intent, conventions, decision rationale, deferred ideas, security expectations — the engineering knowledge every conversation produces — captured as version-controlled artifacts every agent inherits. **AGENTIC_BOOTSTRAP makes them a lasting part of your repository.**
 
 Hand [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) to your coding agent, say *"follow this bootstrap"*, and walk away with the substrate: an `AGENTS.md` brief every assistant reads, workflow rules under `.agents/rules/`, ADRs for load-bearing decisions, a prompt history that captures the *why*, a security rubric you actually walk, a testing pyramid (opt-in), a TODO directory where deferred ideas wait with revisit triggers, permissions matched to risk, and a thin adapter file for each of the eight agentic tools the project supports.
 
@@ -203,4 +205,4 @@ If you've been doing this manually on every project, the bootstrap is the file t
 
 ---
 
-> **Try it now.** `cd` into any repo, hand [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) to your agent, and say *"follow this bootstrap."* Sixty seconds to the day-one discipline you'd otherwise grow over six months — one painful lesson at a time.
+> **Try it now.** `cd` into any repo, hand [`AGENTIC-BOOTSTRAP.md`](./AGENTIC-BOOTSTRAP.md) to your agent, and say *"follow this bootstrap."* Sixty seconds to a repository that remembers the engineering behind every conversation.
