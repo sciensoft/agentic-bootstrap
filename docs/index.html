@@ -558,6 +558,16 @@
         </div>
       </div>
 
+      <!-- Handoff beat — bridges the 3-step scaffold flow back to the reader's
+           normal human-AI product-building loop. Intentionally not a 4th step;
+           small centered text, sits between the card grid and the "Nudge it if
+           it stalls" helper below. -->
+      <div class="mt-14 max-w-2xl mx-auto text-center reveal">
+        <p class="text-base md:text-lg text-zinc-300 leading-relaxed">
+          That's the setup. From here, it's you and your agent doing what you already do &mdash; with a repository that <span class="text-gradient font-semibold">remembers</span>.
+        </p>
+      </div>
+
       <div class="mt-16 max-w-xl mx-auto reveal">
         <div class="flex items-center gap-3 mb-5">
           <div class="flex-shrink-0 w-4 border-t border-white/10"></div>
@@ -874,7 +884,7 @@
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Runs once. Then steps out of the way.</h2>
         <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever
           after. A template index lets capable agents skip what doesn't apply to your answers, cutting scaffold cost
-          further. Your team never pays the playbook's token cost on a working session.</p>
+          further. The playbook's cost is paid at bootstrap. Regular sessions stay lightweight.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-3 gap-6">
@@ -902,12 +912,12 @@
 
         <div class="card rounded-2xl p-7 reveal">
           <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Every session after</p>
-          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~10k <span
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~5&ndash;15k <span
               class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Tools auto-load only the thin spine — <span
-              class="font-mono text-zinc-300">AGENTS.md</span> + a few rule files under <span
-              class="font-mono text-zinc-300">.agents/rules/</span>. Scales modestly with the feature gates you opted
-            into. Same on every agent.</p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Agents usually auto-load only the thin spine — <span
+              class="font-mono text-zinc-300">AGENTS.md</span> plus the relevant rule files under <span
+              class="font-mono text-zinc-300">.agents/rules/</span>. The footprint depends on the gates you enabled
+            and the assistant's loading strategy, but it stays far smaller than the original bootstrap playbook.</p>
         </div>
 
       </div>
