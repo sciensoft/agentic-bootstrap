@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agentic Bootstrap — Your repo remembers the engineering, not just the code</title>
+  <title>Agentic Bootstrap — Day-one discipline. Any Agent. One prompt.</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="mask-icon" href="favicon.svg" color="#7c3aed">
   <meta name="theme-color" content="#7c3aed">
   <meta name="description"
-    content="AI sessions end. Engineering knowledge shouldn't. One markdown file installs the substrate every AI agent inherits — architecture, conventions, decisions, deferred ideas, security expectations. A persistent operating model for AI-assisted software engineering. Tool-agnostic. Cross-stack. Idempotent. Works with Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, GitHub Copilot, Aider, OpenCode.">
-  <meta property="og:title" content="Agentic Bootstrap — your repo remembers the engineering, not just the code">
-  <meta property="og:description" content="AI sessions end. Engineering knowledge shouldn't. One markdown file installs the engineering-memory substrate every AI agent inherits — architecture, conventions, decisions, deferred ideas, security expectations.">
+    content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline, the first commit. Tool-agnostic, cross-stack, idempotent. Works with Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, GitHub Copilot, Aider, OpenCode.">
+  <meta property="og:title" content="Agentic Bootstrap — the day-one discipline a Senior Engineer would have set up">
+  <meta property="og:description" content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one. Tool-agnostic, cross-stack, idempotent.">
   <meta property="og:type" content="website">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,69 +28,6 @@
     gtag('js', new Date());
 
     gtag('config', 'G-B9N6RPX058');
-
-    // ------------------------------------------------------------------
-    // Hero A/B/C experiment — pick a variant, stamp <html>, fire view event.
-    // Runs synchronously in <head> so the CSS attribute selector below can
-    // hide non-matching variants before <body> renders (no flash).
-    // Currently single-variant (only "A" ships) under ADR-0010; the engine
-    // (localStorage, bot pinning, gtag instrumentation, force override) is
-    // preserved end-to-end so re-enabling a multi-arm test is a localised
-    // change. See ADR-0010 § Decision; ADR-0009 (superseded) for history.
-    // ------------------------------------------------------------------
-    (function () {
-      var STORAGE_KEY = 'ab_hero_variant_v1';
-      var EXPERIMENT_ID = 'hero_2026_q3';
-      var BOT_RE = /bot|crawl|spider|slurp|bing|google|duck|baidu|yandex|facebook|whatsapp|slack|twitter|linkedin|preview|fetch/i;
-
-      // Single-variant force — only "A" currently ships post ADR-0010. The
-      // random engine, localStorage stickiness, and bot handling stay
-      // intact. To re-enable a multi-arm test: add new sibling
-      // <div data-hero-variant-block="..."> blocks in <body>, restore
-      // weights in pickWeighted() below, and set this to null.
-      var FORCE_VARIANT = 'A';
-
-      var ua = (navigator && navigator.userAgent) || '';
-      var isBot = BOT_RE.test(ua);
-      var variant;
-
-      function pickWeighted() {
-        // Single-variant — only "A" ships. To re-enable an A/B/C split,
-        // add new <div data-hero-variant-block="..."> elements in <body>
-        // and restore weighted branches here, e.g.:
-        //   var r = Math.random();
-        //   if (r < 0.25) return 'A';
-        //   if (r < 0.75) return 'B';
-        //   return 'C';
-        return 'A';
-      }
-
-      if (FORCE_VARIANT === 'A' || FORCE_VARIANT === 'B' || FORCE_VARIANT === 'C') {
-        // Force path — bypass localStorage read AND write so previously-
-        // assigned visitors keep their stored value when the override lifts.
-        variant = FORCE_VARIANT;
-      } else if (isBot) {
-        variant = 'B';
-      } else {
-        try { variant = globalThis.localStorage.getItem(STORAGE_KEY); }
-        catch { variant = null; }
-        if (variant !== 'A' && variant !== 'B' && variant !== 'C') {
-          variant = pickWeighted();
-          try { globalThis.localStorage.setItem(STORAGE_KEY, variant); } catch { /* private mode — silent no-op */ }
-        }
-      }
-
-      document.documentElement.dataset.heroVariant = variant;
-      globalThis.__abHeroVariant = variant;
-      globalThis.__abExperimentId = EXPERIMENT_ID;
-
-      if (!isBot) {
-        gtag('event', 'experiment_view', {
-          experiment_id: EXPERIMENT_ID,
-          variant: variant
-        });
-      }
-    })();
   </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -129,13 +66,6 @@
     body {
       background-color: #09090b;
     }
-
-    /* Hero A/B/C — only the matching variant is visible.
-       The data-hero-variant attribute is set in <head> before <body>
-       renders, so no flash of wrong content. */
-    html:not([data-hero-variant="A"]) [data-hero-variant-block="A"] { display: none !important; }
-    html:not([data-hero-variant="B"]) [data-hero-variant-block="B"] { display: none !important; }
-    html:not([data-hero-variant="C"]) [data-hero-variant-block="C"] { display: none !important; }
 
     /* Subtle grid background */
     .grid-bg {
@@ -363,43 +293,21 @@
     <div class="max-w-7xl mx-auto px-6 relative">
       <div class="grid lg:grid-cols-12 gap-12 items-center">
         <div class="lg:col-span-7">
-
-          <!-- ============================================================ -->
-          <!-- Hero — currently single curiosity-led variant (ADR-0010).    -->
-          <!-- The A/B/C engine (FORCE_VARIANT, pickWeighted, localStorage  -->
-          <!-- stickiness, bot pinning, CSS hide-show on the variant-block  -->
-          <!-- attribute) survives intact in head. To launch a new          -->
-          <!-- multi-arm test, add sibling variant blocks here and restore  -->
-          <!-- the weighted roll in pickWeighted.                           -->
-          <!-- ============================================================ -->
-
-          <!-- Variant A — Category shift + day-one discipline at AI speed; v1 substance restored in subhead. -->
-          <div data-hero-variant-block="A">
-            <div
-              class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
-              An engineering memory system for AI-coded repos
-            </div>
-            <h1 class="mt-6 text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05]">
-              <span class="block">Software</span>
-              <span class="block">engineering</span>
-              <span class="block">changed.</span>
-              <span class="block text-gradient">The day-one discipline.</span>
-              <span class="block text-gradient">At Agentic AI speed.</span>
-            </h1>
-            <p class="mt-6 text-lg md:text-xl text-zinc-300 max-w-2xl leading-relaxed">
-              Agentic AI makes engineering knowledge <span class="text-zinc-100 font-medium">abundant</span>.
-              AGENTIC_BOOTSTRAP makes it <span class="text-zinc-100 font-medium">durable</span>.
-            </p>
-            <p class="mt-5 text-base md:text-lg text-zinc-400 max-w-2xl leading-relaxed">
-              <span class="text-zinc-200 font-medium">One markdown file. Any agentic coding assistant. One prompt.</span>
-              Your repo grows the day-one discipline a Senior Engineer would have set up — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline — then bundles every change into one focused git commit.
-              <span class="text-zinc-200 font-medium">Tool-agnostic. Cross-stack. Idempotent.</span>
-            </p>
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(167,139,250,0.85)]"></span>
+            Agentic AI changed how we build software.
           </div>
+          <h1 class="mt-6 text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
+            <span class="block">Keep the flow.</span>
+            <span class="block">Keep the <span class="text-gradient">engineering</span>.</span>
+          </h1>
+          <p class="mt-6 text-lg md:text-xl text-zinc-400 max-w-2xl leading-relaxed">
+            <span class="text-zinc-100 font-medium">The fastest engineering conversations now happen between humans and AI.</span>
+            <span class="text-gradient font-semibold">AGENTIC_BOOTSTRAP</span> makes sure the architecture, decisions, trade-offs, and future ideas <span class="text-zinc-100 font-medium">survive long after the session ends</span>.
+          </p>
           <div class="mt-9 flex flex-wrap items-center gap-3">
             <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC-BOOTSTRAP.md"
-              data-ab-event="cta_get_bootstrap"
               class="btn-primary inline-flex items-center gap-2 font-semibold px-5 py-3 rounded-xl">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -410,7 +318,6 @@
               Get AGENTIC-BOOTSTRAP.md
             </a>
             <a href="https://github.com/sciensoft/agentic-bootstrap"
-              data-ab-event="cta_github"
               class="inline-flex items-center gap-2 font-medium px-5 py-3 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
               View on GitHub
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -465,6 +372,7 @@
         </div>
 
         <div class="lg:col-span-5">
+          <!-- IMAGE SLOT: Hero illustration. Replace the div below with an <img> tag. Suggested: terminal screenshot or product mark. -->
           <div class="relative">
             <div
               class="absolute -inset-4 bg-gradient-to-br from-accent-500/20 via-violet-500/10 to-transparent blur-2xl">
@@ -499,7 +407,7 @@
   </section>
 
   <!-- How it works -->
-  <section id="how" data-hero-end class="py-24 border-t border-white/5">
+  <section id="how" class="py-24 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-6">
       <div class="max-w-2xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">60-second demo</p>
@@ -1311,54 +1219,6 @@
         } catch { /* clipboard write failed — silent no-op */ }
       });
     });
-  </script>
-
-  <script>
-    // ------------------------------------------------------------------
-    // Hero A/B/C experiment — attribute downstream signals to the variant.
-    // The variant itself was chosen in <head> (see window.__abHeroVariant).
-    // We instrument: primary CTA click, secondary CTA click, scroll past
-    // the hero (engagement floor), and a 30s dwell signal.
-    // ------------------------------------------------------------------
-    (function () {
-      var variant = globalThis.__abHeroVariant;
-      var experimentId = globalThis.__abExperimentId;
-      if (!variant || typeof gtag !== 'function') return;
-
-      function track(name, extra) {
-        var params = { experiment_id: experimentId, variant: variant };
-        if (extra) for (var k in extra) { if (Object.hasOwn(extra, k)) params[k] = extra[k]; }
-        gtag('event', name, params);
-      }
-
-      // CTA clicks — any <a data-ab-event="..."> fires its event name on click.
-      document.querySelectorAll('a[data-ab-event]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          track(el.dataset.abEvent);
-        });
-      });
-
-      // Scroll-past-hero — fired once when the next section reaches ≥ 50% in view.
-      var heroEnd = document.querySelector('[data-hero-end]');
-      if (heroEnd && 'IntersectionObserver' in globalThis) {
-        var fired = false;
-        var observer = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting && !fired) {
-              fired = true;
-              track('scroll_past_hero');
-              observer.disconnect();
-            }
-          });
-        }, { threshold: 0.5 });
-        observer.observe(heroEnd);
-      }
-
-      // 30s engaged — fired if the tab is still focused after 30 seconds.
-      setTimeout(function () {
-        if (!document.hidden) track('engaged_30s');
-      }, 30000);
-    })();
   </script>
 </body>
 
