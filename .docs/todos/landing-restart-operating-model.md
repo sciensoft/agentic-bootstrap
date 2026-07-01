@@ -18,7 +18,7 @@ Legend: ✅ done · ⬜ open · 🟡 partial.
 | Phase | Status | Commit scope | Length impact | Sections touched |
 | --- | --- | --- | --- | --- |
 | **R1** | ✅ | Hero rewrite (single curiosity-led variant) + ADR-0010 + supersede ADR-0009 + TODO swap | length-negative (drops right-column codeblock) | §1 Hero |
-| **R2** | ⬜ | Add *What just changed in software engineering* + *The new bottleneck* — body prose only, no artifact names | additive (~250 words) | §2, §3 |
+| **R2** | ✅ | Two-column Aha *bridge* between hero and 60-second demo. Anchor is a two-sentence H2 slogan (*"The best engineering now happens in conversation. It shouldn't disappear with it."*) — user-flagged as load-bearing category-defining copy comparable in shape to *Infrastructure as Code* / *Build once. Run anywhere.*, protected verbatim through future iterations per [[feedback-tagline-preservation]]. Layout: section container matches hero/demo at `max-w-7xl` so the bridge reads horizontally continuous with the surrounding sections; inner content constrained to `max-w-5xl` so the two columns stay in comfortable reading widths. Left column carries the *problem statement* (H2 slogan + body paragraph naming what agentic-AI collaboration produces beyond code: decisions, trade-offs, conventions, future ideas). Right column carries the *solution statement* (product hook + aphorism blockquote *"Opinionated enough to get started. Flexible enough to become your own."*). Full-width bottom paragraph (`max-w-3xl` for reading comfort) carries the extension framing (*"Start with the bootstrap. Then make it yours..."*). Grid uses `items-center` for vertical balance because right column is shorter than left. The earlier chip-row shape (Architectural decisions · Trade-offs · Future ideas · Conventions + *Things worth keeping / Most of it disappears / AGENTIC_BOOTSTRAP keeps it*) is retired — the substance survives as prose inside the left column's body paragraph. Type hierarchy compressed vs a full section (H2 at `text-2xl md:text-3xl`, secondary prose at `text-sm md:text-base`, product hook one tier brighter at `text-base md:text-lg text-zinc-100`) so the demo section below (H2 at `text-4xl md:text-5xl`) reads as the visual peak the reader is being handed off to. | additive (~110 words, two-column bridge shape) | §2 (merged §3) |
 | **R3** | ⬜ | Add *Why now* — IaC / GitOps / containerization parallel; align OG/meta tags with the new framing once R2 body settles | additive (~150 words) + meta sweep | §4, meta |
 | **R4** | ⬜ | Add *What "durable engineering knowledge" actually looks like* — categories of knowledge, no file names yet | additive (~180 words) | §5 |
 | **R5** | ⬜ | Reframe *What you get* into *The substrate* (existing file-tree reused with new framing) + add *vignette* (a single human–AI session, before-and-after) | additive (~250 words) + reuse | §6, §7 |
@@ -29,18 +29,17 @@ Legend: ✅ done · ⬜ open · 🟡 partial.
 ### New section order (anchors for R2–R7)
 
 1. **Hero** — curiosity-led, single variant *(R1 ✅)*
-2. **What just changed in software engineering** — body prose; no artifact names *(R2)*
-3. **The new bottleneck** — creation → retention; why repositories aren't built for it *(R2)*
-4. **Why now** — IaC / GitOps / containerization parallel *(R3)*
-5. **What "durable engineering knowledge" actually looks like** — categories of knowledge, no file names *(R4)*
-6. **The substrate** — first introduction of the artifact list, framed as evidence *(R5)*
-7. **A single human–AI session, before and after** — vignette *(R5)*
-8. **How it works** — existing 3-step, reframed (mechanism after value) *(R6)*
-9. **Runtime footprint** — kept, reframed to lead with *durability without per-session tax* *(R6)*
-10. **What this is — vs what it isn't** — comparison vs Cursor Rules / Copilot instructions / Claude skills / bare AGENTS.md *(R7)*
-11. **Tool-agnostic** — 8-tool list (moved out of hero into its own band) *(R6)*
-12. **Architectures · postures** — collapsed to one paragraph + README link *(R6)*
-13. **Adoption · footer** — unchanged
+2. **Why this matters?** — Aha beat: chip-row with the four knowledge types + three-line resolution ending on *AGENTIC_BOOTSTRAP keeps it*. Compressed delivery of what was planned as separate §2 *What just changed* + §3 *The new bottleneck* prose. *(R2 ✅)*
+3. **Why now** — IaC / GitOps / containerization parallel *(R3)*
+4. **What "durable engineering knowledge" actually looks like** — categories of knowledge, no file names *(R4)*
+5. **The substrate** — first introduction of the artifact list, framed as evidence *(R5)*
+6. **A single human–AI session, before and after** — vignette *(R5)*
+7. **How it works** — existing 3-step, reframed (mechanism after value) *(R6)*
+8. **Runtime footprint** — kept, reframed to lead with *durability without per-session tax* *(R6)*
+9. **What this is — vs what it isn't** — comparison vs Cursor Rules / Copilot instructions / Claude skills / bare AGENTS.md *(R7)*
+10. **Tool-agnostic** — 8-tool list (moved out of hero into its own band) *(R6)*
+11. **Architectures · postures** — collapsed to one paragraph + README link *(R6)*
+12. **Adoption · footer** — unchanged
 
 ### Open items
 
