@@ -13,6 +13,12 @@ curl -O https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/main/AGENT
 
 That's it. The agent interviews you, scaffolds [`AGENTS.md`](https://agents.md) + `.agents/rules/` + `.docs/{adrs,prompts,todos,security}/`, writes per-tool adapter files for whichever agentic assistants you use (Claude Code, Cursor, Aider, Codex CLI, OpenCode, Continue.dev, Windsurf, GitHub Copilot), and commits everything in one focused commit.
 
+**If the interview shows up as plain text** when your host has picker UI (Claude Code VSCode extension, Continue.dev, Cursor), paste this nudge:
+
+```text
+> use your interactive prompts (pickers, multi-select) — one call per question
+```
+
 ## What you'll be asked
 
 The interview is 17 questions, grouped into six tiers. None are trick questions; sensible defaults exist for every one. Skim the highlights:

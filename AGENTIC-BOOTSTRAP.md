@@ -157,7 +157,7 @@ Concrete protocol:
 4. Once you have a clean answer, record it internally and move to the next question.
 5. Repeat until all 17 are answered.
 
-**If your host supports a structured interactive question tool** (Claude Code's `AskUserQuestion`, Cursor's similar primitive, IDE extensions with picker UIs), use it — one tool call per question. Pickers render the options visually, which is the best UX where available.
+**If your host supports a structured interactive question tool** (Claude Code's `AskUserQuestion`, Cursor's similar primitive, IDE extensions with picker UIs, Continue.dev's prompt UI), **you MUST use it** — one tool call per question, single-pick or multi-pick as the question requires. Pickers render the options visually with far less UX friction than plain-text prompting; falling back to plain text when picker UI is available is a UX regression, not a valid default. If you skipped straight into plain-text prompting on the first turn (a common failure mode on the first run of the bootstrap), the user may paste a short nudge — *"use your interactive prompts (pickers, multi-select) — one call per question"* — treat that as the signal to switch to your picker primitive for the remaining questions and re-ask any that were already answered in plain text if the user wants to re-pick from the visual options.
 
 **If you do NOT have such a tool**, ask in plain chat — but still **one question per message**. Do not pre-list "Q2 through Q17 are coming, here they are for context." That defeats the purpose.
 
