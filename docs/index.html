@@ -599,6 +599,16 @@
         </div>
       </div>
 
+      <!-- Handoff beat — bridges the 3-step scaffold flow back to the reader's
+           normal human-AI product-building loop. Intentionally not a 4th step;
+           small centered text, sits between the card grid and the "Nudge it if
+           it stalls" helper below. -->
+      <div class="mt-14 max-w-2xl mx-auto text-center reveal">
+        <p class="text-base md:text-lg text-zinc-300 leading-relaxed">
+          That's the setup. From here, it's you and your agent doing what you already do &mdash; with a repository that <span class="text-gradient font-semibold">remembers</span>.
+        </p>
+      </div>
+
       <div class="mt-16 max-w-xl mx-auto reveal">
         <div class="flex items-center gap-3 mb-5">
           <div class="flex-shrink-0 w-4 border-t border-white/10"></div>
@@ -627,9 +637,117 @@
           <span class="tk-c">› Begin with Step 0 — detect run mode,</span><br>
           <span class="tk-c">&nbsp;&nbsp;then ask me Q1.</span>
         </div>
+      </div>
+
+      <div class="mt-10 max-w-xl mx-auto reveal">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="flex-shrink-0 w-4 border-t border-white/10"></div>
+          <p class="text-zinc-500 text-xs font-medium uppercase tracking-wider">Nudge it toward rich prompts</p>
+          <div class="flex-1 border-t border-white/10"></div>
+        </div>
+        <p class="text-zinc-400 text-sm leading-relaxed mb-2">
+          Some hosts have interactive prompt UI (pickers, multi-select) but default to plain text on the first read.
+        </p>
+        <p class="text-zinc-400 text-sm leading-relaxed mb-4">
+          Paste this to get the pickers:
+        </p>
+        <div class="codeblock rounded-lg p-3 font-mono text-xs relative"
+          data-copy="use your interactive prompts (pickers, multi-select) — one call per question">
+          <button type="button" class="copy-btn" aria-label="Copy rich-prompts nudge to clipboard">
+            <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </button>
+          <span class="tk-c">› use your interactive prompts</span><br>
+          <span class="tk-c">&nbsp;&nbsp;(pickers, multi-select) &mdash;</span><br>
+          <span class="tk-c">&nbsp;&nbsp;one call per question</span>
+        </div>
         <div class="mt-6 border-t border-white/10"></div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- Origin — "Built from real engineering" story. Positioned after the
+       60-second demo and before "What you get" so the reader hits it at the
+       "wait, who built this and why?" moment, right after seeing the
+       mechanism. Personal-voice narrative; not part of ADR-0010's original
+       R2-R7 plan (added on user request as R2b — see the TODO's phase
+       table). -->
+  <section id="origin" class="py-24 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="max-w-3xl reveal">
+        <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Origin</p>
+        <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Built from real engineering</h2>
+
+        <p class="mt-8 text-lg text-zinc-300 leading-relaxed">
+          AGENTIC_BOOTSTRAP wasn't born from trying to build a product. It was born from trying not to repeat myself.
+        </p>
+
+        <p class="mt-6 text-base md:text-lg text-zinc-400 leading-relaxed">
+          It started while building a project where I gradually developed a better way of collaborating with agentic AI.
+          As the project evolved, so did the engineering: architectural decisions, TODOs, conventions, prompt history,
+          ADRs, and the operating model itself.
+        </p>
+
+        <p class="mt-6 text-base md:text-lg text-zinc-400 leading-relaxed">
+          Then I started another project.
+        </p>
+
+        <p class="mt-6 text-base md:text-lg text-zinc-400 leading-relaxed">
+          Almost immediately I found myself thinking:
+        </p>
+
+        <blockquote
+          class="mt-6 border-l-2 border-accent-400/60 pl-5 text-xl md:text-2xl italic text-zinc-100 leading-snug">
+          &ldquo;I wish this project had everything I built into the last one.&rdquo;
+        </blockquote>
+
+        <p class="mt-6 text-base md:text-lg text-zinc-400 leading-relaxed">
+          Instead, I was rebuilding the same engineering practices from scratch. Repeating conversations with the AI.
+          Rediscovering conventions. Losing valuable ideas because they lived only inside the chat. Avoiding clearing
+          the context because I didn't want to lose the reasoning that got us there.
+        </p>
+
+        <p class="mt-10 text-lg md:text-xl text-zinc-100 font-medium">
+          By the third project, it was obvious.
+        </p>
+
+        <p class="mt-6 text-lg md:text-xl text-zinc-300 leading-relaxed">
+          This shouldn't be something I rebuilt every time.
+        </p>
+        <p class="mt-1 text-lg md:text-xl text-zinc-100 font-medium leading-relaxed">
+          It should be something I bootstrap once and evolve forever.
+        </p>
+
+        <p class="mt-10 text-lg md:text-xl text-zinc-100">
+          That's why <span class="text-gradient font-semibold">AGENTIC_BOOTSTRAP</span> exists.
+        </p>
+
+        <p class="mt-4 text-base md:text-lg text-zinc-400 leading-relaxed">
+          It gives every new project the engineering maturity of the previous one from day one.
+        </p>
+
+        <div class="mt-10 space-y-1 text-lg md:text-xl">
+          <p class="text-zinc-100 font-medium">Start with the bootstrap.</p>
+          <p class="text-zinc-300">Keep what works.</p>
+          <p class="text-zinc-300">Remove what doesn't.</p>
+          <p class="text-zinc-300">Add your own skills, workflows, standards, and conventions.</p>
+          <p class="text-zinc-300">Evolve it with your project.</p>
+        </div>
+
+        <p class="mt-10 text-2xl md:text-3xl font-semibold leading-tight tracking-tight">
+          <span class="block"><span class="text-gradient">AGENTIC_BOOTSTRAP</span> <span class="text-zinc-300">gives you
+              the first version of your operating model.</span></span>
+          <span class="block mt-1 text-zinc-100">What it becomes is yours.</span>
+        </p>
+      </div>
     </div>
   </section>
 
@@ -838,7 +956,7 @@
         <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Runs once. Then steps out of the way.</h2>
         <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever
           after. A template index lets capable agents skip what doesn't apply to your answers, cutting scaffold cost
-          further. Your team never pays the playbook's token cost on a working session.</p>
+          further. The playbook's cost is paid at bootstrap. Regular sessions stay lightweight.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-3 gap-6">
@@ -866,12 +984,12 @@
 
         <div class="card rounded-2xl p-7 reveal">
           <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Every session after</p>
-          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~10k <span
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~5&ndash;15k <span
               class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Tools auto-load only the thin spine — <span
-              class="font-mono text-zinc-300">AGENTS.md</span> + a few rule files under <span
-              class="font-mono text-zinc-300">.agents/rules/</span>. Scales modestly with the feature gates you opted
-            into. Same on every agent.</p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Agents usually auto-load only the thin spine — <span
+              class="font-mono text-zinc-300">AGENTS.md</span> plus the relevant rule files under <span
+              class="font-mono text-zinc-300">.agents/rules/</span>. The footprint depends on the gates you enabled
+            and the assistant's loading strategy, but it stays far smaller than the original bootstrap playbook.</p>
         </div>
 
       </div>

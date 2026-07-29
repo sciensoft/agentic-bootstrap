@@ -56,7 +56,9 @@ The bootstrap is **idempotent**: it's safe to re-run on a project that's already
 
 - **Detect doctor mode first.** If the user's invocation contains *"bootstrap-doctor"*, *"doctor mode"*, *"audit this repo"*, *"check compliance"*, *"drift report"*, or otherwise signals an audit-only intent, switch to **doctor mode** and follow the dedicated playbook in *Doctor mode* below (no writes, structured report only). If the invocation is ambiguous (just *"check this"*), ask the user to confirm: write mode or audit mode?
 - Check for the sentinel: `.agents/rules/workflow.md`. If it exists, the bootstrap has already run here → **re-run mode** (also called *update mode*).
-- Also check for `.agents/bootstrap.json` — if it exists, read it; the file holds the answers captured during the previous bootstrap (see Part 4 template). On re-run, reuse those answers and skip those questions; only ask for any keys *missing* from the file (new interview questions added in newer bootstrap versions).
+- Also check for `.agents/bootstrap.json` — if it exists, read it; the file holds the answers captured during the previous bootstrap (see Part 4 template). Check its top-level `interview_status` field to decide the flow:
+  - **`"done"`** (or field missing on a legacy bootstrap.json) — normal re-run mode. Reuse the answers and skip those questions; only ask for any keys *missing* from the file (new interview questions added in newer bootstrap versions, or answer-changes the user explicitly requests).
+  - **`"in_progress"`** — the previous interview was interrupted mid-run (session closed, VSCode window swapped, laptop slept, browser refreshed). This is **resume mode**. Count how many of the 17 answer keys are populated in the file, then ask: *"Looks like the last interview stopped after Q{N} of 17. Resume from Q{N+1}, or start fresh?"* If resume, keep the answers dict as-is and pick up Step 2 from the first missing key. If start fresh, wipe the answers dict and run Step 2 from Q1. This is the checkpoint that lets a killed session pick up where it left off — see Step 2 for the per-question-write protocol that maintains it.
 - **Legacy-layout migration**: if `.claude/rules/workflow.md` exists but `.agents/rules/workflow.md` doesn't, this is a project bootstrapped under the pre-multi-tool layout (rules under `.claude/rules/`, answer cache at `.claude/bootstrap.json`). Treat it as re-run mode, then ask: *"Migrate `.claude/rules/` → `.agents/rules/` (recommended — unlocks the other 7 tool adapters) or leave it in place?"* Then:
   - **Migrate**: `git mv .claude/rules .agents/rules` + `git mv .claude/bootstrap.json .agents/bootstrap.json`; update any `@.claude/rules/…` refs in `CLAUDE.md` to `@.agents/rules/…` in the same step.
   - **Leave**: keep the legacy paths live for this re-run (write to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools is limited until the user migrates.
@@ -69,7 +71,7 @@ Both modes share the same playbook from this point on, with these behavioural di
 | | First-time mode | Re-run / update mode |
 | --- | --- | --- |
 | Step 1 collision check | Stop on any of `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/` | Expected to exist; no abort |
-| Step 2 interview | Ask all 17 questions | Ask only questions whose flag is **missing** from `.agents/bootstrap.json` |
+| Step 2 interview | Ask all 17 questions. Write `.agents/bootstrap.json` after each answered question with `interview_status: "in_progress"`; flip to `"done"` on completion. | Depends on `interview_status`: resume mode picks up mid-interview from the last unanswered key; done-mode asks only for missing keys or user-requested answer changes. See Step 2's *Resume / re-run mode* sub-section. |
 | Step 4 file writes | Write every applicable file from scratch | Apply the per-file **re-run policy** (Canon / Mixed / Sacred — see Part 3 matrix) |
 | Step 6 commit message | `Bootstrap project with agentic workflow conventions` | `Re-bootstrap: <one-line summary of what changed>` (e.g. *"refresh rules to `<date>` bootstrap version"*) |
 
@@ -154,16 +156,24 @@ Concrete protocol:
 1. Ask **only the next un-answered question** in chat.
 2. Wait for the user's answer.
 3. If the answer is ambiguous or needs disambiguation (e.g. Q5 with a vocabulary alias — see the **Q5 disambiguation** subsection), follow up *within that question's turn* before moving on.
-4. Once you have a clean answer, record it internally and move to the next question.
-5. Repeat until all 17 are answered.
+4. Once you have a clean answer, record it internally.
+5. **Write `.agents/bootstrap.json` immediately** with `interview_status: "in_progress"` and the accumulated answers dict (including the answer you just captured). This is the checkpoint — if the session dies here (VSCode window swap, laptop sleep, browser refresh), the next run picks up from Step 0's resume detection with everything up to and including this question preserved. Cheap write: same file, small JSON.
+6. Move to the next question. Repeat 1–5 until all 17 are answered.
+7. On the final answer, write `.agents/bootstrap.json` one more time with `interview_status: "done"` and the complete answers dict.
 
-**If your host supports a structured interactive question tool** (Claude Code's `AskUserQuestion`, Cursor's similar primitive, IDE extensions with picker UIs), use it — one tool call per question. Pickers render the options visually, which is the best UX where available.
+**If your host supports a structured interactive question tool** (Claude Code's `AskUserQuestion`, Cursor's similar primitive, IDE extensions with picker UIs, Continue.dev's prompt UI), **you MUST use it** — one tool call per question, single-pick or multi-pick as the question requires. Pickers render the options visually with far less UX friction than plain-text prompting; falling back to plain text when picker UI is available is a UX regression, not a valid default. If you skipped straight into plain-text prompting on the first turn (a common failure mode on the first run of the bootstrap), the user may paste a short nudge — *"use your interactive prompts (pickers, multi-select) — one call per question"* — treat that as the signal to switch to your picker primitive for the remaining questions and re-ask any that were already answered in plain text if the user wants to re-pick from the visual options.
 
 **If you do NOT have such a tool**, ask in plain chat — but still **one question per message**. Do not pre-list "Q2 through Q17 are coming, here they are for context." That defeats the purpose.
 
 Record the answers compactly — you'll reference them when filling templates.
 
-**Re-run mode**: load `.agents/bootstrap.json` (read in Step 0). Treat its keys as already-answered. Ask the user **only** for keys whose flag is missing from the file — these are new interview questions added in newer bootstrap versions, or fields the previous bootstrap didn't capture. When done, write the updated `.agents/bootstrap.json` with the merged set (old + new keys) in Step 4's bootstrap.json template.
+**Resume / re-run mode**: load `.agents/bootstrap.json` (read in Step 0) and branch on the `interview_status` field.
+
+- **`"in_progress"` (resume mode)** — the previous interview was interrupted. Step 0 already asked the user *"Resume from Q{N+1}, or start fresh?"*. If resume: skip every question whose key is already populated in the answers dict, start asking from the first missing key, follow the per-question-write protocol from step 5 above (write after each answered question with `interview_status` staying at `"in_progress"`), and flip to `"done"` on the final answer. If start fresh: wipe the answers dict, set `interview_status: "in_progress"`, and run from Q1.
+- **`"done"` (normal re-run mode)** — treat the file as a complete answer cache. Ask the user **only** for keys whose flag is missing from the file — these are new interview questions added in newer bootstrap versions, or fields the previous bootstrap didn't capture. Missing-key answers still follow the per-question-write protocol so a mid-re-run interruption is also recoverable. When the merged set is complete, write with `interview_status: "done"`.
+- **User-requested answer change** (any mode) — if the user explicitly asks to change a previously-captured answer (*"re-ask Q12"*, *"change the testing decision"*), flip `interview_status` to `"in_progress"` for the duration of the change, capture the new answer, then flip back to `"done"` in the final write.
+
+In all branches, the persisted state stays in sync via Step 4's bootstrap.json template — same shape, same write path, only the `interview_status` field and the completeness of the answers dict differ.
 
 If the user wants to change a previously-captured answer (e.g. switch `POSTURE` from `CAUTIOUS` to `TRUSTED_DEV`), they can tell you explicitly — *"re-ask about posture"*; in that case, ask the relevant question even though the key is present, and update `.agents/bootstrap.json` with the new value. Make sure the user understands which files will be re-written under the new answer (the re-run policy still applies — Sacred files stay sacred even on a changed answer).
 
@@ -317,23 +327,30 @@ Questions are grouped into six tiers reflecting how they're used: **bootstrap be
 | # | Question | Affects |
 | --- | --- | --- |
 | Q1 | **Project name + one-line purpose.** "What's the project called, and what does it do in one sentence?" | `AGENTS.md` title + purpose stub. `{{PROJECT_NAME}}` also flows into every per-tool adapter that names the project. |
-| Q2 | **Which agentic coding assistants will work in this repo?** "Multi-pick from the **Supported tools** table that follows — pick at least one. The bootstrap writes a tool-agnostic spine (`AGENTS.md` + `.agents/rules/`) plus a thin per-tool adapter file for each tool you pick. Asked early — it gates Q3 and decides which adapters get written." | `AGENTS_USED` set — any subset of `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the conditional dispatch for every per-tool adapter file. |
+| Q2 | **Which agentic coding assistants will work in this repo?** "**Multi-pick individual tools.** The user picks any subset from 1 to all 8 — one for a solo workstation, two or three for common combos, more for teams that span assistants. The bootstrap just saves the choice and writes a per-tool adapter file for each tool picked. **Do NOT offer 'preset bundles' as picker options** (e.g. *'Claude Code + Cursor'*, *'All eight tools'*) — this is a multi-select of individual tools, and bundling misrepresents the answer space. When your picker UI supports grouping or a 'show more' expansion, surface the four most-adopted tools (**Claude Code · Cursor · GitHub Copilot · Windsurf**) as the primary options and the other four (**Aider · Codex CLI · OpenCode · Continue.dev**) under an *Other* / *More* group. Asked early — it gates Q3 and decides which adapters get written." | `AGENTS_USED` set — any subset of `{CLAUDE, CURSOR, AIDER, CODEX, OPENCODE, CONTINUE, WINDSURF, COPILOT}`. Drives the conditional dispatch for every per-tool adapter file. |
 | Q3 | **Agent autonomy posture?** "Single-pick from the **Posture options** table that follows. The posture is tool-agnostic — the bootstrap maps the chosen intent into each picked tool's native permission config (see Part 1 multi-value dispatch). Asked early so the chosen posture takes effect for the rest of the bootstrap's file writes." | `POSTURE` value in `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS}`. Drives the per-tool permission config written for every entry in `AGENTS_USED` (Claude `.claude/settings.json`, Cursor `.cursor/settings.json`, Aider keys in `.aider.conf.yml`, Codex `.codex/config.toml`, Continue.dev keys in `.continue/config.json`, Windsurf `.windsurf/settings.json`). OpenCode and GitHub Copilot don't have file-based permission models the bootstrap can write; their adapters carry a short note documenting the posture intent for the user to apply manually in each tool's own UI. |
 
 #### Supported tools — for Q2
 
-Multi-pick from the eight supported assistants. Two read `AGENTS.md` natively and need no adapter file; the other six get a thin adapter that points at `AGENTS.md`:
+Multi-pick of individual tools. Two read `AGENTS.md` natively and need no adapter file; the other six get a thin adapter that points at `AGENTS.md`. The four most commonly-adopted go first — surface these as the primary picker options; the other four sit under an *Other* / *More* group when the host's picker UI supports grouping.
+
+**Most commonly-adopted (primary picker options):**
 
 | Tool | Adapter | AGENTS.md natively? |
 | --- | --- | --- |
 | **Claude Code** | `CLAUDE.md` + `.claude/settings.json` | via adapter ref |
 | **Cursor** | `.cursor/rules/agents.mdc` | via adapter ref |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | via adapter ref |
+| **Windsurf** | `.windsurfrules` | via adapter ref |
+
+**Other supported tools (under *Other* / *More*):**
+
+| Tool | Adapter | AGENTS.md natively? |
+| --- | --- | --- |
 | **Aider** | `.aider.conf.yml` (with `read:` list) | via adapter ref |
 | **OpenAI Codex CLI** | — | ✓ native |
 | **OpenCode** | — | ✓ native |
 | **Continue.dev** | `.continue/config.json` | via adapter ref |
-| **Windsurf** | `.windsurfrules` | via adapter ref |
-| **GitHub Copilot** | `.github/copilot-instructions.md` | via adapter ref |
 
 #### Posture options — for Q3
 
@@ -510,84 +527,84 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 596 → 624 |
-| `.agents/rules/workflow.md` | Always | 625 → 1067 |
-| `.agents/rules/workflow-todos.md` | Always | 1068 → 1172 |
-| `.agents/rules/workflow-security.md` | Always | 1173 → 1253 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1254 → 1401 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1402 → 1505 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1506 → 1638 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1639 → 1759 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1760 → 1867 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1868 → 1953 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1954 → 2054 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2055 → 2112 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2113 → 2191 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2192 → 2270 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2271 → 2327 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2328 → 2447 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2448 → 2585 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2586 → 2658 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2659 → 2705 |
-| `.docs/adrs/README.md` | Always | 2706 → 2723 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2724 → 2817 |
-| `.docs/todos/README.md` | Always | 2818 → 2836 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2837 → 3086 |
-| `.gitignore` (Python) | `LANG=Python` | 3087 → 3152 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3153 → 3206 |
-| `.gitignore` (Go) | `LANG=Go` | 3207 → 3249 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3250 → 3285 |
-| `.gitignore` (fallback) | any other `LANG` | 3286 → 3319 |
-| `.env.example` | `ENV_VARS` | 3320 → 3347 |
-| `.editorconfig` | Always | 3348 → 3376 |
-| `README.md` | Always (Sacred) | 3377 → 3407 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3408 → 3437 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3438 → 3663 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3664 → 3685 |
-| `AGENTS.md` | Always (Sacred first-write) | 3686 → 3733 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3734 → 3768 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3769 → 3816 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3817 → 3852 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3853 → 3883 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3884 → 3941 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3942 → 3954 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3955 → 3990 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3991 → 4051 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4052 → 4086 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4087 → 4100 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4101 → 4120 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4121 → 4140 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4141 → 4156 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4157 → 4171 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4172 → 4186 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4187 → 4207 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4208 → 4224 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4225 → 4238 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4239 → 4253 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4254 → 4272 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4273 → 4288 |
-| `.agents/bootstrap.json` | Always | 4289 → 4342 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4343 → 4389 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4390 → 4429 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4430 → 4461 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4462 → 4492 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4493 → 4500 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4501 → 4537 |
-| `SECURITY.md` | Always | 4538 → 4583 |
-| `.gitattributes` | Always | 4584 → 4626 |
-| `CHANGELOG.md` | Always | 4627 → 4652 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4653 → 4694 |
-| linter / formatter configs (Python) | `LANG=Python` | 4695 → 4718 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4719 → 4768 |
-| linter / formatter configs (Go) | `LANG=Go` | 4769 → 4799 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4800 → 4820 |
-| linter / formatter configs (fallback) | any other `LANG` | 4821 → 4828 |
-| `Makefile` (Python) | `LANG=Python` | 4829 → 4869 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4870 → 4910 |
-| `Makefile` (Go) | `LANG=Go` | 4911 → 4954 |
-| `Makefile` (Rust) | `LANG=Rust` | 4955 → 4992 |
-| `Makefile` (fallback) | any other `LANG` | 4993 → 5021 |
-| `.pre-commit-config.yaml` | Always | 5022 → 5058 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 613 → 641 |
+| `.agents/rules/workflow.md` | Always | 642 → 1084 |
+| `.agents/rules/workflow-todos.md` | Always | 1085 → 1189 |
+| `.agents/rules/workflow-security.md` | Always | 1190 → 1270 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1271 → 1418 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1419 → 1522 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1523 → 1655 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1656 → 1776 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1777 → 1884 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1885 → 1970 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1971 → 2071 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2072 → 2129 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2130 → 2208 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2209 → 2287 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2288 → 2344 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2345 → 2464 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2465 → 2602 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2603 → 2675 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2676 → 2722 |
+| `.docs/adrs/README.md` | Always | 2723 → 2740 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2741 → 2834 |
+| `.docs/todos/README.md` | Always | 2835 → 2853 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2854 → 3103 |
+| `.gitignore` (Python) | `LANG=Python` | 3104 → 3169 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3170 → 3223 |
+| `.gitignore` (Go) | `LANG=Go` | 3224 → 3266 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3267 → 3302 |
+| `.gitignore` (fallback) | any other `LANG` | 3303 → 3336 |
+| `.env.example` | `ENV_VARS` | 3337 → 3364 |
+| `.editorconfig` | Always | 3365 → 3393 |
+| `README.md` | Always (Sacred) | 3394 → 3424 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3425 → 3454 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3455 → 3680 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3681 → 3702 |
+| `AGENTS.md` | Always (Sacred first-write) | 3703 → 3750 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3751 → 3785 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3786 → 3833 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3834 → 3869 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3870 → 3900 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3901 → 3958 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3959 → 3971 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3972 → 4007 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4008 → 4068 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4069 → 4103 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4104 → 4117 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4118 → 4137 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4138 → 4157 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4158 → 4173 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4174 → 4188 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4189 → 4203 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4204 → 4224 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4225 → 4241 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4242 → 4255 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4256 → 4270 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4271 → 4289 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4290 → 4305 |
+| `.agents/bootstrap.json` | Always | 4306 → 4361 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4362 → 4408 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4409 → 4448 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4449 → 4480 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4481 → 4511 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4512 → 4519 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4520 → 4556 |
+| `SECURITY.md` | Always | 4557 → 4602 |
+| `.gitattributes` | Always | 4603 → 4645 |
+| `CHANGELOG.md` | Always | 4646 → 4671 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4672 → 4713 |
+| linter / formatter configs (Python) | `LANG=Python` | 4714 → 4737 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4738 → 4787 |
+| linter / formatter configs (Go) | `LANG=Go` | 4788 → 4818 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 4819 → 4839 |
+| linter / formatter configs (fallback) | any other `LANG` | 4840 → 4847 |
+| `Makefile` (Python) | `LANG=Python` | 4848 → 4888 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4889 → 4929 |
+| `Makefile` (Go) | `LANG=Go` | 4930 → 4973 |
+| `Makefile` (Rust) | `LANG=Rust` | 4974 → 5011 |
+| `Makefile` (fallback) | any other `LANG` | 5012 → 5040 |
+| `.pre-commit-config.yaml` | Always | 5041 → 5077 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -4297,6 +4314,7 @@ Shape:
   "$schema": "https://json.schemastore.org/claude-code-bootstrap.json",
   "bootstrap_version": "{{BOOTSTRAP_TIMESTAMP_ISO}}",
   "last_run_at": "{{CURRENT_TIMESTAMP_ISO}}",
+  "interview_status": "{{INTERVIEW_STATUS}}",
   "answers": {
     "PROJECT_NAME": "{{PROJECT_NAME}}",
     "ONE_LINE_PURPOSE": "{{ONE_LINE_PURPOSE}}",
@@ -4327,6 +4345,7 @@ Shape:
 
 - `bootstrap_version` — the timestamp from this bootstrap file's header (or `date +%Y-%m-%d` at write time if no header timestamp is tracked). Lets a future re-run report "you're upgrading from `<old>` to `<new>`".
 - `last_run_at` — `date -Iseconds` at the moment of write; updated every re-run.
+- `interview_status` — either `"in_progress"` or `"done"`. Written as `"in_progress"` after every question in Step 2 (the checkpoint that lets an interrupted session resume from where it left off — see Step 0's *Resume detection* logic and Step 2's per-question-write protocol). Flipped to `"done"` on the final Q17 answer, and stays `"done"` across re-runs unless the user asks to change a captured answer (temporarily flips back to `"in_progress"` for the duration of the change). Legacy bootstrap.json files written before this field existed have no `interview_status` key; treat missing as `"done"` — those files were only ever written on completion under the old protocol.
 - `answers` — every flag from the interview. **Yes/no flags** are JSON booleans (`true` / `false`, no quotes). **String flags** (POSTURE, LANG, ARCH, LICENSE, LAYOUT) are JSON strings. **Set flags** (`AGENTS_USED`) are JSON arrays of uppercase strings — e.g. `["CLAUDE", "CURSOR", "AIDER"]`. Free-form text (PROJECT_NAME, ONE_LINE_PURPOSE, RUN_INSTRUCTIONS, ADDITIONAL_SECTIONS_FROM_INTERVIEW, COPYRIGHT_HOLDER) are JSON strings; escape newlines as `\n`. If `LICENSE=SKIP`, `COPYRIGHT_HOLDER` stays as the empty string. `POSTURE` is always one of `{CAUTIOUS, READONLY, TRUSTED_DEV, BYPASS}` — the bootstrap fans it out into each tool's permission config per the Part 1 dispatch. `LAYOUT` is `"agents"` (canonical, files under `.agents/rules/`) or `"legacy_claude"` (pre-multi-tool projects where the user picked "leave in place" during the Step 0 migration prompt — see the legacy-layout migration note in Part 1). `BEST_PRACTICES_REFINED` is set by Step 4b: `true` after a successful web-search-driven refinement of `.agents/rules/best-practices.md`, `false` when the stub variant was written. The same flag is independently verifiable by reading the marker comment at the top of the file (single source of truth); the bootstrap.json mirror exists so re-runs can decide cheaply without opening the file.
 - Omit any key the current bootstrap version doesn't know about. On re-run, **missing keys** are exactly what the agent re-asks the user.
 - **No secrets in this file**. Free-form fields capture user intent, not credentials. If the user accidentally includes a secret in `RUN_INSTRUCTIONS` or `ADDITIONAL_SECTIONS_FROM_INTERVIEW`, the agent should flag and ask before persisting.
