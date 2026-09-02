@@ -527,84 +527,84 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 613 → 641 |
-| `.agents/rules/workflow.md` | Always | 642 → 1084 |
-| `.agents/rules/workflow-todos.md` | Always | 1085 → 1189 |
-| `.agents/rules/workflow-security.md` | Always | 1190 → 1270 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1271 → 1418 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1419 → 1522 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1523 → 1655 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1656 → 1776 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1777 → 1884 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1885 → 1970 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1971 → 2071 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2072 → 2129 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2130 → 2208 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2209 → 2287 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2288 → 2344 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2345 → 2464 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2465 → 2602 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2603 → 2675 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2676 → 2722 |
-| `.docs/adrs/README.md` | Always | 2723 → 2740 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2741 → 2834 |
-| `.docs/todos/README.md` | Always | 2835 → 2853 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2854 → 3103 |
-| `.gitignore` (Python) | `LANG=Python` | 3104 → 3169 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3170 → 3223 |
-| `.gitignore` (Go) | `LANG=Go` | 3224 → 3266 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3267 → 3302 |
-| `.gitignore` (fallback) | any other `LANG` | 3303 → 3336 |
-| `.env.example` | `ENV_VARS` | 3337 → 3364 |
-| `.editorconfig` | Always | 3365 → 3393 |
-| `README.md` | Always (Sacred) | 3394 → 3424 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3425 → 3454 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3455 → 3680 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3681 → 3702 |
-| `AGENTS.md` | Always (Sacred first-write) | 3703 → 3750 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3751 → 3785 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3786 → 3833 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3834 → 3869 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3870 → 3900 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3901 → 3958 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3959 → 3971 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3972 → 4007 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4008 → 4068 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4069 → 4103 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4104 → 4117 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4118 → 4137 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4138 → 4157 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4158 → 4173 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4174 → 4188 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4189 → 4203 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4204 → 4224 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4225 → 4241 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4242 → 4255 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4256 → 4270 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4271 → 4289 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4290 → 4305 |
-| `.agents/bootstrap.json` | Always | 4306 → 4361 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4362 → 4408 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4409 → 4448 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4449 → 4480 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4481 → 4511 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4512 → 4519 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4520 → 4556 |
-| `SECURITY.md` | Always | 4557 → 4602 |
-| `.gitattributes` | Always | 4603 → 4645 |
-| `CHANGELOG.md` | Always | 4646 → 4671 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4672 → 4713 |
-| linter / formatter configs (Python) | `LANG=Python` | 4714 → 4737 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4738 → 4787 |
-| linter / formatter configs (Go) | `LANG=Go` | 4788 → 4818 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4819 → 4839 |
-| linter / formatter configs (fallback) | any other `LANG` | 4840 → 4847 |
-| `Makefile` (Python) | `LANG=Python` | 4848 → 4888 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4889 → 4929 |
-| `Makefile` (Go) | `LANG=Go` | 4930 → 4973 |
-| `Makefile` (Rust) | `LANG=Rust` | 4974 → 5011 |
-| `Makefile` (fallback) | any other `LANG` | 5012 → 5040 |
-| `.pre-commit-config.yaml` | Always | 5041 → 5077 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 613 → 628 |
+| `.agents/rules/workflow.md` | Always | 629 → 1090 |
+| `.agents/rules/workflow-todos.md` | Always | 1091 → 1195 |
+| `.agents/rules/workflow-security.md` | Always | 1196 → 1276 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1277 → 1424 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1425 → 1528 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1529 → 1661 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1662 → 1782 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1783 → 1890 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1891 → 1976 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1977 → 2077 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2078 → 2135 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2136 → 2214 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2215 → 2293 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2294 → 2350 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2351 → 2470 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2471 → 2608 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2609 → 2681 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2682 → 2728 |
+| `.docs/adrs/README.md` | Always | 2729 → 2746 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2747 → 2840 |
+| `.docs/todos/README.md` | Always | 2841 → 2859 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2860 → 3109 |
+| `.gitignore` (Python) | `LANG=Python` | 3110 → 3175 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3176 → 3229 |
+| `.gitignore` (Go) | `LANG=Go` | 3230 → 3272 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3273 → 3308 |
+| `.gitignore` (fallback) | any other `LANG` | 3309 → 3342 |
+| `.env.example` | `ENV_VARS` | 3343 → 3370 |
+| `.editorconfig` | Always | 3371 → 3399 |
+| `README.md` | Always (Sacred) | 3400 → 3430 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3431 → 3460 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3461 → 3686 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3687 → 3708 |
+| `AGENTS.md` | Always (Sacred first-write) | 3709 → 3778 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3779 → 3796 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3797 → 3835 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3836 → 3871 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3872 → 3885 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3886 → 3940 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3941 → 3953 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3954 → 3989 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3990 → 4050 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4051 → 4085 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4086 → 4099 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4100 → 4119 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4120 → 4139 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4140 → 4155 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4156 → 4170 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4171 → 4185 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4186 → 4206 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4207 → 4223 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4224 → 4237 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4238 → 4252 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4253 → 4271 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4272 → 4287 |
+| `.agents/bootstrap.json` | Always | 4288 → 4343 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4344 → 4390 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4391 → 4430 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4431 → 4462 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4463 → 4493 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4494 → 4501 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4502 → 4538 |
+| `SECURITY.md` | Always | 4539 → 4584 |
+| `.gitattributes` | Always | 4585 → 4627 |
+| `CHANGELOG.md` | Always | 4628 → 4653 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4654 → 4695 |
+| linter / formatter configs (Python) | `LANG=Python` | 4696 → 4719 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4720 → 4769 |
+| linter / formatter configs (Go) | `LANG=Go` | 4770 → 4800 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 4801 → 4821 |
+| linter / formatter configs (fallback) | any other `LANG` | 4822 → 4829 |
+| `Makefile` (Python) | `LANG=Python` | 4830 → 4870 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4871 → 4911 |
+| `Makefile` (Go) | `LANG=Go` | 4912 → 4955 |
+| `Makefile` (Rust) | `LANG=Rust` | 4956 → 4993 |
+| `Makefile` (fallback) | any other `LANG` | 4994 → 5022 |
+| `.pre-commit-config.yaml` | Always | 5023 → 5059 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -612,29 +612,16 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 ### Template: `CLAUDE.md` *(written only if `CLAUDE ∈ AGENTS_USED`)*
 
-A thin Claude-specific adapter. The full brief — purpose, rules, run, architecture map — lives in `AGENTS.md`. Claude Code follows `@`-prefixed file references natively, so the rules under `.agents/rules/` get auto-loaded via the include below.
+A thin Claude-specific stub. The agnostic brief lives in `AGENTS.md`, carrying purpose, run, architecture, the always-on rules, and the trigger index for `.agents/rules/` — the rule files are reference, opened when their trigger fires, not preloaded. The `@AGENTS.md` include is the only reason this file exists on hosts that read `CLAUDE.md`; the closing paragraph is what stops it re-accumulating rule-file imports over time.
 
 ````markdown
 # {{PROJECT_NAME}} — Claude Code adapter
 
-This project's primary agent brief lives in [`AGENTS.md`](./AGENTS.md). Treat that file as the source of truth — title, purpose, run instructions, architecture map, rule pointers.
-
-Always follow the rules under `.agents/rules/`:
+The brief is [`AGENTS.md`](./AGENTS.md), and it is agent-agnostic: purpose, run instructions, architecture map, the always-on rules, the trigger index for `.agents/rules/`, and the hard constraints. It is imported below.
 
 @AGENTS.md
-@.agents/rules/workflow.md
-@.agents/rules/workflow-todos.md
-@.agents/rules/workflow-security.md
-@.agents/rules/best-practices.md
-{{IF_LAYERED}}@.agents/rules/layered-architecture.md
-{{IF_CHANGES}}@.agents/rules/workflow-changes.md
-{{IF_UI_COMPONENTS}}@.agents/rules/ui-components.md
-{{IF_METRICS}}@.agents/rules/workflow-metrics.md
-{{IF_TESTING}}@.agents/rules/workflow-testing.md
-{{IF_FRONTEND}}@.agents/rules/workflow-frontend.md
-{{IF_FRONTEND}}@.agents/rules/frontend-visibility.md
 
-When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as a thin pointer rather than a parallel brief.
+Nothing else belongs in this file. It exists because Claude Code reads `CLAUDE.md`, not because Claude needs different instructions. Anything true for every agent goes in `AGENTS.md`; put something here only when it is genuinely specific to this host, such as a tool or a permission it alone has.
 ````
 
 ---
@@ -644,20 +631,37 @@ When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as 
 ````markdown
 # Workflow
 
-This rule defines the naming, contents, and ordering of the per-request artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
+This rule defines the naming, contents, and ordering of the per-task artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
 
-Every user request that changes files in this repository produces, all bundled into a single commit and pushed:
+Every user **task** in this repository produces, over one or more turns:
 
-- A **prompt file** under `.docs/prompts/` capturing what was asked and why.
-- **The code, config, or docs** the request produced.
+- **One prompt file** under `.docs/prompts/` capturing what was asked and why, amended across turns as the task continues (see § *Task boundaries* below for what closes a task).
+- **The code, config, or docs** the task produced.
 - When the change is architecturally significant — a new module, library, layer, or pattern, or a meaningful change to one — a **new or updated ADR** under `.docs/adrs/`.
 - **Telemetry** kept current — new behaviour gets new logs, changed behaviour gets existing logs updated, deleted behaviour gets its logs removed, at log levels that match each event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with sensitive-data redaction discipline (credentials, PII, request bodies — anything that shouldn't ride a wire to a third-party log service).
-- A **single git commit** bundling all of the above on the current branch.
-- A **push** of that commit to the remote.
+- **At least one git commit** on the current branch bundling all of the above (often one per task, sometimes two when refinements deserve separation — granularity to judgement).
+- **A push** of the commit(s) to the remote.
+
+## Task boundaries
+
+A **task** is one coherent piece of user intent that a coherent set of file changes serves. Detecting task boundaries is the agent's job, not the user's — the user should not have to explicitly say *"new task"* every time.
+
+At the top of each turn, silently classify the turn as one of:
+
+- **Continuing** — the turn refines, extends, or corrects the current task. Amend the existing prompt file's `## Output` section with a new bullet, or a timestamped entry under a `## Refinements` sub-section if the note is more than a line. Do not create a new prompt file.
+- **New** — the turn opens a new task. Create a new prompt file. Name the previous task's status inline before proceeding (e.g. *"Previous task ('add password reset') committed at abc1234, closed"*).
+
+Rules for the classification:
+
+- **A commit closes the current task by default.** The next turn is presumed new unless the agent explicitly declares it as a fix-up on the just-committed work (e.g. *"continuing: correcting the missed field in commit abc1234"*).
+- **Explicit user signals force a boundary.** *"Now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*, *"new task:"* — any of these open a new task even mid-flow.
+- **When the signal is ambiguous, continue.** The cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam. Bias asymmetric on purpose.
+
+State the classification in one line at the top of the response, before the work — so the user sees the boundary decision the same turn it happens and can correct it cheaply. Example: *"Task: continuing 'add password reset' — refinement to the previous turn"* or *"Task: new — 'wire up SES'. Previous task committed at abc1234, closed"*.
 
 ## When this rule applies
 
-Apply it whenever the response generates or modifies a file in the repository. Typical triggers:
+Apply it whenever a task will generate or modify a file in the repository. A task starts with the first turn that will produce an artifact (write the prompt file then) and ends with the commit that closes it (see § *Task boundaries* above). Subsequent turns of the same task amend the existing prompt file rather than creating a new one. Typical triggers for a task starting:
 
 - Writing, editing, or deleting source code
 - Adding or updating documentation, rules, configs, or scripts
@@ -673,25 +677,27 @@ Skip the prompt file and the commit for interactions that produce no artifact. E
 - Advice or recommendations the user has not yet asked you to implement
 - Explicit user instruction to look without changing ("just explore, don't commit")
 
-If a conversation starts as chitchat but later produces an artifact, the rule kicks in at that point — write the prompt file for the portion that generated work, not for the preceding discussion.
+If a conversation starts as chitchat but later produces an artifact, the rule kicks in at that point — the current turn is a new task's first turn; write the prompt file then, not for the preceding discussion.
 
-## 1. Create a prompt file
+## 1. Create (or amend) a prompt file
 
-For each user request, write a file to `.docs/prompts/` using the pattern:
+For a **new** task, write a file to `.docs/prompts/` using the pattern:
 
 ```
 <unix-timestamp>.<snake_case_slug>.md
 ```
 
-- **`<unix-timestamp>`**: seconds-since-epoch at the time of the request (e.g. `date +%s`). Keeps files chronologically sortable by filename.
-- **`<snake_case_slug>`**: 2–5 words summarizing the intent (e.g. `fix_navmenu_client`, `home_page_structure_ideas`).
+- **`<unix-timestamp>`**: seconds-since-epoch at the *first turn* of the task (e.g. `date +%s`). Keeps files chronologically sortable by filename; a continuing turn does not update it.
+- **`<snake_case_slug>`**: 2–5 words summarizing the task's intent, not any single turn's ask (e.g. `fix_navmenu_client`, `home_page_structure_ideas`).
+
+For a **continuing** task, open the existing file for the current task and amend its `## Output` section — a new bullet, or a timestamped entry under a `## Refinements` sub-section if the note is more than a line. Do not create a new file; the per-task file is what keeps the log honest about what actually happened.
 
 ### File contents
 
 ```markdown
 # Request
 
-<Verbatim or lightly-cleaned restatement of what the user asked for. Preserve intent — do not editorialize.>
+<Verbatim or lightly-cleaned restatement of what the user asked for on the first turn of this task. Preserve intent — do not editorialize.>
 
 ## Reasoning
 
@@ -699,10 +705,10 @@ For each user request, write a file to `.docs/prompts/` using the pattern:
 
 ## Output
 
-<What was actually done in response: files created/modified, decisions taken, follow-ups noted. Bullet list or short paragraph. Keep it factual.>
+<What was actually done in response: files created/modified, decisions taken, follow-ups noted. Bullet list or short paragraph. Keep it factual. Amend as the task continues — append bullets, or a `## Refinements` sub-section when a turn's note is more than a line.>
 ```
 
-Write the prompt file **before** or **alongside** making the changes, not after. Treat it as the commit's companion note.
+Write the prompt file **before** or **alongside** the changes on the task's first turn, and **amend it in the same turn** as any refinement. Treat it as the task's companion note, not any single commit's.
 
 ## 2. Create or update an ADR
 
@@ -1026,7 +1032,7 @@ Security has its own companion rule: `workflow-security.md`. The short version: 
 
 ## 4. Commit the result
 
-Once the work is done, create a git commit that includes:
+Commit granularity is a judgement call, not a per-turn rule. Often one commit per task at the end; sometimes two when refinements deserve to be separated in `git log`. Each commit includes:
 
 - The prompt file (`.docs/prompts/<ts>.<slug>.md`).
 - Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
@@ -1069,11 +1075,11 @@ Exception: if the push is destructive (force-push to a shared branch, rewriting 
 
 ## Why this rule exists
 
-The `.docs/prompts/` history doubles as a per-request decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of how the project evolved, and each prompt maps to exactly one commit so `git log` and `ls .docs/prompts/` stay aligned.
+The `.docs/prompts/` history doubles as a per-task decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of what the project has done, and each file maps to one coherent task (usually one commit, sometimes two) so `git log` and `ls .docs/prompts/` stay aligned as *task*-scoped units rather than *turn*-scoped noise. A prompt file per turn produced a directory too noisy to read after two weeks; a prompt file per task keeps the log honest.
 
-The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what happened on day N?"*.
+The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what task ran on day N?"*.
 
-Breaking any of the pairings — prompt without commit, ADR-worthy change without ADR, commit without push — erodes that guarantee.
+Breaking any of the pairings — task without prompt file, ADR-worthy change without ADR, commit without push, or a task-continuation that spawns a new file instead of amending — erodes that guarantee.
 
 ## Amending vs. new commit
 
@@ -3715,19 +3721,41 @@ The primary, tool-agnostic agent brief. Every supported assistant (Claude Code v
 
 ## Rules
 
-Always follow the rules in `.agents/rules/`:
+### Always
 
-- [`workflow.md`](.agents/rules/workflow.md) — every artifact-producing request gets a timestamped prompt file under `.docs/prompts/`, an optional new-or-updated ADR under `.docs/adrs/`, telemetry kept current (logs added/updated for new and changed code paths, at log levels that match each event's signal — DEBUG / INFO / WARNING / ERROR / CRITICAL — with sensitive-data redaction discipline covering credentials, PII, billing identifiers, and request bodies), a single git commit bundling the lot, and a push. Also defines how do-later ideas get captured proactively.
-- [`workflow-todos.md`](.agents/rules/workflow-todos.md) — the discipline for managing deferred ideas. Entries live as one file per idea under [`.docs/todos/`](.docs/todos/). Capture entries proactively when the user defers something ("for now / later / hold this"), sweep entries when a commit satisfies their *Revisit when* trigger, `git rm` rather than archive (git log is canonical).
-- [`workflow-security.md`](.agents/rules/workflow-security.md) — companion to `workflow.md` for security-sensitive changes. Before commit, walk the rubric in [`.docs/security/methodology.md`](.docs/security/methodology.md) for surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full audits live as dated sibling files under `.docs/security/<YYYY-MM-DD>-<slug>.md` and re-run on cadence.
-- [`best-practices.md`](.agents/rules/best-practices.md) — naming, dependency injection, repository / service patterns, language idioms, do/don't lists.
-{{IF_LAYERED}}- [`layered-architecture.md`](.agents/rules/layered-architecture.md) — `presentation → application → domain ← infrastructure`, plus `shared` available to all but depending on none. Inward dependencies only.
-{{IF_CHANGES}}- [`workflow-changes.md`](.agents/rules/workflow-changes.md) — companion to `workflow.md` for *product-affecting* changes. When a change alters anything a user can see, the surfaces that describe it must move in the same commit.
-{{IF_UI_COMPONENTS}}- [`ui-components.md`](.agents/rules/ui-components.md) — catalog of canonical UI affordances. Before adding a new affordance, check the catalog and clone the canonical file's shape; never invent a one-off variant inline.
-{{IF_METRICS}}- [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) — companion to `workflow.md` for *metering* changes. Adding / modifying / removing a metered event must move surfaces in lockstep — constant, call site, catalog row, display side — all in the same commit. Cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable.
-{{IF_TESTING}}- [`workflow-testing.md`](.agents/rules/workflow-testing.md) — companion to `workflow.md` for testing discipline. Every artifact-producing change ships with the tests that prove its behaviour, in the same commit. Pyramid-shaped (unit-heavy / integration-light / e2e-thin), mock at boundaries not internals, bug fixes start with a failing regression test, TDD encouraged but not mandated, coverage tracked without a hard floor.
-{{IF_FRONTEND}}- [`workflow-frontend.md`](.agents/rules/workflow-frontend.md) — companion to `workflow.md` for shared frontend code. Touch the source, sweep the consumers: before patching a consumer, find the canonical source; edit there; list every importer; fix or call out behavioural regressions in the same commit; never duplicate to make a local tweak. Removes the friction of having to re-request the same fix across pages.
-{{IF_FRONTEND}}- [`frontend-visibility.md`](.agents/rules/frontend-visibility.md) — companion to `workflow-frontend.md` for the visibility / communication side. Per-agent browser-tooling setup (Playwright MCP for Claude, `@web` for Cursor, screenshot-piping for Aider, etc.), Storybook / Histoire conventions for the visual catalog, the engineer-side reporting convention (screenshot + route + component + symptom), and the agent-side response convention (open via MCP if available; ask for a screenshot otherwise; grep for the source; cross-reference `ui-components.md`).
+Five things, on every turn, whichever agent is reading this.
+
+- **Confirm the reading before building.** When a request is short and admits more than one reading, say in one line which reading you are acting on, then act. Before the work, not after it. A wrong reading is cheap to correct at one line and expensive to correct at one commit.
+- **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
+- **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one — e.g. *"Task: continuing 'add password reset' — refinement to the previous turn"* or *"Task: new — 'wire up SES'. Previous task committed at abc1234, closed"*. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
+- **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement — often one per task, sometimes two when refinements deserve separation); a push. Stage by explicit path, never `git add -A`.
+- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger.
+
+### Read before you act
+
+The files under `.agents/rules/` are **reference, and are deliberately not preloaded**. Read the file when its trigger fires, and read it *before* acting rather than after: each exists to stop a specific mistake that is expensive to undo, and reaching for one after the code is written is the failure it was meant to prevent. If a trigger is ambiguous, read the file.
+
+| When | Read |
+| --- | --- |
+| the full per-task loop, once per session before the first commit | [`workflow.md`](.agents/rules/workflow.md) |
+| a new dependency, module, layer or pattern | [`workflow.md`](.agents/rules/workflow.md) §2 (ADR) |
+| a new, changed or deleted code path, or a new failure branch | [`workflow.md`](.agents/rules/workflow.md) §3 (telemetry) |
+| writing {{LANG}} | [`best-practices.md`](.agents/rules/best-practices.md) |
+| auth, input, SQL, output encoding, headers, secrets, logging, rate limits, deps | [`workflow-security.md`](.agents/rules/workflow-security.md) |
+| writing or removing a deferred-idea entry | [`workflow-todos.md`](.agents/rules/workflow-todos.md) |
+{{IF_LAYERED}}| adding a module, or moving code between layers | [`layered-architecture.md`](.agents/rules/layered-architecture.md) |
+{{IF_CHANGES}}| anything a user can see | [`workflow-changes.md`](.agents/rules/workflow-changes.md) |
+{{IF_UI_COMPONENTS}}| adding or changing any UI affordance | [`ui-components.md`](.agents/rules/ui-components.md) |
+{{IF_METRICS}}| adding, changing or removing a metered event | [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) |
+{{IF_TESTING}}| writing production code — tests ship in the same commit | [`workflow-testing.md`](.agents/rules/workflow-testing.md) |
+{{IF_FRONTEND}}| shared component, partial or styling token | [`workflow-frontend.md`](.agents/rules/workflow-frontend.md) |
+{{IF_FRONTEND}}| diagnosing or reporting a visual bug | [`frontend-visibility.md`](.agents/rules/frontend-visibility.md) |
+
+Each row states the *condition* and the *file*, not what the file is about. If two rows fit, read both.
+
+### Measurement habit
+
+The rules budget is small (a few kilobytes of always-loaded material) but three larger line items compete for the same window: the conversation itself (grows every turn), MCP tool schemas (varies by connected servers), and per-host system prompts. Check `/context` occasionally when a session starts feeling forgetful; the culprit is usually one of those three, not this file.
 
 Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
 
@@ -3750,60 +3778,34 @@ See [`.agents/rules/best-practices.md`](.agents/rules/best-practices.md) for ful
 
 ### Template: `.cursor/rules/agents.mdc` *(written only if `CURSOR ∈ AGENTS_USED`)*
 
-A thin Cursor adapter. The frontmatter sets `alwaysApply: true` and a broad glob so Cursor includes this rule in every conversation across the workspace; the body points at `AGENTS.md` and the rules under `.agents/rules/`.
+A thin Cursor stub. The frontmatter sets `alwaysApply: true` and a broad glob so Cursor injects the pointer on every conversation; the body carries only the pointer at `AGENTS.md`, which itself carries the trigger index for `.agents/rules/`. Rule files are reference, opened by Cursor when their trigger fires, not preloaded.
 
 ````markdown
 ---
-description: Cross-tool agent brief — see AGENTS.md
+description: Pointer to the agnostic agent brief in AGENTS.md
 globs: ["**/*"]
 alwaysApply: true
 ---
 
-This project's primary agent brief lives in `AGENTS.md` at the repo root.
+The primary agent brief lives in [`AGENTS.md`](../../AGENTS.md) at the repo root, and it is agent-agnostic: purpose, run instructions, architecture map, the always-on rules that apply every turn, the trigger index for the reference files under `.agents/rules/`, and the hard constraints. Read it before starting any non-trivial task; open a `.agents/rules/*.md` file when its trigger in that index fires.
 
-Read these files at the start of any non-trivial task; they define the project's purpose, run instructions, architecture, and the workflow / security / best-practices rules every change must follow:
-
-- `AGENTS.md`
-- `.agents/rules/workflow.md`
-- `.agents/rules/workflow-todos.md`
-- `.agents/rules/workflow-security.md`
-- `.agents/rules/best-practices.md`
-{{IF_LAYERED}}- `.agents/rules/layered-architecture.md`
-{{IF_CHANGES}}- `.agents/rules/workflow-changes.md`
-{{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md`
-{{IF_METRICS}}- `.agents/rules/workflow-metrics.md`
-{{IF_TESTING}}- `.agents/rules/workflow-testing.md`
-{{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md`
-{{IF_FRONTEND}}- `.agents/rules/frontend-visibility.md`
-
-ADRs (architecture decisions) live under `.docs/adrs/` — read these before making structural changes. Do-later ideas live under `.docs/todos/`. Per-request prompt files live under `.docs/prompts/`.
-
-When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
+Nothing else belongs in this file. It exists because Cursor reads `.cursor/rules/*.mdc`, not because Cursor needs different instructions. Anything true for every agent goes in `AGENTS.md`; put something here only when it is genuinely specific to this host.
 ````
 
 ---
 
 ### Template: `.aider.conf.yml` *(written only if `AIDER ∈ AGENTS_USED`)*
 
-Aider config that always reads the brief + rule files into context, **plus** posture-driven autonomy keys picked from Q3 `POSTURE`. Users can layer their own model + edit-format preferences on top.
+Aider config that reads the agnostic brief into every session — the brief itself carries the trigger index for `.agents/rules/`, so the rule files are opened when their trigger fires rather than preloaded — **plus** posture-driven autonomy keys picked from Q3 `POSTURE`. Users can layer their own model + edit-format preferences on top.
 
 ````yaml
-# Aider config — keeps the cross-tool brief and rule files in context for every session.
+# Aider config — keeps the agnostic brief in context for every session.
+# The brief (AGENTS.md) itself names the reference files under .agents/rules/;
+# Aider opens those when their trigger fires, not preloaded.
 # See https://aider.chat/docs/config/aider_conf.html for the full option list.
 
 read:
   - AGENTS.md
-  - .agents/rules/workflow.md
-  - .agents/rules/workflow-todos.md
-  - .agents/rules/workflow-security.md
-  - .agents/rules/best-practices.md
-{{IF_LAYERED}}  - .agents/rules/layered-architecture.md
-{{IF_CHANGES}}  - .agents/rules/workflow-changes.md
-{{IF_UI_COMPONENTS}}  - .agents/rules/ui-components.md
-{{IF_METRICS}}  - .agents/rules/workflow-metrics.md
-{{IF_TESTING}}  - .agents/rules/workflow-testing.md
-{{IF_FRONTEND}}  - .agents/rules/workflow-frontend.md
-{{IF_FRONTEND}}  - .agents/rules/frontend-visibility.md
 
 # --- Q3 POSTURE-driven autonomy keys -----------------------------------------
 # CAUTIOUS  — every edit and shell command prompts; auto-commit off.
@@ -3833,7 +3835,7 @@ read:
 
 ### Template: `.continue/config.json` *(written only if `CONTINUE ∈ AGENTS_USED`)*
 
-A Continue.dev config with the `rules` block pointing at the canonical brief + rule files **and** a `tools` block gating which built-in tools auto-approve per Q3 `POSTURE`. Users layer their model providers and slash commands on top.
+A Continue.dev config with the `rules` block pointing at the agnostic brief (which itself carries the trigger index for `.agents/rules/` — reference files, opened when their trigger fires, not preloaded) **and** a `tools` block gating which built-in tools auto-approve per Q3 `POSTURE`. Users layer their model providers and slash commands on top.
 
 ````json
 {
@@ -3843,7 +3845,7 @@ A Continue.dev config with the `rules` block pointing at the canonical brief + r
       "name": "Agent brief",
       "description": "Cross-tool project brief and workflow / best-practice rules.",
       "globs": ["**/*"],
-      "rule": "Always read AGENTS.md and the files under .agents/rules/ before starting work. They define this project's purpose, run instructions, architecture, and the workflow / security / best-practices discipline every change must follow. ADRs live under .docs/adrs/ — consult before structural changes. Per-request prompt files go under .docs/prompts/. Do-later ideas go under .docs/todos/ as one file per entry."
+      "rule": "Always read AGENTS.md before starting work. It carries this project's purpose, run instructions, architecture, the always-on rules, and the trigger index for reference files under .agents/rules/ (open one when its trigger fires, not before). ADRs live under .docs/adrs/ — consult before structural changes. Per-task prompt files go under .docs/prompts/ (one per task, amended as the task continues). Do-later ideas go under .docs/todos/ as one file per entry."
     }
   ],
   "context": [
@@ -3869,79 +3871,61 @@ A Continue.dev config with the `rules` block pointing at the canonical brief + r
 
 ### Template: `.windsurfrules` *(written only if `WINDSURF ∈ AGENTS_USED`)*
 
-A thin Windsurf rules file. Windsurf reads `.windsurfrules` automatically; the body points at the canonical brief.
+A thin Windsurf stub. Windsurf reads `.windsurfrules` automatically; the body points at the agnostic brief in `AGENTS.md`, which itself carries the trigger index for `.agents/rules/`. Rule files are reference, opened when their trigger fires, not preloaded.
 
 ````markdown
 # Windsurf rules — pointer to AGENTS.md
 
-This project's primary agent brief lives in `AGENTS.md` at the repo root. Read it (and the rule files it links to) before starting any non-trivial task.
+The primary agent brief lives in [`AGENTS.md`](AGENTS.md) at the repo root, and it is agent-agnostic: purpose, run instructions, architecture map, the always-on rules that apply every turn, the trigger index for the reference files under `.agents/rules/`, and the hard constraints. Read it before starting any non-trivial task; open a `.agents/rules/*.md` file when its trigger in that index fires.
 
-Always-loaded context:
-
-- `AGENTS.md` — purpose, run, architecture map, rule pointers.
-- `.agents/rules/workflow.md` — prompt file → ADR → telemetry → commit → push.
-- `.agents/rules/workflow-todos.md` — deferred ideas as one file per entry under `.docs/todos/`.
-- `.agents/rules/workflow-security.md` — security rubric pass before commit.
-- `.agents/rules/best-practices.md` — naming, DI, patterns, idioms.
-{{IF_LAYERED}}- `.agents/rules/layered-architecture.md` — layer responsibilities and dependency direction.
-{{IF_CHANGES}}- `.agents/rules/workflow-changes.md` — product-surface sync rule.
-{{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md` — canonical component vocabulary.
-{{IF_METRICS}}- `.agents/rules/workflow-metrics.md` — metering / cardinality rules.
-{{IF_TESTING}}- `.agents/rules/workflow-testing.md` — testing pyramid + regression-first + same-commit test gate.
-{{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md` — shared frontend code: touch source, sweep consumers, no inline duplication.
-{{IF_FRONTEND}}- `.agents/rules/frontend-visibility.md` — per-agent browser-tooling setup + engineer/agent communication conventions for UI issues.
-
-ADRs: `.docs/adrs/`. Per-request prompts: `.docs/prompts/`. Deferred ideas: `.docs/todos/`. Security audits: `.docs/security/`.
-
-When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
+Nothing else belongs in this file. It exists because Windsurf reads `.windsurfrules`, not because Windsurf needs different instructions. Anything true for every agent goes in `AGENTS.md`; put something here only when it is genuinely specific to this host.
 ````
 
 ---
 
 ### Template: `.github/copilot-instructions.md` *(written only if `COPILOT ∈ AGENTS_USED`)*
 
-GitHub Copilot reads `.github/copilot-instructions.md` automatically in repos but does *not* follow file references — it only sees what's inlined. The adapter therefore summarises the workflow + best-practice headlines directly and points to the canonical files for the agent (or human) to read on demand.
+GitHub Copilot reads `.github/copilot-instructions.md` automatically in repos but does *not* follow file references — it only sees what's inlined. Every other adapter can just point at `AGENTS.md`; Copilot's file must inline the always-on section and the trigger index verbatim, because that is the only content Copilot will ever see. Rule bodies under `.agents/rules/` stay reference-only — the trigger index tells the agent which file to open when, and Copilot will open them itself when a listed trigger fires.
 
 ````markdown
 # Copilot instructions — {{PROJECT_NAME}}
 
-This project follows the **agentic-bootstrap** workflow discipline. The canonical, full brief lives in [`AGENTS.md`](../AGENTS.md) and the rule files under [`.agents/rules/`](../.agents/rules/). Read those before any non-trivial change.
+The primary agent brief lives in [`AGENTS.md`](../AGENTS.md) at the repo root, and it is agent-agnostic. Because GitHub Copilot does not follow file references, the always-on section and the trigger index below are **inlined verbatim from `AGENTS.md`** — this file exists to give Copilot what other hosts can chase for themselves. When `AGENTS.md` and this file disagree, `AGENTS.md` wins.
 
-## Workflow (summary — full text in `.agents/rules/workflow.md`)
+ADRs live under `.docs/adrs/` — read before structural changes. Per-task prompt files live under `.docs/prompts/`. Deferred ideas live under `.docs/todos/` as one file per entry.
 
-Every artifact-producing request bundles:
+## Always
 
-1. A **prompt file** at `.docs/prompts/<unix-timestamp>.<slug>.md` capturing the request, reasoning, and output.
-2. A **new or updated ADR** under `.docs/adrs/` when the change is architecturally significant (new module / pattern / dependency / contract).
-3. **Telemetry kept current** — logs added/updated for new and changed code paths, at log levels matching the event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with no credentials / PII / billing IDs / request bodies in log output.
-4. A **single commit** bundling all of the above, with an explicit `git add` (never `git add -A`).
-5. A **push** to the remote when the commit succeeds.
+Five things, on every turn.
 
-Deferred ideas go to `.docs/todos/` as one file per entry — never as inline TODO comments or undocumented promises.
+- **Confirm the reading before building.** When a request is short and admits more than one reading, say in one line which reading you are acting on, then act. Before the work, not after it. A wrong reading is cheap to correct at one line and expensive to correct at one commit.
+- **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
+- **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
+- **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement); a push. Stage by explicit path, never `git add -A`.
+- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger.
 
-## Best practices (summary — full text in `.agents/rules/best-practices.md`)
+## Read before you act
 
-- Dependency injection at the composition root; never instantiate infrastructure inside business logic.
-- Repositories own data access; services own use cases; presentation orchestrates.
-- Names are intent-revealing; comments are reserved for non-obvious *why*, not *what*.
-- Tests cover behaviour at the right layer; mock at boundaries, not internals.
+The files under `.agents/rules/` are **reference, and are deliberately not preloaded**. Open the file when its trigger fires, and open it *before* acting rather than after: each exists to stop a specific mistake that is expensive to undo. If a trigger is ambiguous, open the file.
 
-## Security (summary — full text in `.agents/rules/workflow-security.md`)
+| When | Read |
+| --- | --- |
+| the full per-task loop, once per session before the first commit | `.agents/rules/workflow.md` |
+| a new dependency, module, layer or pattern | `.agents/rules/workflow.md` §2 (ADR) |
+| a new, changed or deleted code path, or a new failure branch | `.agents/rules/workflow.md` §3 (telemetry) |
+| writing {{LANG}} | `.agents/rules/best-practices.md` |
+| auth, input, SQL, output encoding, headers, secrets, logging, rate limits, deps | `.agents/rules/workflow-security.md` |
+| writing or removing a deferred-idea entry | `.agents/rules/workflow-todos.md` |
+{{IF_LAYERED}}| adding a module, or moving code between layers | `.agents/rules/layered-architecture.md` |
+{{IF_CHANGES}}| anything a user can see | `.agents/rules/workflow-changes.md` |
+{{IF_UI_COMPONENTS}}| adding or changing any UI affordance | `.agents/rules/ui-components.md` |
+{{IF_METRICS}}| adding, changing or removing a metered event | `.agents/rules/workflow-metrics.md` |
+{{IF_TESTING}}| writing production code — tests ship in the same commit | `.agents/rules/workflow-testing.md` |
+{{IF_FRONTEND}}| shared component, partial or styling token | `.agents/rules/workflow-frontend.md` |
+{{IF_FRONTEND}}| diagnosing or reporting a visual bug | `.agents/rules/frontend-visibility.md` |
 
-Before any security-sensitive commit, walk the rubric in [`.docs/security/methodology.md`](../.docs/security/methodology.md) for the surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full dated audits live as sibling files under `.docs/security/`.
+Each row states the *condition* and the *file*, not what the file is about. If two rows fit, open both.
 
-{{IF_TESTING}}## Testing (summary — full text in `.agents/rules/workflow-testing.md`)
-{{IF_TESTING}}
-{{IF_TESTING}}Every artifact-producing change ships with its tests in the same commit. Pyramid shape: unit-heavy, integration-light, e2e-thin. Mock at boundaries (HTTP, clock, randomness, third-party SDKs) — never internals. Bug fixes start with a failing regression test. TDD is encouraged but not mandated; the hard rule is *tests + code in the same commit*. Coverage is tracked, not gated by a percentage. Flaky tests are P1 — fix or quarantine with a dated entry under `.docs/todos/`.
-{{IF_TESTING}}
-{{IF_FRONTEND}}## Shared frontend (summary — full text in `.agents/rules/workflow-frontend.md`)
-{{IF_FRONTEND}}
-{{IF_FRONTEND}}When a request says *"fix component X on page Y"*, find the canonical source first (`grep -r` for the import), edit there, and list every consumer in the prompt file. Sweep each consumer for regressions and opportunities; fold the consumer updates into the same commit. Never patch a consumer with a local copy of the fix — that's how drift starts. Anti-patterns: forking components into v2, hard-coding values where a token exists, leaving stale consumers after a prop rename.
-{{IF_FRONTEND}}
-{{IF_FRONTEND}}## Frontend visibility (summary — full text in `.agents/rules/frontend-visibility.md`)
-{{IF_FRONTEND}}
-{{IF_FRONTEND}}Copilot Chat accepts pasted screenshots — that's the primary visibility channel for UI issues. When a user reports a visual problem: ask for a screenshot if one isn't pasted, ask for the route, and ask for the component name if known. Cross-reference `ui-components.md` (if installed) for the project's canonical affordances before inventing a variant. Storybook story files (if the project uses them) are the canonical visual reference for any shared component. The engineer's reporting convention is *screenshot + route + component-name-or-precise-description + symptom + desired outcome*.
-{{IF_FRONTEND}}
 ## Autonomy posture (intent — apply manually in Copilot's IDE settings)
 
 GitHub Copilot does not have a file-based permission model the bootstrap can write. The project's chosen autonomy posture is **`{{POSTURE}}`**, which translates to Copilot behaviour as follows — set the matching preferences in your IDE's Copilot settings:
@@ -3950,8 +3934,6 @@ GitHub Copilot does not have a file-based permission model the bootstrap can wri
 {{IF_POSTURE_READONLY}}- **Read-only** — Copilot may suggest and explain freely; disable auto-apply for edits; never let it run terminal commands without prompt.
 {{IF_POSTURE_TRUSTED_DEV}}- **Trusted dev** — Copilot Workspace auto-applies edits; review terminal commands before running. Treat force-push / hard-reset / `rm -rf` as off-limits regardless.
 {{IF_POSTURE_BYPASS}}- **Bypass** — only in sandboxed personal workspaces; auto-apply everything Copilot proposes.
-
-When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
 ````
 
 ---

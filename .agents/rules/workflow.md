@@ -1,19 +1,36 @@
 # Workflow
 
-This rule defines the naming, contents, and ordering of the per-request artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
+This rule defines the naming, contents, and ordering of the per-task artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
 
-Every user request that changes files in this repository produces, all bundled into a single commit and pushed:
+Every user **task** in this repository produces, over one or more turns:
 
-- A **prompt file** under `.docs/prompts/` capturing what was asked and why.
-- **The code, config, or docs** the request produced.
+- **One prompt file** under `.docs/prompts/` capturing what was asked and why, amended across turns as the task continues (see § *Task boundaries* below for what closes a task).
+- **The code, config, or docs** the task produced.
 - When the change is architecturally significant — a new module, library, layer, or pattern, or a meaningful change to one — a **new or updated ADR** under `.docs/adrs/`.
 - **Telemetry** kept current — new behaviour gets new logs, changed behaviour gets existing logs updated, deleted behaviour gets its logs removed, at log levels that match each event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with sensitive-data redaction discipline (credentials, PII, request bodies — anything that shouldn't ride a wire to a third-party log service).
-- A **single git commit** bundling all of the above on the current branch.
-- A **push** of that commit to the remote.
+- **At least one git commit** on the current branch bundling all of the above (often one per task, sometimes two when refinements deserve separation — granularity to judgement).
+- **A push** of the commit(s) to the remote.
+
+## Task boundaries
+
+A **task** is one coherent piece of user intent that a coherent set of file changes serves. Detecting task boundaries is the agent's job, not the user's — the user should not have to explicitly say *"new task"* every time.
+
+At the top of each turn, silently classify the turn as one of:
+
+- **Continuing** — the turn refines, extends, or corrects the current task. Amend the existing prompt file's `## Output` section with a new bullet, or a timestamped entry under a `## Refinements` sub-section if the note is more than a line. Do not create a new prompt file.
+- **New** — the turn opens a new task. Create a new prompt file. Name the previous task's status inline before proceeding (e.g. *"Previous task ('add password reset') committed at abc1234, closed"*).
+
+Rules for the classification:
+
+- **A commit closes the current task by default.** The next turn is presumed new unless the agent explicitly declares it as a fix-up on the just-committed work (e.g. *"continuing: correcting the missed field in commit abc1234"*).
+- **Explicit user signals force a boundary.** *"Now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*, *"new task:"* — any of these open a new task even mid-flow.
+- **When the signal is ambiguous, continue.** The cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam. Bias asymmetric on purpose.
+
+State the classification in one line at the top of the response, before the work — so the user sees the boundary decision the same turn it happens and can correct it cheaply. Example: *"Task: continuing 'add password reset' — refinement to the previous turn"* or *"Task: new — 'wire up SES'. Previous task committed at abc1234, closed"*.
 
 ## When this rule applies
 
-Apply it whenever the response generates or modifies a file in the repository. Typical triggers:
+Apply it whenever a task will generate or modify a file in the repository. A task starts with the first turn that will produce an artifact (write the prompt file then) and ends with the commit that closes it (see § *Task boundaries* above). Subsequent turns of the same task amend the existing prompt file rather than creating a new one. Typical triggers for a task starting:
 
 - Writing, editing, or deleting source code
 - Adding or updating documentation, rules, configs, or scripts
@@ -29,25 +46,27 @@ Skip the prompt file and the commit for interactions that produce no artifact. E
 - Advice or recommendations the user has not yet asked you to implement
 - Explicit user instruction to look without changing ("just explore, don't commit")
 
-If a conversation starts as chitchat but later produces an artifact, the rule kicks in at that point — write the prompt file for the portion that generated work, not for the preceding discussion.
+If a conversation starts as chitchat but later produces an artifact, the rule kicks in at that point — the current turn is a new task's first turn; write the prompt file then, not for the preceding discussion.
 
-## 1. Create a prompt file
+## 1. Create (or amend) a prompt file
 
-For each user request, write a file to `.docs/prompts/` using the pattern:
+For a **new** task, write a file to `.docs/prompts/` using the pattern:
 
 ```
 <unix-timestamp>.<snake_case_slug>.md
 ```
 
-- **`<unix-timestamp>`**: seconds-since-epoch at the time of the request (e.g. `date +%s`). Keeps files chronologically sortable by filename.
-- **`<snake_case_slug>`**: 2–5 words summarizing the intent (e.g. `fix_navmenu_client`, `home_page_structure_ideas`).
+- **`<unix-timestamp>`**: seconds-since-epoch at the *first turn* of the task (e.g. `date +%s`). Keeps files chronologically sortable by filename; a continuing turn does not update it.
+- **`<snake_case_slug>`**: 2–5 words summarizing the task's intent, not any single turn's ask (e.g. `fix_navmenu_client`, `home_page_structure_ideas`).
+
+For a **continuing** task, open the existing file for the current task and amend its `## Output` section — a new bullet, or a timestamped entry under a `## Refinements` sub-section if the note is more than a line. Do not create a new file; the per-task file is what keeps the log honest about what actually happened.
 
 ### File contents
 
 ```markdown
 # Request
 
-<Verbatim or lightly-cleaned restatement of what the user asked for. Preserve intent — do not editorialize.>
+<Verbatim or lightly-cleaned restatement of what the user asked for on the first turn of this task. Preserve intent — do not editorialize.>
 
 ## Reasoning
 
@@ -55,10 +74,10 @@ For each user request, write a file to `.docs/prompts/` using the pattern:
 
 ## Output
 
-<What was actually done in response: files created/modified, decisions taken, follow-ups noted. Bullet list or short paragraph. Keep it factual.>
+<What was actually done in response: files created/modified, decisions taken, follow-ups noted. Bullet list or short paragraph. Keep it factual. Amend as the task continues — append bullets, or a `## Refinements` sub-section when a turn's note is more than a line.>
 ```
 
-Write the prompt file **before** or **alongside** making the changes, not after. Treat it as the commit's companion note.
+Write the prompt file **before** or **alongside** the changes on the task's first turn, and **amend it in the same turn** as any refinement. Treat it as the task's companion note, not any single commit's.
 
 ## 2. Create or update an ADR
 
@@ -382,7 +401,7 @@ Security has its own companion rule: `workflow-security.md`. The short version: 
 
 ## 4. Commit the result
 
-Once the work is done, create a git commit that includes:
+Commit granularity is a judgement call, not a per-turn rule. Often one commit per task at the end; sometimes two when refinements deserve to be separated in `git log`. Each commit includes:
 
 - The prompt file (`.docs/prompts/<ts>.<slug>.md`).
 - Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
@@ -423,11 +442,11 @@ Exception: if the push is destructive (force-push to a shared branch, rewriting 
 
 ## Why this rule exists
 
-The `.docs/prompts/` history doubles as a per-request decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of how the project evolved, and each prompt maps to exactly one commit so `git log` and `ls .docs/prompts/` stay aligned.
+The `.docs/prompts/` history doubles as a per-task decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of what the project has done, and each file maps to one coherent task (usually one commit, sometimes two) so `git log` and `ls .docs/prompts/` stay aligned as *task*-scoped units rather than *turn*-scoped noise. A prompt file per turn produced a directory too noisy to read after two weeks; a prompt file per task keeps the log honest.
 
-The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what happened on day N?"*.
+The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what task ran on day N?"*.
 
-Breaking any of the pairings — prompt without commit, ADR-worthy change without ADR, commit without push — erodes that guarantee.
+Breaking any of the pairings — task without prompt file, ADR-worthy change without ADR, commit without push, or a task-continuation that spawns a new file instead of amending — erodes that guarantee.
 
 ## Amending vs. new commit
 
