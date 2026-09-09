@@ -9,6 +9,16 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Added
+
+- **`.mcp.example.json` starter template + MCP measurement guidance in the brief** (MCP-handling cut of the context-management improvement series; §7 of [`AGENTIC-B.Improvements.md`](./AGENTIC-B.Improvements.md)). New Part 4 template at repo root: a pinned Playwright-MCP example wrapped in a template body that documents the safety pattern — pin every version (never `@latest`), approve servers by name via `enabledMcpjsonServers` (never blanket `enableAllProjectMcpServers: true`), deny account-level connectors this project doesn't need via `.claude/settings.local.json`'s `deniedMcpServers` array, and check `/context` after adopting a server (a browser MCP typically costs ~9k tokens, account-level connectors 20k+ each). Emitted as `.example` so file presence doesn't accidentally activate MCP on projects that don't need it — users copy to `.mcp.json` when adopting. `AGENTS.md` template's `Measurement habit` section (and Copilot's inlined copy — which also gained the section itself, missing since Cut 1) enriched with the MCP levers so a reader chasing a slow session knows where to look. Part 3 matrix + Template Index refreshed.
+- **Self-application to this repo**: `AGENTS.md` measurement habit note updated; `.mcp.example.json` emitted at repo root to dogfood the pattern.
+
+### Intentionally scoped out
+
+- **No new interview question for MCP.** Most projects don't use MCP, and the current `.claude/settings.json` variants already omit `enableAllProjectMcpServers: true`, which is the load-bearing safe default. A user who wants named allowlist entries adds them post-bootstrap. Adopting an interview Q now would cost interview length for a small opt-in benefit; can be revisited if MCP configuration becomes a common pattern.
+- **No changes to `.claude/settings.json` variants beyond the existing safe defaults.** The absence of `enableAllProjectMcpServers: true` is already what §7.3 recommends; adding an empty `enabledMcpjsonServers: []` explicitly is decorative rather than load-bearing.
+
 ### Changed
 
 - **Trigger index rules split into two flavors: reactive and proactive-discipline** (Cut 3 of the context-management improvement series). *Reactive* rules (security, changes, UI, layered arch, frontend) fire only when their specific surface is being touched. *Proactive-discipline* rules (testing, metrics, telemetry) apply on every relevant work unit when opted in — the trigger fires on any code change matching the discipline's scope, not just when the discipline's artifact is already being touched. `AGENTS.md`'s `Read before you act` intro gains a paragraph naming the two flavors so future rules land in the right camp.

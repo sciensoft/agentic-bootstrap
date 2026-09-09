@@ -40,6 +40,8 @@ Each row states the *condition* and the *file*, not what the file is about. If t
 
 The rules budget is small (a few kilobytes of always-loaded material) but three larger line items compete for the same window: the conversation itself (grows every turn), MCP tool schemas (varies by connected servers), and per-host system prompts. Check `/context` occasionally when a session starts feeling forgetful; the culprit is usually one of those three, not this file.
 
+For MCP specifically: this project's project-scoped servers, if any, are declared in `.mcp.json` at the repo root (see [`.mcp.example.json`](.mcp.example.json) for the starter template and the safety pattern — pinned versions, name-based allowlist, per-project denylist for account-level connectors). Every server contributes tool-schema tokens to every session; a browser MCP is typically ~9k tokens for 45 tools, and heavy account-level connectors can top 20k each. On Claude Code, personal denies live in the gitignored `.claude/settings.local.json`'s `deniedMcpServers` array; on other hosts, the equivalent lives in the host's own settings.
+
 Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
 
 ## Run

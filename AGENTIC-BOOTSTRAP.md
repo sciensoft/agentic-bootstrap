@@ -497,6 +497,7 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `<linter configs>` | Always | content variants picked by Q4 `LANG` (`ruff.toml` / `eslint.config.js` + `.prettierrc.json` / `.golangci.yml` / `rustfmt.toml` / skip) | M |
 | `Makefile` | Always | content variant picked by Q4 `LANG` | M |
 | `.pre-commit-config.yaml` | Always | universal (whitespace + YAML/JSON/TOML syntax + gitleaks); user layers language-specific hooks later | M |
+| `.mcp.example.json` | Always | starter template for project-scoped MCP servers; encodes the safety pattern (pinned versions, name-based allowlist, denylist for account-level connectors). Users copy to `.mcp.json` when adopting. | C |
 | `SECURITY.md` | Always | universal; private vulnerability disclosure | S |
 | `.gitattributes` | Always | universal; line-ending normalisation + binary detection + linguist hints | C |
 | `CHANGELOG.md` | Always | universal; Keep a Changelog format | S |
@@ -530,87 +531,88 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 619 → 634 |
-| `.agents/rules/workflow.md` | Always | 635 → 1100 |
-| `.agents/rules/workflow-todos.md` | Always | 1101 → 1205 |
-| `.agents/rules/workflow-security.md` | Always | 1206 → 1286 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1287 → 1434 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1435 → 1538 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1539 → 1671 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1672 → 1792 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1793 → 1900 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1901 → 1986 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1987 → 2087 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2088 → 2145 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2146 → 2224 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2225 → 2303 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2304 → 2381 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2382 → 2501 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2502 → 2639 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2640 → 2712 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2713 → 2759 |
-| `.docs/adrs/README.md` | Always | 2760 → 2777 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2778 → 2871 |
-| `.docs/todos/README.md` | Always | 2872 → 2890 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2891 → 3140 |
-| `.gitignore` (Python) | `LANG=Python` | 3141 → 3206 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3207 → 3260 |
-| `.gitignore` (Go) | `LANG=Go` | 3261 → 3303 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3304 → 3339 |
-| `.gitignore` (fallback) | any other `LANG` | 3340 → 3373 |
-| `.env.example` | `ENV_VARS` | 3374 → 3401 |
-| `.editorconfig` | Always | 3402 → 3430 |
-| `README.md` | Always (Sacred) | 3431 → 3461 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3462 → 3491 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3492 → 3717 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3718 → 3739 |
-| `AGENTS.md` | Always (Sacred first-write) | 3740 → 3811 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3812 → 3829 |
-| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3830 → 3858 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3859 → 3897 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3898 → 3933 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3934 → 3947 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3948 → 4004 |
-| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 4005 → 4070 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4071 → 4096 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4097 → 4145 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4146 → 4219 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4220 → 4267 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4268 → 4281 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4282 → 4301 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4302 → 4321 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4322 → 4337 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4338 → 4352 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4353 → 4367 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4368 → 4388 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4389 → 4405 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4406 → 4419 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4420 → 4434 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4435 → 4453 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4454 → 4469 |
-| `.agents/bootstrap.json` | Always | 4470 → 4525 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4526 → 4572 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4573 → 4612 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4613 → 4644 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4645 → 4675 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4676 → 4683 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4684 → 4720 |
-| `SECURITY.md` | Always | 4721 → 4766 |
-| `.gitattributes` | Always | 4767 → 4809 |
-| `CHANGELOG.md` | Always | 4810 → 4835 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4836 → 4877 |
-| linter / formatter configs (Python) | `LANG=Python` | 4878 → 4901 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4902 → 4951 |
-| linter / formatter configs (Go) | `LANG=Go` | 4952 → 4982 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4983 → 5003 |
-| linter / formatter configs (fallback) | any other `LANG` | 5004 → 5011 |
-| `Makefile` (Python) | `LANG=Python` | 5012 → 5065 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5066 → 5119 |
-| `Makefile` (Go) | `LANG=Go` | 5120 → 5176 |
-| `Makefile` (Rust) | `LANG=Rust` | 5177 → 5227 |
-| `Makefile` (fallback) | any other `LANG` | 5228 → 5269 |
-| `.pre-commit-config.yaml` | Always | 5270 → 5320 |
-| `scripts/check_consulted_rules.sh` | Always | 5321 → 5403 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 621 → 636 |
+| `.agents/rules/workflow.md` | Always | 637 → 1102 |
+| `.agents/rules/workflow-todos.md` | Always | 1103 → 1207 |
+| `.agents/rules/workflow-security.md` | Always | 1208 → 1288 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1289 → 1436 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1437 → 1540 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1541 → 1673 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1674 → 1794 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1795 → 1902 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1903 → 1988 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1989 → 2089 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2090 → 2147 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2148 → 2226 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2227 → 2305 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2306 → 2383 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2384 → 2503 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2504 → 2641 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2642 → 2714 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2715 → 2761 |
+| `.docs/adrs/README.md` | Always | 2762 → 2779 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2780 → 2873 |
+| `.docs/todos/README.md` | Always | 2874 → 2892 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2893 → 3142 |
+| `.gitignore` (Python) | `LANG=Python` | 3143 → 3208 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3209 → 3262 |
+| `.gitignore` (Go) | `LANG=Go` | 3263 → 3305 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3306 → 3341 |
+| `.gitignore` (fallback) | any other `LANG` | 3342 → 3375 |
+| `.env.example` | `ENV_VARS` | 3376 → 3403 |
+| `.mcp.example.json` | Always | 3404 → 3435 |
+| `.editorconfig` | Always | 3436 → 3464 |
+| `README.md` | Always (Sacred) | 3465 → 3495 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3496 → 3525 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3526 → 3751 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3752 → 3773 |
+| `AGENTS.md` | Always (Sacred first-write) | 3774 → 3847 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3848 → 3865 |
+| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3866 → 3894 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3895 → 3933 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3934 → 3969 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3970 → 3983 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3984 → 4046 |
+| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 4047 → 4112 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4113 → 4138 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4139 → 4187 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4188 → 4261 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4262 → 4309 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4310 → 4323 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4324 → 4343 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4344 → 4363 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4364 → 4379 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4380 → 4394 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4395 → 4409 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4410 → 4430 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4431 → 4447 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4448 → 4461 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4462 → 4476 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4477 → 4495 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4496 → 4511 |
+| `.agents/bootstrap.json` | Always | 4512 → 4567 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4568 → 4614 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4615 → 4654 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4655 → 4686 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4687 → 4717 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4718 → 4725 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4726 → 4762 |
+| `SECURITY.md` | Always | 4763 → 4808 |
+| `.gitattributes` | Always | 4809 → 4851 |
+| `CHANGELOG.md` | Always | 4852 → 4877 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4878 → 4919 |
+| linter / formatter configs (Python) | `LANG=Python` | 4920 → 4943 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4944 → 4993 |
+| linter / formatter configs (Go) | `LANG=Go` | 4994 → 5024 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 5025 → 5045 |
+| linter / formatter configs (fallback) | any other `LANG` | 5046 → 5053 |
+| `Makefile` (Python) | `LANG=Python` | 5054 → 5107 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5108 → 5161 |
+| `Makefile` (Go) | `LANG=Go` | 5162 → 5218 |
+| `Makefile` (Rust) | `LANG=Rust` | 5219 → 5269 |
+| `Makefile` (fallback) | any other `LANG` | 5270 → 5311 |
+| `.pre-commit-config.yaml` | Always | 5312 → 5362 |
+| `scripts/check_consulted_rules.sh` | Always | 5363 → 5445 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -3399,6 +3401,38 @@ Thumbs.db
 
 ---
 
+### Template: `.mcp.example.json`
+
+Starter template for project-scoped MCP servers. `.mcp.json` at the repo root is what MCP-aware agent hosts (Claude Code natively; Cursor, Codex, Continue, Windsurf where MCP support has landed) read on session start. This `.example` copy is what the bootstrap emits so the pattern is discoverable but MCP isn't activated by default — copy to `.mcp.json` (drop the `.example`) when you actually want project MCP servers to load.
+
+**Safety pattern the template encodes** (from `AGENTIC-B.Improvements.md` §7, if this project ships one — the guidance stands regardless):
+
+- **Pin every version explicitly.** Never `@latest`, never floating tags. `.mcp.json` is committed, so `@latest` silently invites a supply-chain drift every time someone starts a session — the server process is fetched and executed from whatever was published most recently.
+
+- **Approve servers by name, not in bulk.** In `.claude/settings.json` (or your host's equivalent), use `"enabledMcpjsonServers": ["playwright"]` naming each server explicitly. Never `"enableAllProjectMcpServers": true` — that auto-approves any new server anyone adds to `.mcp.json` in a later commit, before anyone has reviewed the command it runs. The safer form costs one line per server, once.
+
+- **Deny account-level connectors this project doesn't need.** Host-provided connectors (claude.ai Gmail, Drive, Microsoft 365, etc.) can carry 20k+ tokens of tool schemas per connector. Add their normalised names to `.claude/settings.local.json`'s `deniedMcpServers` array — that file is gitignored, so your personal denylist doesn't leak into commits. Verify names via `claude mcp list` before relying on them. A team can also put project-wide denies in the committed `.claude/settings.json` when the project doesn't develop the connector being denied.
+
+- **Budget the payload.** Every MCP server contributes tool-schema tokens to every session's context window, even when its tools aren't called. A browser MCP is typically ~9k tokens for 45 tools; a heavy account-level connector can top 20k. Check `/context` after adopting a server and drop ones the project doesn't actually use.
+
+Emit as `.mcp.example.json` (not `.mcp.json`) so file presence alone doesn't activate MCP on projects that don't need it. Users copy or rename to `.mcp.json` when they adopt.
+
+````json
+{
+  "$schema": "https://json.schemastore.org/mcp.json",
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@0.0.77"]
+    }
+  }
+}
+````
+
+The pinned Playwright version above is a placeholder — check for updates when adopting, and pin to whatever's current. Same discipline for any other server you add.
+
+---
+
 ### Template: `.editorconfig`
 
 ````editorconfig
@@ -3790,6 +3824,8 @@ Each row states the *condition* and the *file*, not what the file is about. If t
 
 The rules budget is small (a few kilobytes of always-loaded material) but three larger line items compete for the same window: the conversation itself (grows every turn), MCP tool schemas (varies by connected servers), and per-host system prompts. Check `/context` occasionally when a session starts feeling forgetful; the culprit is usually one of those three, not this file.
 
+For MCP specifically: this project's project-scoped servers, if any, are declared in `.mcp.json` at the repo root (see `.mcp.example.json` for the starter template and the safety pattern — pinned versions, name-based allowlist, per-project denylist for account-level connectors). Every server contributes tool-schema tokens to every session; a browser MCP is typically ~9k tokens for 45 tools, and heavy account-level connectors can top 20k each. On Claude Code, personal denies live in the gitignored `.claude/settings.local.json`'s `deniedMcpServers` array; on other hosts, the equivalent lives in the host's own settings.
+
 Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
 
 ## Run
@@ -3989,6 +4025,12 @@ Rules come in two flavors. **Reactive** rules (security, changes, UI, layered ar
 {{IF_FRONTEND}}| diagnosing or reporting a visual bug | `.agents/rules/frontend-visibility.md` |
 
 Each row states the *condition* and the *file*, not what the file is about. If two rows fit, open both.
+
+## Measurement habit
+
+The rules budget is small (a few kilobytes of always-loaded material) but three larger line items compete for the same window: the conversation itself (grows every turn), MCP tool schemas (varies by connected servers), and per-host system prompts. Check `/context` occasionally when a session starts feeling forgetful; the culprit is usually one of those three, not this file.
+
+For MCP specifically: this project's project-scoped servers, if any, are declared in `.mcp.json` at the repo root (see `.mcp.example.json` for the starter template and the safety pattern — pinned versions, name-based allowlist, per-project denylist for account-level connectors). Every server contributes tool-schema tokens to every session; a browser MCP is typically ~9k tokens for 45 tools, and heavy account-level connectors can top 20k each. On Claude Code, personal denies live in the gitignored `.claude/settings.local.json`'s `deniedMcpServers` array; on other hosts, the equivalent lives in the host's own settings.
 
 ## Autonomy posture (intent — apply manually in Copilot's IDE settings)
 
