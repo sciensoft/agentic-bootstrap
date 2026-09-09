@@ -622,13 +622,13 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 | linter / formatter configs (Go) | `LANG=Go` | 5010 → 5040 |
 | linter / formatter configs (Rust) | `LANG=Rust` | 5041 → 5061 |
 | linter / formatter configs (fallback) | any other `LANG` | 5062 → 5069 |
-| `Makefile` (Python) | `LANG=Python` | 5070 → 5123 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5124 → 5177 |
-| `Makefile` (Go) | `LANG=Go` | 5178 → 5234 |
-| `Makefile` (Rust) | `LANG=Rust` | 5235 → 5285 |
-| `Makefile` (fallback) | any other `LANG` | 5286 → 5327 |
-| `.pre-commit-config.yaml` | Always | 5328 → 5378 |
-| `scripts/check_consulted_rules.sh` | Always | 5379 → 5461 |
+| `Makefile` (Python) | `LANG=Python` | 5070 → 5109 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5110 → 5149 |
+| `Makefile` (Go) | `LANG=Go` | 5150 → 5192 |
+| `Makefile` (Rust) | `LANG=Rust` | 5193 → 5229 |
+| `Makefile` (fallback) | any other `LANG` | 5230 → 5257 |
+| `.pre-commit-config.yaml` | Always | 5258 → 5308 |
+| `scripts/check_consulted_rules.sh` | Always | 5309 → 5391 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -5070,7 +5070,7 @@ No config files written. Tell the user post-bootstrap:
 ### Template: `Makefile` — variant for `LANG=Python`
 
 ````makefile
-.PHONY: help install test lint format check run clean rules-check
+.PHONY: help install test lint format check run clean
 
 help:
 	@echo "Targets:"
@@ -5081,7 +5081,6 @@ help:
 	@echo "  check        Lint + test (CI-style)"
 	@echo "  run          Run the application (override per project)"
 	@echo "  clean        Remove build / cache artefacts"
-	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 install:
 	uv sync --extra dev
@@ -5102,20 +5101,7 @@ run:
 
 clean:
 	rm -rf build/ dist/ *.egg-info/ .pytest_cache/ .ruff_cache/ .mypy_cache/ htmlcov/ .coverage
-	find . -type d -name __pycache__ -exec rm -rf {} +
-
-rules-check:
-	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
-	@for f in .agents/rules/*.md; do \
-	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
-	done
-	@echo "== broken links from AGENTS.md into .agents/rules/ =="
-	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
-	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
-	@echo "== rules budget (measured 2.88 bytes/token) =="
-	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
-	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
-````
+	find . -type d -name __pycache__ -exec rm -rf {} +````
 
 If the project uses `pip` / `poetry` instead of `uv`, swap the commands accordingly.
 
@@ -5124,7 +5110,7 @@ If the project uses `pip` / `poetry` instead of `uv`, swap the commands accordin
 ### Template: `Makefile` — variant for `LANG=TypeScript/Node`
 
 ````makefile
-.PHONY: help install test lint format check run clean rules-check
+.PHONY: help install test lint format check run clean
 
 # Replace `npm` with `pnpm`, `yarn`, or `bun` if the project uses a different package manager.
 PM := npm
@@ -5138,7 +5124,6 @@ help:
 	@echo "  check        Lint + test (CI-style)"
 	@echo "  run          Run the application (override per project)"
 	@echo "  clean        Remove build / cache artefacts"
-	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 install:
 	$(PM) install
@@ -5158,27 +5143,14 @@ run:
 	@echo "Override the 'run' target per project (e.g. '$(PM) run dev')"
 
 clean:
-	rm -rf dist/ build/ coverage/ .turbo/ .next/ .vite/
-
-rules-check:
-	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
-	@for f in .agents/rules/*.md; do \
-	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
-	done
-	@echo "== broken links from AGENTS.md into .agents/rules/ =="
-	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
-	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
-	@echo "== rules budget (measured 2.88 bytes/token) =="
-	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
-	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
-````
+	rm -rf dist/ build/ coverage/ .turbo/ .next/ .vite/````
 
 ---
 
 ### Template: `Makefile` — variant for `LANG=Go`
 
 ````makefile
-.PHONY: help build test lint format check run clean rules-check
+.PHONY: help build test lint format check run clean
 
 BIN_DIR ?= bin
 BIN_NAME ?= {{PROJECT_NAME}}
@@ -5192,7 +5164,6 @@ help:
 	@echo "  check        Lint + test (CI-style)"
 	@echo "  run          Run the application"
 	@echo "  clean        Remove build artefacts"
-	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 build:
 	mkdir -p $(BIN_DIR)
@@ -5215,27 +5186,14 @@ run:
 
 clean:
 	rm -rf $(BIN_DIR)/
-	go clean
-
-rules-check:
-	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
-	@for f in .agents/rules/*.md; do \
-	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
-	done
-	@echo "== broken links from AGENTS.md into .agents/rules/ =="
-	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
-	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
-	@echo "== rules budget (measured 2.88 bytes/token) =="
-	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
-	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
-````
+	go clean````
 
 ---
 
 ### Template: `Makefile` — variant for `LANG=Rust`
 
 ````makefile
-.PHONY: help build test lint format check run clean rules-check
+.PHONY: help build test lint format check run clean
 
 help:
 	@echo "Targets:"
@@ -5246,7 +5204,6 @@ help:
 	@echo "  check        Lint + test (CI-style)"
 	@echo "  run          Run the application"
 	@echo "  clean        Remove target/"
-	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 build:
 	cargo build
@@ -5266,32 +5223,18 @@ run:
 	cargo run
 
 clean:
-	cargo clean
-
-rules-check:
-	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
-	@for f in .agents/rules/*.md; do \
-	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
-	done
-	@echo "== broken links from AGENTS.md into .agents/rules/ =="
-	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
-	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
-	@echo "== rules budget (measured 2.88 bytes/token) =="
-	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
-	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
-````
+	cargo clean````
 
 ---
 
 ### Template: `Makefile` — fallback variant for any other `LANG`
 
 ````makefile
-.PHONY: help test lint format check run clean rules-check
+.PHONY: help test lint format check run clean
 
 # Replace each target's body with the canonical command for your language toolchain.
 help:
 	@echo "Targets to fill in: test, lint, format, check, run, clean"
-	@echo "Ready-to-use: rules-check (audits AGENTS.md trigger index)"
 
 test:
 	@echo "TODO: wire up the test runner for {{LANG}}"
@@ -5308,20 +5251,7 @@ run:
 	@echo "TODO: wire up the run command"
 
 clean:
-	@echo "TODO: wire up cache / artefact cleanup"
-
-rules-check:
-	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
-	@for f in .agents/rules/*.md; do \
-	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
-	done
-	@echo "== broken links from AGENTS.md into .agents/rules/ =="
-	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
-	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
-	@echo "== rules budget (measured 2.88 bytes/token) =="
-	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
-	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
-````
+	@echo "TODO: wire up cache / artefact cleanup"````
 
 ---
 
