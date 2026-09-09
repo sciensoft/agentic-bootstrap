@@ -319,6 +319,18 @@ reader when they need it.
 
 ### 6.3 Rules whose subject never materialised
 
+> **Superseded by Cut 3 (2026-09-09).** This section was written before the
+> trigger-index cost math from section 6 settled. After that split, an unused
+> rule costs *one line* in the trigger index (its body is reference, opened when
+> the trigger fires — not preloaded). The false-negative correctness debt of
+> dropping opted-in rules the project will eventually grow into swamps the
+> false-positive line cost of keeping them. The interview captures *intent*, not
+> *usage*: `METRICS: yes` means "this project cares about metering discipline
+> whenever meters land", not "meters are wired up on day one." Cut 3 emits every
+> opted-in rule and reframes proactive-discipline rules (testing, metrics,
+> telemetry) to fire on any relevant code change so the agent applies the
+> discipline as it builds, rather than waiting to be asked.
+
 `workflow-metrics.md` stays on disk but is left out of the index, with one line
 saying why: the interview answered `METRICS: true` and the project has never had
 metering. Better than deleting, which the next bootstrap run would undo.

@@ -544,73 +544,73 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 | `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2088 → 2145 |
 | `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2146 → 2224 |
 | `.agents/rules/workflow-changes.md` | `CHANGES` | 2225 → 2303 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2304 → 2360 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2361 → 2480 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2481 → 2618 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2619 → 2691 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2692 → 2738 |
-| `.docs/adrs/README.md` | Always | 2739 → 2756 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2757 → 2850 |
-| `.docs/todos/README.md` | Always | 2851 → 2869 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2870 → 3119 |
-| `.gitignore` (Python) | `LANG=Python` | 3120 → 3185 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3186 → 3239 |
-| `.gitignore` (Go) | `LANG=Go` | 3240 → 3282 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3283 → 3318 |
-| `.gitignore` (fallback) | any other `LANG` | 3319 → 3352 |
-| `.env.example` | `ENV_VARS` | 3353 → 3380 |
-| `.editorconfig` | Always | 3381 → 3409 |
-| `README.md` | Always (Sacred) | 3410 → 3440 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3441 → 3470 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3471 → 3696 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3697 → 3718 |
-| `AGENTS.md` | Always (Sacred first-write) | 3719 → 3788 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3789 → 3806 |
-| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3807 → 3835 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3836 → 3874 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3875 → 3910 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3911 → 3924 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3925 → 3979 |
-| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 3980 → 4045 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4046 → 4071 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4072 → 4120 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4121 → 4194 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4195 → 4242 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4243 → 4256 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4257 → 4276 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4277 → 4296 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4297 → 4312 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4313 → 4327 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4328 → 4342 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4343 → 4363 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4364 → 4380 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4381 → 4394 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4395 → 4409 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4410 → 4428 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4429 → 4444 |
-| `.agents/bootstrap.json` | Always | 4445 → 4500 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4501 → 4547 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4548 → 4587 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4588 → 4619 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4620 → 4650 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4651 → 4658 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4659 → 4695 |
-| `SECURITY.md` | Always | 4696 → 4741 |
-| `.gitattributes` | Always | 4742 → 4784 |
-| `CHANGELOG.md` | Always | 4785 → 4810 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4811 → 4852 |
-| linter / formatter configs (Python) | `LANG=Python` | 4853 → 4876 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4877 → 4926 |
-| linter / formatter configs (Go) | `LANG=Go` | 4927 → 4957 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4958 → 4978 |
-| linter / formatter configs (fallback) | any other `LANG` | 4979 → 4986 |
-| `Makefile` (Python) | `LANG=Python` | 4987 → 5040 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5041 → 5094 |
-| `Makefile` (Go) | `LANG=Go` | 5095 → 5151 |
-| `Makefile` (Rust) | `LANG=Rust` | 5152 → 5202 |
-| `Makefile` (fallback) | any other `LANG` | 5203 → 5244 |
-| `.pre-commit-config.yaml` | Always | 5245 → 5295 |
-| `scripts/check_consulted_rules.sh` | Always | 5296 → 5378 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2304 → 2381 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2382 → 2501 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2502 → 2639 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2640 → 2712 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2713 → 2759 |
+| `.docs/adrs/README.md` | Always | 2760 → 2777 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2778 → 2871 |
+| `.docs/todos/README.md` | Always | 2872 → 2890 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2891 → 3140 |
+| `.gitignore` (Python) | `LANG=Python` | 3141 → 3206 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3207 → 3260 |
+| `.gitignore` (Go) | `LANG=Go` | 3261 → 3303 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3304 → 3339 |
+| `.gitignore` (fallback) | any other `LANG` | 3340 → 3373 |
+| `.env.example` | `ENV_VARS` | 3374 → 3401 |
+| `.editorconfig` | Always | 3402 → 3430 |
+| `README.md` | Always (Sacred) | 3431 → 3461 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3462 → 3491 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3492 → 3717 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3718 → 3739 |
+| `AGENTS.md` | Always (Sacred first-write) | 3740 → 3811 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3812 → 3829 |
+| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3830 → 3858 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3859 → 3897 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3898 → 3933 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3934 → 3947 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3948 → 4004 |
+| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 4005 → 4070 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4071 → 4096 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4097 → 4145 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4146 → 4219 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4220 → 4267 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4268 → 4281 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4282 → 4301 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4302 → 4321 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4322 → 4337 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4338 → 4352 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4353 → 4367 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4368 → 4388 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4389 → 4405 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4406 → 4419 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4420 → 4434 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4435 → 4453 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4454 → 4469 |
+| `.agents/bootstrap.json` | Always | 4470 → 4525 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4526 → 4572 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4573 → 4612 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4613 → 4644 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4645 → 4675 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4676 → 4683 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4684 → 4720 |
+| `SECURITY.md` | Always | 4721 → 4766 |
+| `.gitattributes` | Always | 4767 → 4809 |
+| `CHANGELOG.md` | Always | 4810 → 4835 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4836 → 4877 |
+| linter / formatter configs (Python) | `LANG=Python` | 4878 → 4901 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4902 → 4951 |
+| linter / formatter configs (Go) | `LANG=Go` | 4952 → 4982 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 4983 → 5003 |
+| linter / formatter configs (fallback) | any other `LANG` | 5004 → 5011 |
+| `Makefile` (Python) | `LANG=Python` | 5012 → 5065 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5066 → 5119 |
+| `Makefile` (Go) | `LANG=Go` | 5120 → 5176 |
+| `Makefile` (Rust) | `LANG=Rust` | 5177 → 5227 |
+| `Makefile` (fallback) | any other `LANG` | 5228 → 5269 |
+| `.pre-commit-config.yaml` | Always | 5270 → 5320 |
+| `scripts/check_consulted_rules.sh` | Always | 5321 → 5403 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -2308,6 +2308,27 @@ Documentation drift is slow and silent. A feature shipped without its surfaces u
 
 This rule supplements `workflow.md` for changes that touch the metering system — anywhere a metering counter is updated, a usage event is written, or a metrics-driven display reads from. The discipline exists because metrics drift silently: an event that no longer fires, a counter renamed but never updated downstream, a label growing in cardinality, a display that hasn't been told a new metric exists.
 
+**This rule is proactive-discipline, not reactive housekeeping.** When the project opted into metrics, every new meaningful subsystem ships with its events *in the same commit as the code* — the agent shouldn't wait for a follow-up ask. See § *When to add metrics* below for the trigger set. The rest of the rule then says *how* to add / modify / remove events correctly once the discipline says one is warranted.
+
+## When to add metrics (proactive discipline)
+
+Add a metric when you build one of these — same commit as the code, not a follow-up:
+
+- **A new user-facing flow** — an action a user takes that a product or ops person will ask about (signup, checkout, feature adoption, error a user sees, moderation trigger).
+- **A new business operation** — a system-side operation whose success rate, latency, or volume matters (a scheduled job, a queue drain, a batch import, a periodic reconciliation).
+- **A new external integration** — every new outbound call to a third-party service earns at least calls / errors / latency events.
+- **A new failure mode worth aggregating** — anywhere a `try/except` catches something callers would want to know about at aggregate scale (retry exhaustion, upstream 5xx, quota exceeded).
+
+If you're building code that fits any of those and the change ships without events, the discipline missed. The pre-commit hook doesn't catch this — the check is attentional; catch it yourself before commit.
+
+**Don't** add metrics for:
+
+- Internal refactors with no behaviour change.
+- Everything by reflex — the *Don't speculate* guardrails below apply. Concrete signal first.
+- Development-only code paths that won't ship (test scaffolds, `if __name__ == "__main__"` blocks, one-off scripts).
+
+**Deferrals.** If the user asks you to skip metrics for the current turn (*"just get the feature working; metrics later"*), honour it — but capture a todo under `.docs/todos/` with a `Revisit when` trigger like *"next commit that touches this subsystem"* or *"before the feature ships to users"*. Don't silently drop it; per `workflow-todos.md`, deferred proactive-discipline items are exactly what the todo mechanism exists for.
+
 ## Top-level rule
 
 > **Adding, modifying, or removing a metered event means moving the four surfaces in lockstep — write site, durable read side, observability labels, display — plus updating a catalog at `.docs/metrics/README.md` AND a per-metric deep-dive at `.docs/metrics/<kebab-kind>.md`. All in the same commit. The cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable and applies on every emit, not just new ones.**
@@ -3739,11 +3760,13 @@ Five things, on every turn, whichever agent is reading this.
 - **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
 - **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one — e.g. *"Task: continuing 'add password reset' — refinement to the previous turn"* or *"Task: new — 'wire up SES'. Previous task committed at abc1234, closed"*. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
 - **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement — often one per task, sometimes two when refinements deserve separation); a push. Stage by explicit path, never `git add -A`.
-- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger.
+- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
 
 ### Read before you act
 
 The files under `.agents/rules/` are **reference, and are deliberately not preloaded**. Read the file when its trigger fires, and read it *before* acting rather than after: each exists to stop a specific mistake that is expensive to undo, and reaching for one after the code is written is the failure it was meant to prevent. If a trigger is ambiguous, read the file.
+
+Rules come in two flavors. **Reactive** rules (security, changes, UI, layered architecture, frontend) fire only when their specific surface is being touched — read them then, follow them then. **Proactive-discipline** rules (testing, metrics, telemetry) fire on *every* relevant work unit when opted in — read them once per session and apply the discipline on every code change, not only when the discipline's artifact is already being touched. If a project opted into metrics and you're building a new subsystem, ship events for it in the same commit; don't wait to be asked.
 
 | When | Read |
 | --- | --- |
@@ -3756,7 +3779,7 @@ The files under `.agents/rules/` are **reference, and are deliberately not prelo
 {{IF_LAYERED}}| adding a module, or moving code between layers | [`layered-architecture.md`](.agents/rules/layered-architecture.md) |
 {{IF_CHANGES}}| anything a user can see | [`workflow-changes.md`](.agents/rules/workflow-changes.md) |
 {{IF_UI_COMPONENTS}}| adding or changing any UI affordance | [`ui-components.md`](.agents/rules/ui-components.md) |
-{{IF_METRICS}}| adding, changing or removing a metered event | [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) |
+{{IF_METRICS}}| a new user-facing flow, business operation, external integration, or a change to an existing metered event | [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) |
 {{IF_TESTING}}| writing production code — tests ship in the same commit | [`workflow-testing.md`](.agents/rules/workflow-testing.md) |
 {{IF_FRONTEND}}| shared component, partial or styling token | [`workflow-frontend.md`](.agents/rules/workflow-frontend.md) |
 {{IF_FRONTEND}}| diagnosing or reporting a visual bug | [`frontend-visibility.md`](.agents/rules/frontend-visibility.md) |
@@ -3941,11 +3964,13 @@ Five things, on every turn.
 - **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
 - **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
 - **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement); a push. Stage by explicit path, never `git add -A`.
-- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger.
+- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
 
 ## Read before you act
 
 The files under `.agents/rules/` are **reference, and are deliberately not preloaded**. Open the file when its trigger fires, and open it *before* acting rather than after: each exists to stop a specific mistake that is expensive to undo. If a trigger is ambiguous, open the file.
+
+Rules come in two flavors. **Reactive** rules (security, changes, UI, layered architecture, frontend) fire only when their specific surface is being touched — open them then, follow them then. **Proactive-discipline** rules (testing, metrics, telemetry) fire on *every* relevant work unit when opted in — open them once per session and apply the discipline on every code change, not only when the discipline's artifact is already being touched. If a project opted into metrics and you're building a new subsystem, ship events for it in the same commit; don't wait to be asked.
 
 | When | Read |
 | --- | --- |
@@ -3958,7 +3983,7 @@ The files under `.agents/rules/` are **reference, and are deliberately not prelo
 {{IF_LAYERED}}| adding a module, or moving code between layers | `.agents/rules/layered-architecture.md` |
 {{IF_CHANGES}}| anything a user can see | `.agents/rules/workflow-changes.md` |
 {{IF_UI_COMPONENTS}}| adding or changing any UI affordance | `.agents/rules/ui-components.md` |
-{{IF_METRICS}}| adding, changing or removing a metered event | `.agents/rules/workflow-metrics.md` |
+{{IF_METRICS}}| a new user-facing flow, business operation, external integration, or a change to an existing metered event | `.agents/rules/workflow-metrics.md` |
 {{IF_TESTING}}| writing production code — tests ship in the same commit | `.agents/rules/workflow-testing.md` |
 {{IF_FRONTEND}}| shared component, partial or styling token | `.agents/rules/workflow-frontend.md` |
 {{IF_FRONTEND}}| diagnosing or reporting a visual bug | `.agents/rules/frontend-visibility.md` |

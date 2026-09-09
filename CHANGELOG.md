@@ -9,6 +9,18 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Changed
+
+- **Trigger index rules split into two flavors: reactive and proactive-discipline** (Cut 3 of the context-management improvement series). *Reactive* rules (security, changes, UI, layered arch, frontend) fire only when their specific surface is being touched. *Proactive-discipline* rules (testing, metrics, telemetry) apply on every relevant work unit when opted in — the trigger fires on any code change matching the discipline's scope, not just when the discipline's artifact is already being touched. `AGENTS.md`'s `Read before you act` intro gains a paragraph naming the two flavors so future rules land in the right camp.
+
+- **`workflow-metrics.md` trigger reframed proactive-first.** Previously fired only on *"adding, changing or removing a metered event"* — a reactive-only trigger, meaning new features never got instrumented because the trigger required metering to already be there. Now fires on *"a new user-facing flow, business operation, external integration, or a change to an existing metered event"*, so the agent instruments new subsystems as part of building them. The rule body gains a new `## When to add metrics (proactive discipline)` section listing the four proactive triggers (user-facing flow, business operation, external integration, aggregate-worthy failure mode) and naming the deferral path through `.docs/todos/`.
+
+- **`AGENTS.md`'s `Always`-block deferral bullet gains a sub-clause about proactive-rule deferrals.** When the user says *"skip this for now"* on a proactive-discipline rule, the agent captures a todo with a revisit trigger like *"next commit that touches this subsystem"* rather than silently dropping the discipline. Same edit in the Copilot adapter (which inlines the block verbatim since Copilot cannot chase file references).
+
+- **Section 6.3 of `AGENTIC-B.Improvements.md` marked superseded.** The "provisional rules pattern" idea (drop opted-in rules that aren't yet used) was written before Cut 1's trigger-index math settled. Unused rules now cost one index line, not a preloaded body — the false-negative correctness debt of dropping opted-in rules the project will eventually grow into would swamp the false-positive line cost of keeping them. Interview answers capture *intent*, not *usage*.
+
+- **Self-application to this repo**: `AGENTS.md` picks up the deferral extension and the reactive/proactive intro paragraph. Metrics changes not applicable — METRICS is off in this repo.
+
 ### Added
 
 - **Agent-agnostic mechanical enforcement for the trigger index** — the design in [`AGENTIC-B.Improvements.md`](./AGENTIC-B.Improvements.md) §9, ported into the generator (Cut 2 of the context-management improvement series). Three layers, universal by default and per-host opt-in:
