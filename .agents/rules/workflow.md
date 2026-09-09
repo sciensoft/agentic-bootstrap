@@ -72,6 +72,10 @@ For a **continuing** task, open the existing file for the current task and amend
 
 <Why the user asked for this: the motivation, the constraint, the trade-off being made. One short paragraph is usually enough.>
 
+## Consulted rules
+
+<Rules that a path or condition in the change fires, one per line as `<rule file> — <one-line summary of the trigger that fired>`. Attentional triggers (ADR, telemetry, security surface) name themselves here too when they applied, even though no path-check enforces them. Write `none` on its own line if no trigger fired. The pre-commit hook cross-checks this section against the staged paths — a mismatch is a soft fail with the missing rule name and an override syntax (`<rule> (n/a — <reason>)`) for the false-positive case.>
+
 ## Output
 
 <What was actually done in response: files created/modified, decisions taken, follow-ups noted. Bullet list or short paragraph. Keep it factual. Amend as the task continues — append bullets, or a `## Refinements` sub-section when a turn's note is more than a line.>

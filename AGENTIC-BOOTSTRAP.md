@@ -510,6 +510,9 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `.agents/rules/workflow-testing.md` | Opt-in | Q12 = yes (`TESTING`) | C |
 | `.agents/rules/workflow-frontend.md` | Opt-in | Q13 = yes (`FRONTEND`) | C |
 | `.agents/rules/frontend-visibility.md` | Opt-in | Q13 = yes (`FRONTEND`) | C |
+| `scripts/check_consulted_rules.sh` | Always | pre-commit hook body — cross-checks staged paths against the trigger index; case ladder gated by `UI_COMPONENTS` / `FRONTEND` / `CHANGES` / `METRICS`. | C |
+| `.claude/hooks/rule-reminder.sh` | Conditional | written if `CLAUDE ∈ AGENTS_USED`. PreToolUse hook body — injects a one-line reminder naming the rule to open when a matching path is edited; deduped per session. | C |
+| `.cursor/rules/trigger-index.mdc` | Conditional | written if `CURSOR ∈ AGENTS_USED`. Second Cursor rule beyond `agents.mdc`; `alwaysApply: true`, inlines path-shaped trigger-index rows so Cursor injects them every message. | C |
 
 ---
 
@@ -527,84 +530,87 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 613 → 628 |
-| `.agents/rules/workflow.md` | Always | 629 → 1090 |
-| `.agents/rules/workflow-todos.md` | Always | 1091 → 1195 |
-| `.agents/rules/workflow-security.md` | Always | 1196 → 1276 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1277 → 1424 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1425 → 1528 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1529 → 1661 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1662 → 1782 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1783 → 1890 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1891 → 1976 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1977 → 2077 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2078 → 2135 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2136 → 2214 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2215 → 2293 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2294 → 2350 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2351 → 2470 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2471 → 2608 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2609 → 2681 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2682 → 2728 |
-| `.docs/adrs/README.md` | Always | 2729 → 2746 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2747 → 2840 |
-| `.docs/todos/README.md` | Always | 2841 → 2859 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2860 → 3109 |
-| `.gitignore` (Python) | `LANG=Python` | 3110 → 3175 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3176 → 3229 |
-| `.gitignore` (Go) | `LANG=Go` | 3230 → 3272 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3273 → 3308 |
-| `.gitignore` (fallback) | any other `LANG` | 3309 → 3342 |
-| `.env.example` | `ENV_VARS` | 3343 → 3370 |
-| `.editorconfig` | Always | 3371 → 3399 |
-| `README.md` | Always (Sacred) | 3400 → 3430 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3431 → 3460 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3461 → 3686 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3687 → 3708 |
-| `AGENTS.md` | Always (Sacred first-write) | 3709 → 3778 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3779 → 3796 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3797 → 3835 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3836 → 3871 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3872 → 3885 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3886 → 3940 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3941 → 3953 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3954 → 3989 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 3990 → 4050 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4051 → 4085 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4086 → 4099 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4100 → 4119 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4120 → 4139 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4140 → 4155 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4156 → 4170 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4171 → 4185 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4186 → 4206 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4207 → 4223 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4224 → 4237 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4238 → 4252 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4253 → 4271 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4272 → 4287 |
-| `.agents/bootstrap.json` | Always | 4288 → 4343 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4344 → 4390 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4391 → 4430 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4431 → 4462 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4463 → 4493 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4494 → 4501 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4502 → 4538 |
-| `SECURITY.md` | Always | 4539 → 4584 |
-| `.gitattributes` | Always | 4585 → 4627 |
-| `CHANGELOG.md` | Always | 4628 → 4653 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4654 → 4695 |
-| linter / formatter configs (Python) | `LANG=Python` | 4696 → 4719 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4720 → 4769 |
-| linter / formatter configs (Go) | `LANG=Go` | 4770 → 4800 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4801 → 4821 |
-| linter / formatter configs (fallback) | any other `LANG` | 4822 → 4829 |
-| `Makefile` (Python) | `LANG=Python` | 4830 → 4870 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4871 → 4911 |
-| `Makefile` (Go) | `LANG=Go` | 4912 → 4955 |
-| `Makefile` (Rust) | `LANG=Rust` | 4956 → 4993 |
-| `Makefile` (fallback) | any other `LANG` | 4994 → 5022 |
-| `.pre-commit-config.yaml` | Always | 5023 → 5059 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 619 → 634 |
+| `.agents/rules/workflow.md` | Always | 635 → 1100 |
+| `.agents/rules/workflow-todos.md` | Always | 1101 → 1205 |
+| `.agents/rules/workflow-security.md` | Always | 1206 → 1286 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1287 → 1434 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1435 → 1538 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1539 → 1671 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1672 → 1792 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1793 → 1900 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1901 → 1986 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1987 → 2087 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2088 → 2145 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2146 → 2224 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2225 → 2303 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2304 → 2360 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2361 → 2480 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2481 → 2618 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2619 → 2691 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2692 → 2738 |
+| `.docs/adrs/README.md` | Always | 2739 → 2756 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2757 → 2850 |
+| `.docs/todos/README.md` | Always | 2851 → 2869 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2870 → 3119 |
+| `.gitignore` (Python) | `LANG=Python` | 3120 → 3185 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3186 → 3239 |
+| `.gitignore` (Go) | `LANG=Go` | 3240 → 3282 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3283 → 3318 |
+| `.gitignore` (fallback) | any other `LANG` | 3319 → 3352 |
+| `.env.example` | `ENV_VARS` | 3353 → 3380 |
+| `.editorconfig` | Always | 3381 → 3409 |
+| `README.md` | Always (Sacred) | 3410 → 3440 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3441 → 3470 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3471 → 3696 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3697 → 3718 |
+| `AGENTS.md` | Always (Sacred first-write) | 3719 → 3788 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3789 → 3806 |
+| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3807 → 3835 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3836 → 3874 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3875 → 3910 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3911 → 3924 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3925 → 3979 |
+| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 3980 → 4045 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4046 → 4071 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4072 → 4120 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4121 → 4194 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4195 → 4242 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4243 → 4256 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4257 → 4276 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4277 → 4296 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4297 → 4312 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4313 → 4327 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4328 → 4342 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4343 → 4363 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4364 → 4380 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4381 → 4394 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4395 → 4409 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4410 → 4428 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4429 → 4444 |
+| `.agents/bootstrap.json` | Always | 4445 → 4500 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4501 → 4547 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4548 → 4587 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4588 → 4619 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4620 → 4650 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4651 → 4658 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4659 → 4695 |
+| `SECURITY.md` | Always | 4696 → 4741 |
+| `.gitattributes` | Always | 4742 → 4784 |
+| `CHANGELOG.md` | Always | 4785 → 4810 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4811 → 4852 |
+| linter / formatter configs (Python) | `LANG=Python` | 4853 → 4876 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4877 → 4926 |
+| linter / formatter configs (Go) | `LANG=Go` | 4927 → 4957 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 4958 → 4978 |
+| linter / formatter configs (fallback) | any other `LANG` | 4979 → 4986 |
+| `Makefile` (Python) | `LANG=Python` | 4987 → 5040 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5041 → 5094 |
+| `Makefile` (Go) | `LANG=Go` | 5095 → 5151 |
+| `Makefile` (Rust) | `LANG=Rust` | 5152 → 5202 |
+| `Makefile` (fallback) | any other `LANG` | 5203 → 5244 |
+| `.pre-commit-config.yaml` | Always | 5245 → 5295 |
+| `scripts/check_consulted_rules.sh` | Always | 5296 → 5378 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -702,6 +708,10 @@ For a **continuing** task, open the existing file for the current task and amend
 ## Reasoning
 
 <Why the user asked for this: the motivation, the constraint, the trade-off being made. One short paragraph is usually enough.>
+
+## Consulted rules
+
+<Rules that a path or condition in the change fires, one per line as `<rule file> — <one-line summary of the trigger that fired>`. Attentional triggers (ADR, telemetry, security surface) name themselves here too when they applied, even though no path-check enforces them. Write `none` on its own line if no trigger fired. The pre-commit hook cross-checks this section against the staged paths — a mismatch is a soft fail with the missing rule name and an override syntax (`<rule> (n/a — <reason>)`) for the false-positive case.>
 
 ## Output
 
@@ -3794,6 +3804,35 @@ Nothing else belongs in this file. It exists because Cursor reads `.cursor/rules
 
 ---
 
+### Template: `.cursor/rules/trigger-index.mdc` *(written only if `CURSOR ∈ AGENTS_USED`)*
+
+A second Cursor rule beyond the `agents.mdc` stub — this one carries the path-shaped trigger-index rows inlined verbatim, with `alwaysApply: true` so Cursor's own rule loader injects them on every conversation. Reinforcement for the trigger index in `AGENTS.md`: the path-shaped rows are always seen without Cursor needing to chase the pointer, so a request that would touch a matching path sees the reminder in the same turn.
+
+Only path-shaped rows go here. Attentional rows (a new dependency triggering an ADR, a new failure branch triggering telemetry, an auth surface triggering the security rubric) stay in `AGENTS.md` — Cursor still has to read the brief for those; injecting them here would grow this file without adding leverage.
+
+````markdown
+---
+description: Path-shaped trigger index — open the named rule file before touching a matching path
+globs: ["**/*"]
+alwaysApply: true
+---
+
+The rule files under `.agents/rules/` are reference, opened when a trigger fires. Cursor injects this file on every message so path-shaped triggers are visible without chasing pointers. See [`AGENTS.md`](../../AGENTS.md) for the full trigger index and the always-on rules.
+
+**Open the named rule file *before* editing a matching path:**
+
+{{IF_UI_COMPONENTS}}- `components/**`, `src/components/**` → `.agents/rules/ui-components.md` — clone the canonical shape, never invent a one-off variant.
+{{IF_FRONTEND}}- `*.tsx`, `*.jsx`, `pages/**`, `partials/**` → `.agents/rules/workflow-frontend.md` (find source, sweep consumers) + `.agents/rules/frontend-visibility.md` (visual issue → screenshot + route + component name).
+{{IF_METRICS}}- `metrics/**`, `*/events.{py,ts,go}` → `.agents/rules/workflow-metrics.md` — cardinality discipline is non-negotiable.
+{{IF_CHANGES}}- `README.md`, `CHANGELOG.md`, `docs/**`, `public/**`, `static/**` → `.agents/rules/workflow-changes.md` — surfaces move with the change, same commit.
+
+Attentional triggers (adding a dependency, a new failure branch, an auth surface) stay in `AGENTS.md` — no path-shaped injection here for those.
+````
+
+If none of `UI_COMPONENTS` / `FRONTEND` / `METRICS` / `CHANGES` are set, this file's body reduces to the intro paragraph and the "Attentional triggers stay in AGENTS.md" line — still worth emitting, because it names the mechanism the always-loaded index rides on.
+
+---
+
 ### Template: `.aider.conf.yml` *(written only if `AIDER ∈ AGENTS_USED`)*
 
 Aider config that reads the agnostic brief into every session — the brief itself carries the trigger index for `.agents/rules/`, so the rule files are opened when their trigger fires rather than preloaded — **plus** posture-driven autonomy keys picked from Q3 `POSTURE`. Users can layer their own model + edit-format preferences on top.
@@ -3938,12 +3977,91 @@ GitHub Copilot does not have a file-based permission model the bootstrap can wri
 
 ---
 
+### Template: `.claude/hooks/rule-reminder.sh` *(written only if `CLAUDE ∈ AGENTS_USED`)*
+
+Claude Code `PreToolUse` hook body. Before every Edit or Write, cross-checks the target path against the trigger index and injects a one-line reminder naming the rule to open. Deduplicates per session via a sentinel dir under `$TMPDIR` so a long sweep costs one reminder per rule, not one per edit.
+
+Case ladder mirrors `scripts/check_consulted_rules.sh` — same path → rule mappings, different UX: this one fires *before* the edit (pre-facto), the pre-commit check fires *at commit* (post-facto). Attentional triggers stay attentional; only path-shaped rows get injected here. Registered from all four `.claude/settings.json` posture variants (same block in each) so the reminder fires regardless of the project's autonomy setting.
+
+Windows-native hosts need Git Bash; Linux, macOS, and WSL are native.
+
+````bash
+#!/usr/bin/env bash
+# PreToolUse: inject a one-line reminder when Claude is about to Edit / Write
+# a path that fires a trigger in AGENTS.md's index. Deduped per session so a
+# long sweep costs one reminder per rule, not one per edit.
+#
+# Payload arrives on stdin as JSON (Claude Code PreToolUse contract).
+# Response on stdout as JSON with a hookSpecificOutput.additionalContext.
+
+set -euo pipefail
+
+payload=$(cat)
+path=$(jq -r '.tool_input.file_path // .tool_input.path // empty' <<<"$payload")
+if [ -z "$path" ]; then exit 0; fi
+
+# Path patterns → reminder messages. Add arms here when a new path-shaped
+# row lands in AGENTS.md's trigger index. Interview flags gate each arm;
+# a project without a flag skips the arm entirely.
+declare -A rule_for=()
+case "$path" in
+{{IF_UI_COMPONENTS}}  components/*|src/components/*|packages/*/components/*)
+{{IF_UI_COMPONENTS}}    rule_for["ui-components.md"]="touching a UI affordance — open .agents/rules/ui-components.md before inventing a variant" ;;
+{{IF_FRONTEND}}  *.tsx|*.jsx|*.vue|*.svelte|src/pages/*|pages/*|partials/*)
+{{IF_FRONTEND}}    rule_for["workflow-frontend.md"]="editing shared frontend — open .agents/rules/workflow-frontend.md before patching a consumer" ;;
+{{IF_CHANGES}}  README.md|CHANGELOG.md|docs/*|public/*|static/*|assets/*)
+{{IF_CHANGES}}    rule_for["workflow-changes.md"]="user-visible surface — open .agents/rules/workflow-changes.md; surfaces move in the same commit" ;;
+{{IF_METRICS}}  metrics/*|analytics/*|*/events.py|*/events.ts|*/events.go)
+{{IF_METRICS}}    rule_for["workflow-metrics.md"]="changing metered events — open .agents/rules/workflow-metrics.md; cardinality is non-negotiable" ;;
+esac
+if [ ${#rule_for[@]} -eq 0 ]; then exit 0; fi
+
+# Session-keyed dedupe. If a marker for this rule already exists in the
+# session's sentinel dir, skip; otherwise emit and touch the marker.
+session=$(jq -r '.session_id // "nosession"' <<<"$payload")
+sentinel="${TMPDIR:-/tmp}/claude-hooks/${session}"
+mkdir -p "$sentinel"
+
+reminders=()
+for rule in "${!rule_for[@]}"; do
+  marker="${sentinel}/${rule}"
+  if [ ! -f "$marker" ]; then
+    reminders+=("- ${rule_for[$rule]}")
+    touch "$marker"
+  fi
+done
+
+if [ ${#reminders[@]} -eq 0 ]; then exit 0; fi
+
+context="Trigger index — rules that apply to $path (first reminder this session):"
+for line in "${reminders[@]}"; do context+=$'\n'"$line"; done
+
+jq -n --arg m "$context" '{hookSpecificOutput: {hookEventName: "PreToolUse", additionalContext: $m}}'
+````
+
+Requires `jq` on `$PATH`. If a project host lacks `jq`, the hook fails silently under `set -euo pipefail` (exit non-zero from `jq -r` on empty stdin). Document `jq` in the project's install guide when this hook is emitted; standard on macOS via Homebrew, Debian/Ubuntu via apt, WSL identically to Linux.
+
+---
+
 ### Template: `.claude/settings.json` — variant for `POSTURE=CAUTIOUS`
 
 ````json
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "claude-opus-4-7"
+  "model": "claude-opus-4-7",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
 ````
 
@@ -3978,6 +4096,19 @@ Every Bash command, every WebFetch, every tool call prompts for permission. Safe
       "Bash(git branch:*)",
       "Bash(git ls-files:*)",
       "Bash(git remote:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
     ]
   }
 }
@@ -4030,6 +4161,19 @@ Write the base template below; then append the language-specific allow entries (
       "Bash(git checkout .:*)",
       "Bash(git restore .:*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
+    ]
   }
 }
 ````
@@ -4056,6 +4200,19 @@ Daily development — install, lint, format, test, build, commit, push — runs 
   "model": "claude-opus-4-7",
   "permissions": {
     "defaultMode": "bypassPermissions"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
+    ]
   }
 }
 ````
@@ -4830,17 +4987,18 @@ No config files written. Tell the user post-bootstrap:
 ### Template: `Makefile` — variant for `LANG=Python`
 
 ````makefile
-.PHONY: help install test lint format check run clean
+.PHONY: help install test lint format check run clean rules-check
 
 help:
 	@echo "Targets:"
-	@echo "  install   Install dependencies (and dev deps)"
-	@echo "  test      Run tests"
-	@echo "  lint      Run linter"
-	@echo "  format    Run formatter"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application (override per project)"
-	@echo "  clean     Remove build / cache artefacts"
+	@echo "  install      Install dependencies (and dev deps)"
+	@echo "  test         Run tests"
+	@echo "  lint         Run linter"
+	@echo "  format       Run formatter"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application (override per project)"
+	@echo "  clean        Remove build / cache artefacts"
+	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 install:
 	uv sync --extra dev
@@ -4862,6 +5020,18 @@ run:
 clean:
 	rm -rf build/ dist/ *.egg-info/ .pytest_cache/ .ruff_cache/ .mypy_cache/ htmlcov/ .coverage
 	find . -type d -name __pycache__ -exec rm -rf {} +
+
+rules-check:
+	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
+	@for f in .agents/rules/*.md; do \
+	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
+	done
+	@echo "== broken links from AGENTS.md into .agents/rules/ =="
+	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
+	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
+	@echo "== rules budget (measured 2.88 bytes/token) =="
+	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
+	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
 ````
 
 If the project uses `pip` / `poetry` instead of `uv`, swap the commands accordingly.
@@ -4871,20 +5041,21 @@ If the project uses `pip` / `poetry` instead of `uv`, swap the commands accordin
 ### Template: `Makefile` — variant for `LANG=TypeScript/Node`
 
 ````makefile
-.PHONY: help install test lint format check run clean
+.PHONY: help install test lint format check run clean rules-check
 
 # Replace `npm` with `pnpm`, `yarn`, or `bun` if the project uses a different package manager.
 PM := npm
 
 help:
 	@echo "Targets:"
-	@echo "  install   Install dependencies"
-	@echo "  test      Run tests"
-	@echo "  lint      Run linter"
-	@echo "  format    Run formatter"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application (override per project)"
-	@echo "  clean     Remove build / cache artefacts"
+	@echo "  install      Install dependencies"
+	@echo "  test         Run tests"
+	@echo "  lint         Run linter"
+	@echo "  format       Run formatter"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application (override per project)"
+	@echo "  clean        Remove build / cache artefacts"
+	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 install:
 	$(PM) install
@@ -4905,6 +5076,18 @@ run:
 
 clean:
 	rm -rf dist/ build/ coverage/ .turbo/ .next/ .vite/
+
+rules-check:
+	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
+	@for f in .agents/rules/*.md; do \
+	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
+	done
+	@echo "== broken links from AGENTS.md into .agents/rules/ =="
+	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
+	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
+	@echo "== rules budget (measured 2.88 bytes/token) =="
+	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
+	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
 ````
 
 ---
@@ -4912,20 +5095,21 @@ clean:
 ### Template: `Makefile` — variant for `LANG=Go`
 
 ````makefile
-.PHONY: help build test lint format check run clean
+.PHONY: help build test lint format check run clean rules-check
 
 BIN_DIR ?= bin
 BIN_NAME ?= {{PROJECT_NAME}}
 
 help:
 	@echo "Targets:"
-	@echo "  build     Compile the binary into $(BIN_DIR)/"
-	@echo "  test      Run tests"
-	@echo "  lint      Run golangci-lint"
-	@echo "  format    Run gofmt + goimports"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application"
-	@echo "  clean     Remove build artefacts"
+	@echo "  build        Compile the binary into $(BIN_DIR)/"
+	@echo "  test         Run tests"
+	@echo "  lint         Run golangci-lint"
+	@echo "  format       Run gofmt + goimports"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application"
+	@echo "  clean        Remove build artefacts"
+	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 build:
 	mkdir -p $(BIN_DIR)
@@ -4949,6 +5133,18 @@ run:
 clean:
 	rm -rf $(BIN_DIR)/
 	go clean
+
+rules-check:
+	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
+	@for f in .agents/rules/*.md; do \
+	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
+	done
+	@echo "== broken links from AGENTS.md into .agents/rules/ =="
+	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
+	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
+	@echo "== rules budget (measured 2.88 bytes/token) =="
+	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
+	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
 ````
 
 ---
@@ -4956,17 +5152,18 @@ clean:
 ### Template: `Makefile` — variant for `LANG=Rust`
 
 ````makefile
-.PHONY: help build test lint format check run clean
+.PHONY: help build test lint format check run clean rules-check
 
 help:
 	@echo "Targets:"
-	@echo "  build     Compile (debug)"
-	@echo "  test      Run tests"
-	@echo "  lint      Run clippy"
-	@echo "  format    Run rustfmt"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application"
-	@echo "  clean     Remove target/"
+	@echo "  build        Compile (debug)"
+	@echo "  test         Run tests"
+	@echo "  lint         Run clippy"
+	@echo "  format       Run rustfmt"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application"
+	@echo "  clean        Remove target/"
+	@echo "  rules-check  Audit AGENTS.md trigger index (orphans, broken links, budget)"
 
 build:
 	cargo build
@@ -4987,6 +5184,18 @@ run:
 
 clean:
 	cargo clean
+
+rules-check:
+	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
+	@for f in .agents/rules/*.md; do \
+	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
+	done
+	@echo "== broken links from AGENTS.md into .agents/rules/ =="
+	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
+	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
+	@echo "== rules budget (measured 2.88 bytes/token) =="
+	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
+	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
 ````
 
 ---
@@ -4994,11 +5203,12 @@ clean:
 ### Template: `Makefile` — fallback variant for any other `LANG`
 
 ````makefile
-.PHONY: help test lint format check run clean
+.PHONY: help test lint format check run clean rules-check
 
 # Replace each target's body with the canonical command for your language toolchain.
 help:
 	@echo "Targets to fill in: test, lint, format, check, run, clean"
+	@echo "Ready-to-use: rules-check (audits AGENTS.md trigger index)"
 
 test:
 	@echo "TODO: wire up the test runner for {{LANG}}"
@@ -5016,6 +5226,18 @@ run:
 
 clean:
 	@echo "TODO: wire up cache / artefact cleanup"
+
+rules-check:
+	@echo "== orphaned rules (present on disk but no trigger-index row in AGENTS.md) =="
+	@for f in .agents/rules/*.md; do \
+	  grep -q "$$(basename $$f)" AGENTS.md || echo "  ORPHANED  $$f"; \
+	done
+	@echo "== broken links from AGENTS.md into .agents/rules/ =="
+	@grep -o '(\.agents/rules/[a-z-]*\.md)' AGENTS.md | tr -d '()' | sort -u | \
+	  while read -r p; do [ -f "$$p" ] || echo "  BROKEN  $$p"; done
+	@echo "== rules budget (measured 2.88 bytes/token) =="
+	@b=$$(( $$(wc -c < AGENTS.md) + $$(wc -c < CLAUDE.md 2>/dev/null || echo 0) )); \
+	  echo "  AGENTS.md + CLAUDE.md = $$b bytes  ~$$(( b * 100 / 288 )) tokens"
 ````
 
 ---
@@ -5044,6 +5266,20 @@ repos:
     rev: v8.21.2
     hooks:
       - id: gitleaks
+
+  # Cross-check staged paths against the trigger index in AGENTS.md.
+  # A path that fires a trigger (per scripts/check_consulted_rules.sh's case
+  # ladder, generated from the interview flags) must be named in the committed
+  # prompt file's `## Consulted rules` section. Soft-skips when no prompt file
+  # is staged or on disk. Bash — Linux/macOS/WSL; Windows-native needs Git Bash.
+  - repo: local
+    hooks:
+      - id: check-consulted-rules
+        name: Trigger index — staged paths must name their rules in the prompt file
+        entry: bash scripts/check_consulted_rules.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
 ````
 
 Per-language hooks the user adds as the project matures (don't write them at bootstrap — they require the toolchain to be installed):
@@ -5054,6 +5290,89 @@ Per-language hooks the user adds as the project matures (don't write them at boo
 - **Rust**: `cargo fmt`, `cargo clippy`.
 
 The bootstrap ships the universal hooks (whitespace, YAML/JSON/TOML syntax, secret detection via gitleaks); each project layers its language-specific hooks on top.
+
+---
+
+### Template: `scripts/check_consulted_rules.sh`
+
+Pre-commit hook body. Cross-checks staged file paths against a case ladder of path → rule mappings (generated below from the interview flags) and fails the commit if the prompt file's `## Consulted rules` section doesn't name every rule a staged path fired. Only path-shaped triggers are enforced here; attentional triggers (ADR, telemetry, security surface) stay attentional — the always-loaded rule text in `AGENTS.md` nudges those.
+
+Windows-native hosts need Git Bash to run this script; Linux, macOS, and WSL are native. Invoked from `.pre-commit-config.yaml`'s `local` hook block. The script soft-skips (exits 0) when no prompt file is staged or on disk, and when the prompt file exists but has no `## Consulted rules` section — so the check adds no friction to existing repos that haven't adopted the section yet.
+
+````bash
+#!/usr/bin/env bash
+# Cross-check: staged paths → trigger index → prompt file's Consulted rules.
+# See AGENTS.md's "Read before you act" table for what each rule stops.
+
+set -euo pipefail
+
+mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACM)
+if [ ${#staged[@]} -eq 0 ]; then exit 0; fi
+
+# The prompt file being committed, or the most recent one on disk if we're
+# amending / continuing a task. Missing = soft-skip.
+prompt_file=""
+for f in "${staged[@]}"; do
+  case "$f" in .docs/prompts/*.md) prompt_file="$f"; break ;; esac
+done
+if [ -z "$prompt_file" ]; then
+  prompt_file=$(ls -1t .docs/prompts/*.md 2>/dev/null | head -n 1 || true)
+fi
+if [ -z "$prompt_file" ] || [ ! -f "$prompt_file" ]; then
+  echo "check_consulted_rules: no prompt file staged or on disk — soft-skip"
+  exit 0
+fi
+if ! grep -q '^## Consulted rules' "$prompt_file"; then
+  echo "check_consulted_rules: $prompt_file has no '## Consulted rules' section — soft-skip"
+  echo "  (add the section per .agents/rules/workflow.md §1 for the check to fire)"
+  exit 0
+fi
+
+# Path patterns that fire triggers. Add arms here when a new path-shaped
+# row lands in AGENTS.md's trigger index. Interview flags gate each arm;
+# a project without a flag skips the arm entirely.
+declare -A needs=()
+for path in "${staged[@]}"; do
+  case "$path" in
+{{IF_UI_COMPONENTS}}    components/*|src/components/*|packages/*/components/*)
+{{IF_UI_COMPONENTS}}      needs["ui-components.md"]=1 ;;
+{{IF_FRONTEND}}    src/pages/*|pages/*|partials/*|src/partials/*|*.tsx|*.jsx|*.vue|*.svelte)
+{{IF_FRONTEND}}      needs["workflow-frontend.md"]=1
+{{IF_FRONTEND}}      needs["frontend-visibility.md"]=1 ;;
+{{IF_CHANGES}}    README.md|CHANGELOG.md|docs/*|public/*|static/*|assets/*)
+{{IF_CHANGES}}      needs["workflow-changes.md"]=1 ;;
+{{IF_METRICS}}    metrics/*|analytics/*|*/events.py|*/events.ts|*/events.go)
+{{IF_METRICS}}      needs["workflow-metrics.md"]=1 ;;
+  esac
+done
+if [ ${#needs[@]} -eq 0 ]; then exit 0; fi
+
+# Extract the Consulted rules block for cross-checking. A rule is satisfied
+# either by a plain mention or by an explicit waiver: `<rule> (n/a — reason)`.
+consulted=$(awk '/^## Consulted rules/{f=1; next} /^## /{f=0} f' "$prompt_file")
+
+missing=()
+for rule in "${!needs[@]}"; do
+  if ! grep -qF "$rule" <<<"$consulted"; then
+    missing+=("$rule")
+  fi
+done
+
+if [ ${#missing[@]} -eq 0 ]; then exit 0; fi
+
+echo "check_consulted_rules: staged paths fire trigger(s) not named in"
+echo "  $prompt_file's '## Consulted rules' section:"
+for rule in "${missing[@]}"; do
+  echo "  - $rule"
+done
+echo
+echo "Fix: open the rule file and confirm you followed it, then add a line to"
+echo "'## Consulted rules' naming it. If the trigger doesn't apply to this"
+echo "change, waive it explicitly with the reason: '<rule> (n/a — <one-line>)'"
+exit 1
+````
+
+Emit the script executable — the bootstrap should `chmod +x scripts/check_consulted_rules.sh` after writing it, or the pre-commit invocation via `bash <path>` will still work (the local hook uses `bash` explicitly so the file's executable bit is not load-bearing).
 
 ---
 
