@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD010 -->
 <!-- MD010 disabled: Makefile fenced blocks legitimately require hard tabs (POSIX make spec). -->
-<!-- bootstrap-version: 2026-06-12 -->
+<!-- bootstrap-version: 2026-09-09 -->
 <!-- Version is the ISO date this file was last meaningfully changed. -->
 <!-- Bumped manually on each notable change; the diff lives in CHANGELOG.md. -->
 

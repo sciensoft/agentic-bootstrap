@@ -9,6 +9,8 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+## [2026-09-09] — Context-management overhaul (trigger index, enforcement, proactive rules, MCP, migration) + interview + UX polish
+
 ### Added
 
 - **Opt-in brief-shape migration for existing projects** (Part 1 Step 0 gains a new bullet). Existing projects bootstrapped before the trigger-index refactor still carry the pre-Cut-1 `AGENTS.md` shape (a `## Rules` bullet list of every rule, treated as always-loaded reference) and a `CLAUDE.md` with `@.agents/rules/*` imports. Sacred re-run policy protects those files, so a normal re-run doesn't move them — the user gets Cut 1's 90% context cut only on newly-bootstrapped projects. This migration path plugs the gap: on re-run, Step 0 content-detects the old shape (not version-based — a bump is optional and users may hand-edit before upgrading) and asks the user *migrate / show diff first / skip*. On *migrate*, Step 4 treats `AGENTS.md` (targeted `## Rules`-section rewrite, all user-authored sections preserved byte-for-byte) and `CLAUDE.md` (whole-file replace with the stub — the old shape carried no project-specific content beyond `@`-imports) as write-through rather than Sacred. Outcome recorded in `.agents/bootstrap.json`'s new top-level `brief_shape_migration` key (`"applied"` / `"declined"` / `"not-needed"`) so future re-runs don't re-ask. Step 8's report gains a matching outcome bullet; the Update-mode quick reference gains a one-narrow-exception caveat on Sacred's contract. Delivered as playbook prose inside `AGENTIC-BOOTSTRAP.md` — no external script (the whole delivery model is one downloadable file).
