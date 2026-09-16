@@ -9,7 +9,7 @@
   <link rel="mask-icon" href="favicon.svg" color="#7c3aed">
   <meta name="theme-color" content="#7c3aed">
   <meta name="description"
-    content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline, the first commit. Tool-agnostic, cross-stack, idempotent. Works with Claude Code, Cursor, Codex CLI, Continue.dev, Windsurf, GitHub Copilot, Aider, OpenCode.">
+    content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one — workflow rules, ADR culture, the testing pyramid, telemetry, security rubric, TODO discipline, the first commit. Tool-agnostic, cross-stack, idempotent. Works with Claude Code, Cursor, Codex CLI, Windsurf, GitHub Copilot, Aider, OpenCode.">
   <meta property="og:title" content="Agentic Bootstrap — the day-one discipline a Senior Engineer would have set up">
   <meta property="og:description"
     content="One markdown file. Any agentic coding assistant. One prompt. Your repo grows the discipline a Senior Engineer would have set up on day one. Tool-agnostic, cross-stack, idempotent.">
@@ -280,13 +280,69 @@
         animation: none;
       }
     }
+    /* Agent tabs — shared component used in the hero CLI mockup and the file-tree section.
+       Tab clicks synchronise both places via the small tab-sync script at the end of body. */
+    .agent-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+    .agent-tabs-note {
+      margin-top: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.75rem;
+      color: rgb(113, 113, 122);
+    }
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.375rem 0.875rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
+      color: rgb(161, 161, 170);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 0.15s;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      color: rgb(228, 228, 231);
+    }
+    .tab-btn.active {
+      border-color: rgba(167, 139, 250, 0.6);
+      background-color: rgba(167, 139, 250, 0.1);
+      color: rgb(228, 228, 231);
+    }
   </style>
 </head>
 
 <body class="text-zinc-100 font-sans antialiased selection:bg-accent-400/30 selection:text-accent-100">
 
-  <!-- Nav -->
-  <header class="fixed top-0 inset-x-0 z-50 nav-blur border-b border-white/5">
+  <!-- Subscription-cost banner. In normal document flow (not fixed) so it scrolls out of view as
+       the user reads down and reappears only when they scroll back to the top. Copy leads with
+       the runtime improvement so readers see the win before the caveat. -->
+  <div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-200 text-xs md:text-sm">
+    <div class="max-w-7xl mx-auto px-6 py-2 flex items-start md:items-center gap-2">
+      <svg class="w-4 h-4 flex-shrink-0 mt-0.5 md:mt-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>
+        <strong class="font-semibold">Now 10&times; lighter every turn</strong> (~4.5k tokens, measured).
+        Best used with fixed-rate subscriptions (Claude Code · Cursor Pro · Codex on ChatGPT · Copilot).
+        On per-token API billing, scaffold-time cost adds up —
+        <a href="#footprint" class="underline underline-offset-2 hover:text-amber-100">runtime footprint &rarr;</a>.
+      </span>
+    </div>
+  </div>
+
+  <!-- Nav. Sticky so it pins to the top of the viewport as the user scrolls past the banner. -->
+  <header class="sticky top-0 z-50 nav-blur border-b border-white/5">
     <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
       <a href="#" class="flex items-center gap-2.5 group">
         <span
@@ -300,7 +356,7 @@
         <a href="#postures" class="hover:text-zinc-100 transition">Postures</a>
         <a href="#adoption" class="hover:text-zinc-100 transition">Adoption</a>
       </div>
-      <a href="https://github.com/sciensoft/agentic-bootstrap"
+      <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap"
         class="inline-flex items-center gap-2 text-sm font-medium px-3.5 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
         <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor">
           <path
@@ -312,7 +368,7 @@
   </header>
 
   <!-- Hero -->
-  <section class="relative pt-32 pb-24 overflow-hidden">
+  <section class="relative pt-16 pb-24 overflow-hidden">
     <div class="absolute inset-0 grid-bg pointer-events-none"></div>
     <div class="absolute inset-0 glow-hero pointer-events-none"></div>
 
@@ -335,7 +391,7 @@
               class="text-zinc-100 font-medium">—without interrupting your flow.</span>
           </p>
           <div class="mt-9 flex flex-wrap items-center gap-3">
-            <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC-BOOTSTRAP.md"
+            <a target="_blank" rel="noopener noreferrer" href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC-BOOTSTRAP.md"
               class="btn-primary inline-flex items-center gap-2 font-semibold px-5 py-3 rounded-xl">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -345,7 +401,7 @@
               </svg>
               Get AGENTIC-BOOTSTRAP.md
             </a>
-            <a href="https://github.com/sciensoft/agentic-bootstrap"
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap"
               class="inline-flex items-center gap-2 font-medium px-5 py-3 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
               View on GitHub
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -385,8 +441,6 @@
               <span class="text-zinc-700">·</span>
               <span class="font-medium">OpenAI Codex CLI</span>
               <span class="text-zinc-700">·</span>
-              <span class="font-medium">Continue.dev</span>
-              <span class="text-zinc-700">·</span>
               <span class="font-medium">Windsurf</span>
               <span class="text-zinc-700">·</span>
               <span class="font-medium">GitHub Copilot</span>
@@ -403,7 +457,20 @@
         </div>
 
         <div class="lg:col-span-5">
-          <!-- IMAGE SLOT: Hero illustration. Replace the div below with an <img> tag. Suggested: terminal screenshot or product mark. -->
+          <!-- Hero illustration: a stylised terminal window with tabs above. Clicking a tab switches
+               the CLI content AND the file-tree section further down the page (shared state via JS
+               at the bottom of body). Claude Code is the default tab. -->
+          <div class="agent-tabs" role="tablist" aria-label="Choose your agent (hero mockup)">
+            <button type="button" data-agent="claude" class="tab-btn active" role="tab" aria-selected="true">Claude Code</button>
+            <button type="button" data-agent="cursor" class="tab-btn" role="tab" aria-selected="false">Cursor</button>
+            <button type="button" data-agent="codex" class="tab-btn" role="tab" aria-selected="false">Codex CLI</button>
+            <button type="button" data-agent="windsurf" class="tab-btn" role="tab" aria-selected="false">Windsurf</button>
+            <button type="button" data-agent="copilot" class="tab-btn" role="tab" aria-selected="false">Copilot</button>
+            <button type="button" data-agent="aider" class="tab-btn" role="tab" aria-selected="false">Aider</button>
+            <button type="button" data-agent="opencode" class="tab-btn" role="tab" aria-selected="false">OpenCode</button>
+          </div>
+          <p class="agent-tabs-note">Interview accepts multiple agents; each tab shows the single-agent case.</p>
+
           <div class="relative">
             <div
               class="absolute -inset-4 bg-gradient-to-br from-accent-500/20 via-violet-500/10 to-transparent blur-2xl">
@@ -415,25 +482,159 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
                 <span class="ml-3 text-xs text-zinc-500">~/my-new-project</span>
               </div>
-              <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># or cursor · codex ·
-                  cn · …</span></div>
-              <div class="text-zinc-500 mt-1 hero-prompt-line">› <span data-hero-typing>follow AGENTIC_BOOTSTRAP.md and
-                  let's build this together</span><span class="hero-cursor" aria-hidden="true">▍</span></div>
-              <div class="mt-3 text-zinc-400">
-                <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
-                <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude, Cursor, Codex</span><br>
-                <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
-                <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
-                <span class="tk-c">… 11 more questions, one commit later …</span>
+
+              <!-- Claude Code panel (default visible) -->
+              <div data-agent-panel="claude">
+                <div><span class="tk-m">$</span> <span class="tk-d">claude</span> <span class="tk-c"># Claude Code CLI</span></div>
+                <div class="text-zinc-500 mt-1 hero-prompt-line">› <span data-hero-typing>follow AGENTIC_BOOTSTRAP.md and
+                    let's build this together</span><span class="hero-cursor" aria-hidden="true">▍</span></div>
+                <div class="mt-3 text-zinc-400">
+                  <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                  <span class="tk-k">▸</span> Agents used? <span class="tk-s">Claude Code</span><br>
+                  <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                  <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                  <span class="tk-c">… 11 more questions, one commit later …</span>
+                </div>
+                <div class="mt-3">
+                  <span class="tk-c"># Scaffold written:</span><br>
+                  <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                  <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                  <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span>
+                  <span class="tk-p">.claude/settings.json</span> <span class="tk-c">·</span>
+                  <span class="tk-p">.claude/hooks/rule-reminder.sh</span><br>
+                  <span class="tk-p">.mcp.example.json</span> <span class="tk-c"># MCP starter (safety pattern)</span><br>
+                  <span class="tk-c">+ first commit recording the bootstrap itself</span>
+                </div>
               </div>
-              <div class="mt-3">
-                <span class="tk-c"># Scaffold written:</span><br>
-                <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
-                <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
-                <span class="tk-p">CLAUDE.md</span> <span class="tk-c">·</span> <span class="tk-p">.cursor/rules/</span>
-                <span class="tk-c">·</span> <span class="tk-p">.aider.conf.yml</span> <span class="tk-c">#
-                  adapters</span><br>
-                <span class="tk-c">+ first commit recording the bootstrap itself</span>
+
+              <!-- Cursor panel -->
+              <div data-agent-panel="cursor" hidden>
+                <div><span class="tk-c"># open the project in Cursor, then in the Composer chat:</span></div>
+                <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md and let's build this together</div>
+                <div class="mt-3 text-zinc-400">
+                  <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                  <span class="tk-k">▸</span> Agents used? <span class="tk-s">Cursor</span><br>
+                  <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                  <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                  <span class="tk-c">… 11 more questions, one commit later …</span>
+                </div>
+                <div class="mt-3">
+                  <span class="tk-c"># Scaffold written:</span><br>
+                  <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                  <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                  <span class="tk-p">.cursor/rules/agents.mdc</span> <span class="tk-c">·</span>
+                  <span class="tk-p">.cursor/rules/trigger-index.mdc</span> <span class="tk-c">·</span>
+                  <span class="tk-p">.cursor/settings.json</span><br>
+                  <span class="tk-p">.mcp.example.json</span> <span class="tk-c"># MCP starter (safety pattern)</span><br>
+                  <span class="tk-c">+ first commit recording the bootstrap itself</span>
+                </div>
+              </div>
+
+              <!-- Codex CLI panel -->
+              <div data-agent-panel="codex" hidden>
+                <div><span class="tk-m">$</span> <span class="tk-d">codex</span> <span class="tk-c"># OpenAI Codex CLI</span></div>
+                <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md and let's build this together</div>
+                <div class="mt-3 text-zinc-400">
+                  <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                  <span class="tk-k">▸</span> Agents used? <span class="tk-s">Codex CLI</span><br>
+                  <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                  <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                  <span class="tk-c">… 11 more questions, one commit later …</span>
+                </div>
+                <div class="mt-3">
+                  <span class="tk-c"># Scaffold written:</span><br>
+                  <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                  <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                  <span class="tk-p">.codex/config.toml</span> <span class="tk-c"># approval mode + sandbox</span><br>
+                  <span class="tk-p">.mcp.example.json</span> <span class="tk-c"># MCP starter (safety pattern)</span><br>
+                  <span class="tk-c"># AGENTS.md read natively — no adapter file needed</span><br>
+                  <span class="tk-c">+ first commit recording the bootstrap itself</span>
+                </div>
+              </div>
+
+              <!-- Windsurf panel -->
+              <div data-agent-panel="windsurf" hidden>
+                <div><span class="tk-c"># open the project in Windsurf, then in Cascade:</span></div>
+                <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md and let's build this together</div>
+                <div class="mt-3 text-zinc-400">
+                  <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                  <span class="tk-k">▸</span> Agents used? <span class="tk-s">Windsurf</span><br>
+                  <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                  <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                  <span class="tk-c">… 11 more questions, one commit later …</span>
+                </div>
+                <div class="mt-3">
+                  <span class="tk-c"># Scaffold written:</span><br>
+                  <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                  <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                  <span class="tk-p">.windsurfrules</span> <span class="tk-c">·</span>
+                  <span class="tk-p">.windsurf/settings.json</span><br>
+                  <span class="tk-p">.mcp.example.json</span> <span class="tk-c"># MCP starter (safety pattern)</span><br>
+                  <span class="tk-c">+ first commit recording the bootstrap itself</span>
+                </div>
+              </div>
+
+              <!-- Copilot panel -->
+              <div data-agent-panel="copilot" hidden>
+                <div><span class="tk-c"># activate Copilot in your IDE, open Copilot Chat:</span></div>
+                <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md and let's build this together</div>
+                <div class="mt-3 text-zinc-400">
+                  <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                  <span class="tk-k">▸</span> Agents used? <span class="tk-s">GitHub Copilot</span><br>
+                  <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                  <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                  <span class="tk-c">… 11 more questions, one commit later …</span>
+                </div>
+                <div class="mt-3">
+                  <span class="tk-c"># Scaffold written:</span><br>
+                  <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                  <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                  <span class="tk-p">.github/copilot-instructions.md</span> <span class="tk-c"># inlines Always + trigger index</span><br>
+                  <span class="tk-p">.mcp.example.json</span> <span class="tk-c"># MCP starter (safety pattern)</span><br>
+                  <span class="tk-c">+ first commit recording the bootstrap itself</span>
+                </div>
+              </div>
+
+              <!-- Aider panel -->
+              <div data-agent-panel="aider" hidden>
+                <div><span class="tk-m">$</span> <span class="tk-d">aider</span> <span class="tk-c"># Aider CLI</span></div>
+                <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md and let's build this together</div>
+                <div class="mt-3 text-zinc-400">
+                  <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                  <span class="tk-k">▸</span> Agents used? <span class="tk-s">Aider</span><br>
+                  <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                  <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                  <span class="tk-c">… 11 more questions, one commit later …</span>
+                </div>
+                <div class="mt-3">
+                  <span class="tk-c"># Scaffold written:</span><br>
+                  <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                  <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                  <span class="tk-p">.aider.conf.yml</span> <span class="tk-c"># read: [AGENTS.md] + posture keys</span><br>
+                  <span class="tk-p">.mcp.example.json</span> <span class="tk-c"># MCP starter (safety pattern)</span><br>
+                  <span class="tk-c">+ first commit recording the bootstrap itself</span>
+                </div>
+              </div>
+
+              <!-- OpenCode panel -->
+              <div data-agent-panel="opencode" hidden>
+                <div><span class="tk-m">$</span> <span class="tk-d">opencode</span> <span class="tk-c"># OpenCode CLI</span></div>
+                <div class="text-zinc-500 mt-1">› follow AGENTIC_BOOTSTRAP.md and let's build this together</div>
+                <div class="mt-3 text-zinc-400">
+                  <span class="tk-k">▸</span> Project name? <span class="tk-s">"orbital"</span><br>
+                  <span class="tk-k">▸</span> Agents used? <span class="tk-s">OpenCode</span><br>
+                  <span class="tk-k">▸</span> Language? <span class="tk-s">Python</span><br>
+                  <span class="tk-k">▸</span> Architecture? <span class="tk-s">4-Layer DDD</span><br>
+                  <span class="tk-c">… 11 more questions, one commit later …</span>
+                </div>
+                <div class="mt-3">
+                  <span class="tk-c"># Scaffold written:</span><br>
+                  <span class="tk-p">AGENTS.md</span> <span class="tk-c">·</span> <span class="tk-p">.agents/rules/</span>
+                  <span class="tk-c">·</span> <span class="tk-p">.docs/{adrs,prompts,todos}/</span><br>
+                  <span class="tk-p">.mcp.example.json</span> <span class="tk-c"># MCP starter (safety pattern)</span><br>
+                  <span class="tk-c"># AGENTS.md read natively — no adapter file, no permission config</span><br>
+                  <span class="tk-c">+ first commit recording the bootstrap itself</span>
+                </div>
               </div>
             </div>
           </div>
@@ -556,7 +757,7 @@
             <h3 class="text-lg font-semibold">Tell the agent</h3>
           </div>
           <p class="text-zinc-400 leading-relaxed">Hand it to your assistant of choice — Claude Code, Cursor, Codex CLI,
-            Continue.dev, Windsurf, Copilot, Aider, OpenCode — with one prompt.</p>
+            Windsurf, Copilot, Aider, OpenCode — with one prompt.</p>
           <div class="codeblock rounded-lg mt-5 p-3 font-mono text-xs relative"
             data-copy="follow AGENTIC_BOOTSTRAP.md and let's build this together">
             <button type="button" class="copy-btn" aria-label="Copy prompt to clipboard">
@@ -796,36 +997,201 @@
         </div>
 
         <div class="lg:col-span-7 min-w-0 reveal">
-          <!-- IMAGE SLOT (optional): replace this codeblock with a real screenshot of a bootstrapped repo. -->
+          <!-- Tab strip mirrors the hero mockup — same seven agents, shared state (JS at end of body).
+               Switching a tab here also switches the hero CLI mockup above, and vice versa. -->
+          <div class="agent-tabs" role="tablist" aria-label="Choose your agent (file tree)">
+            <button type="button" data-agent="claude" class="tab-btn active" role="tab" aria-selected="true">Claude Code</button>
+            <button type="button" data-agent="cursor" class="tab-btn" role="tab" aria-selected="false">Cursor</button>
+            <button type="button" data-agent="codex" class="tab-btn" role="tab" aria-selected="false">Codex CLI</button>
+            <button type="button" data-agent="windsurf" class="tab-btn" role="tab" aria-selected="false">Windsurf</button>
+            <button type="button" data-agent="copilot" class="tab-btn" role="tab" aria-selected="false">Copilot</button>
+            <button type="button" data-agent="aider" class="tab-btn" role="tab" aria-selected="false">Aider</button>
+            <button type="button" data-agent="opencode" class="tab-btn" role="tab" aria-selected="false">OpenCode</button>
+          </div>
+          <p class="agent-tabs-note">Shared trunk (<span class="font-mono">AGENTS.md</span> · <span class="font-mono">.agents/</span> · <span class="font-mono">.docs/</span>) is identical across agents; only the adapter block changes per pick.</p>
+
           <div class="codeblock rounded-2xl p-6 font-mono text-[13px] leading-7 overflow-x-auto">
-            <pre><span class="tk-p">your-repo/</span>
-├── <span class="tk-k">AGENTS.md</span>                       <span class="tk-c"># primary cross-tool brief — title, purpose, run, architecture</span>
+
+            <!-- Claude Code tree (default visible) -->
+            <pre data-agent-panel="claude"><span class="tk-p">your-repo/</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                        <span class="tk-c"># tool-agnostic spine</span>
-│   ├── <span class="tk-p">rules/</span>
-│   │   ├── <span class="tk-k">workflow.md</span>             <span class="tk-c"># prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>       <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>    <span class="tk-c"># per-request security checks</span>
-│   │   ├── <span class="tk-k">best-practices.md</span>       <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span> <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>              <span class="tk-c"># interview answers — re-runnable</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
+│   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
-│   <span class="tk-c"># Per-tool adapters — only the ones you picked get written:</span>
-├── <span class="tk-k">CLAUDE.md</span>                       <span class="tk-c"># Claude Code adapter (@-includes the brief)</span>
-├── <span class="tk-p">.claude/</span><span class="tk-k">settings.json</span>          <span class="tk-c"># Claude permission posture (cautious → bypass)</span>
-├── <span class="tk-p">.cursor/rules/</span><span class="tk-k">agents.mdc</span>      <span class="tk-c"># Cursor adapter (alwaysApply: true)</span>
-├── <span class="tk-k">.aider.conf.yml</span>                 <span class="tk-c"># Aider read: list</span>
-├── <span class="tk-p">.continue/</span><span class="tk-k">config.json</span>         <span class="tk-c"># Continue.dev rules entry</span>
-├── <span class="tk-k">.windsurfrules</span>                  <span class="tk-c"># Windsurf adapter</span>
-├── <span class="tk-p">.github/</span><span class="tk-k">copilot-instructions.md</span> <span class="tk-c"># Copilot adapter (rules inlined)</span>
+│   <span class="tk-c"># ── Claude Code adapter ─────────────────────</span>
+├── <span class="tk-k">CLAUDE.md</span>                          <span class="tk-c"># thin @AGENTS.md stub</span>
+├── <span class="tk-p">.claude/</span><span class="tk-k">settings.json</span>             <span class="tk-c"># permission posture (cautious → bypass)</span>
+├── <span class="tk-p">.claude/hooks/</span><span class="tk-k">rule-reminder.sh</span>    <span class="tk-c"># PreToolUse reminder</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                    <span class="tk-c"># timestamped, one per request</span>
-    ├── <span class="tk-p">adrs/</span>                       <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                      <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>           <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
+
+            <!-- Cursor tree -->
+            <pre data-agent-panel="cursor" hidden><span class="tk-p">your-repo/</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
+├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
+│
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
+│   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
+│
+│   <span class="tk-c"># ── Cursor adapter ──────────────────────────</span>
+├── <span class="tk-p">.cursor/rules/</span><span class="tk-k">agents.mdc</span>         <span class="tk-c"># pointer stub, alwaysApply: true</span>
+├── <span class="tk-p">.cursor/rules/</span><span class="tk-k">trigger-index.mdc</span>  <span class="tk-c"># path-shaped trigger index (always-injected)</span>
+├── <span class="tk-p">.cursor/</span><span class="tk-k">settings.json</span>             <span class="tk-c"># permission posture</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
+│
+└── <span class="tk-p">.docs/</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
+    └── <span class="tk-p">security/</span>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
+
+            <!-- Codex CLI tree -->
+            <pre data-agent-panel="codex" hidden><span class="tk-p">your-repo/</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># read natively by Codex — no adapter file needed</span>
+├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
+│
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
+│   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
+│
+│   <span class="tk-c"># ── Codex CLI adapter ───────────────────────</span>
+├── <span class="tk-p">.codex/</span><span class="tk-k">config.toml</span>               <span class="tk-c"># approval mode + sandbox profile</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
+│
+└── <span class="tk-p">.docs/</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
+    └── <span class="tk-p">security/</span>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
+
+            <!-- Windsurf tree -->
+            <pre data-agent-panel="windsurf" hidden><span class="tk-p">your-repo/</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
+├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
+│
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
+│   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
+│
+│   <span class="tk-c"># ── Windsurf adapter ────────────────────────</span>
+├── <span class="tk-k">.windsurfrules</span>                     <span class="tk-c"># thin adapter, points at AGENTS.md</span>
+├── <span class="tk-p">.windsurf/</span><span class="tk-k">settings.json</span>           <span class="tk-c"># Cascade permission mode</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
+│
+└── <span class="tk-p">.docs/</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
+    └── <span class="tk-p">security/</span>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
+
+            <!-- Copilot tree -->
+            <pre data-agent-panel="copilot" hidden><span class="tk-p">your-repo/</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
+├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
+│
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
+│   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
+│
+│   <span class="tk-c"># ── GitHub Copilot adapter ──────────────────</span>
+├── <span class="tk-p">.github/</span><span class="tk-k">copilot-instructions.md</span>   <span class="tk-c"># inlines Always + trigger index (Copilot can't chase refs)</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
+│
+└── <span class="tk-p">.docs/</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
+    └── <span class="tk-p">security/</span>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
+
+            <!-- Aider tree -->
+            <pre data-agent-panel="aider" hidden><span class="tk-p">your-repo/</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
+├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
+│
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
+│   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
+│
+│   <span class="tk-c"># ── Aider adapter ───────────────────────────</span>
+├── <span class="tk-k">.aider.conf.yml</span>                    <span class="tk-c"># read: [AGENTS.md] + posture-driven autonomy keys</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
+│
+└── <span class="tk-p">.docs/</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
+    └── <span class="tk-p">security/</span>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
+
+            <!-- OpenCode tree -->
+            <pre data-agent-panel="opencode" hidden><span class="tk-p">your-repo/</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># read natively by OpenCode — no adapter file needed</span>
+├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
+│
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
+│   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
+│
+│   <span class="tk-c"># ── OpenCode ────────────────────────────────</span>
+│   <span class="tk-c"># AGENTS.md read natively — no adapter file, no permission config</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
+│
+└── <span class="tk-p">.docs/</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
+    └── <span class="tk-p">security/</span>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
+
           </div>
         </div>
       </div>
@@ -951,12 +1317,16 @@
   <!-- Runtime footprint -->
   <section id="footprint" class="py-24 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="max-w-2xl reveal">
+      <div class="max-w-3xl reveal">
         <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Runtime footprint</p>
-        <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Runs once. Then steps out of the way.</h2>
-        <p class="mt-4 text-zinc-400 text-lg">The bootstrap is heavyweight at scaffold time and lightweight forever
-          after. A template index lets capable agents skip what doesn't apply to your answers, cutting scaffold cost
-          further. The playbook's cost is paid at bootstrap. Regular sessions stay lightweight.</p>
+        <h2 class="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Runs once. Then reads 90% less on every turn.</h2>
+        <p class="mt-4 text-zinc-400 text-lg leading-relaxed">The bootstrap was heavyweight at scaffold time and
+          lightweight forever after — but "lightweight" recently got 10&times; lighter. In the previous shape, the
+          always-loaded rule set (<span class="font-mono text-zinc-300">AGENTS.md</span> + every file under
+          <span class="font-mono text-zinc-300">.agents/rules/</span> imported into the per-agent adapter) measured
+          <span class="text-zinc-100 font-medium">~47,000 tokens on every turn</span>. Now the rules are indexed, not
+          preloaded. Fixed load: <span class="text-zinc-100 font-medium">~4,500 tokens, measured</span>. The rest opens
+          only when its trigger fires.</p>
       </div>
 
       <div class="mt-14 grid md:grid-cols-3 gap-6">
@@ -982,16 +1352,42 @@
             net.</p>
         </div>
 
-        <div class="card rounded-2xl p-7 reveal">
-          <p class="text-zinc-500 text-sm font-semibold tracking-wide uppercase">Every session after</p>
-          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~5&ndash;15k <span
+        <div class="card rounded-2xl p-7 reveal border border-accent-500/30">
+          <p class="text-accent-400 text-sm font-semibold tracking-wide uppercase">Every session after</p>
+          <p class="mt-3 text-5xl md:text-6xl font-bold tracking-tight">~4.5k <span
               class="text-2xl md:text-3xl font-medium text-zinc-400">tokens</span></p>
-          <p class="mt-4 text-zinc-400 leading-relaxed">Agents usually auto-load only the thin spine — <span
-              class="font-mono text-zinc-300">AGENTS.md</span> plus the relevant rule files under <span
-              class="font-mono text-zinc-300">.agents/rules/</span>. The footprint depends on the gates you enabled
-            and the assistant's loading strategy, but it stays far smaller than the original bootstrap playbook.</p>
+          <p class="mt-4 text-zinc-400 leading-relaxed">Only <span class="font-mono text-zinc-300">AGENTS.md</span> + its
+            trigger index preload. When the agent touches a UI affordance, <span
+              class="font-mono text-zinc-300">ui-components.md</span> opens. When it hits an auth surface, <span
+              class="font-mono text-zinc-300">workflow-security.md</span> opens. When the change fires no trigger, the
+            fixed load is one file. <span class="text-zinc-100 font-medium">Measured against <span
+              class="font-mono">/context</span> in Claude Code, not estimated.</span></p>
         </div>
 
+      </div>
+
+      <!-- The mechanism — two subsections that dramatise what changed. -->
+      <div class="mt-16 grid md:grid-cols-2 gap-8 reveal">
+        <div>
+          <h3 class="text-xl font-semibold tracking-tight">The trigger index</h3>
+          <p class="mt-3 text-zinc-400 leading-relaxed">The always-loaded brief carries a table: one row per rule file,
+            each naming the <em>condition</em> under which the agent should open that file. <span
+              class="text-zinc-200">Reactive</span> rules (security, changes, UI, layered architecture, frontend) fire
+            only when their surface is touched. <span class="text-zinc-200">Proactive-discipline</span> rules (testing,
+            metrics, telemetry) fire on any relevant code change when opted in. Each file's body stays on disk until its
+            row fires — no on-every-turn tax.</p>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold tracking-tight">Mechanical enforcement (opt-in, per host)</h3>
+          <p class="mt-3 text-zinc-400 leading-relaxed">On <span class="text-zinc-200">Claude Code</span>, a <span
+              class="font-mono text-zinc-300">PreToolUse</span> hook cross-checks the target path against the index and
+            injects a one-line reminder <em>before</em> every Edit / Write. On <span
+              class="text-zinc-200">Cursor</span>, an <span class="font-mono text-zinc-300">alwaysApply</span> rule
+            inlines the path-shaped index on every message. Every host gets an agent-agnostic pre-commit hook that
+            cross-checks staged paths against the prompt file's declared consulted rules. On hosts without a runtime
+            hook primitive (Aider, Codex, Windsurf, Copilot), the pre-commit layer plus the always-loaded index text
+            carry the discipline.</p>
+        </div>
       </div>
 
       <p class="mt-12 text-zinc-400 text-center reveal">The bootstrap pays its token cost at scaffold time. Your team
@@ -1125,8 +1521,7 @@
             everything" to "no prompts ever" — and the bootstrap fans that one intent out across every tool you picked.
             Claude gets a <span class="font-mono text-zinc-200">.claude/settings.json</span>; Cursor gets <span
               class="font-mono text-zinc-200">.cursor/settings.json</span>; Codex gets <span
-              class="font-mono text-zinc-200">.codex/config.toml</span>; Continue.dev gets a tools-autonomy block in
-            <span class="font-mono text-zinc-200">.continue/config.json</span>; Windsurf gets <span
+              class="font-mono text-zinc-200">.codex/config.toml</span>; Windsurf gets <span
               class="font-mono text-zinc-200">.windsurf/settings.json</span>; Aider gets the matching keys in <span
               class="font-mono text-zinc-200">.aider.conf.yml</span>. OpenCode and Copilot don't have file-based
             permission models — their adapters carry a posture-intent note you apply in the IDE.
@@ -1298,7 +1693,7 @@
       </div>
 
       <div class="mt-14 grid md:grid-cols-3 gap-6">
-        <a href="https://github.com/sciensoft/agentic-bootstrap/tree/develop/examples"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/tree/develop/examples"
           class="card rounded-2xl p-7 reveal block hover:no-underline">
           <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Examples</p>
           <h3 class="mt-2 font-semibold text-lg">See the output</h3>
@@ -1309,7 +1704,7 @@
           <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Browse examples/ →</span>
         </a>
 
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/QUICKSTART.md"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/QUICKSTART.md"
           class="card rounded-2xl p-7 reveal block hover:no-underline">
           <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Quickstart</p>
           <h3 class="mt-2 font-semibold text-lg">60 seconds, three steps</h3>
@@ -1319,14 +1714,14 @@
           <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Read QUICKSTART.md →</span>
         </a>
 
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/AGENTIC-BOOTSTRAP.md"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/AGENTIC-BOOTSTRAP.md#doctor-mode-audit-only--no-writes"
           class="card rounded-2xl p-7 reveal block hover:no-underline">
           <p class="text-xs font-semibold tracking-wide uppercase text-accent-400">Doctor mode</p>
           <h3 class="mt-2 font-semibold text-lg">Audit without writing</h3>
           <p class="mt-2 text-zinc-400 leading-relaxed">Already bootstrapped? Ask <em>"run bootstrap-doctor against this
               repo"</em> for a structured drift report — missing rule files, stale answer cache, security audits
             overdue, stub best-practices, ADR-index drift. No writes; pure read.</p>
-          <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">See doctor-mode spec →</span>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm text-accent-400">Read the Doctor mode section →</span>
         </a>
       </div>
 
@@ -1402,7 +1797,7 @@
       <!-- Trust signals + version -->
       <div class="mt-16 reveal flex flex-wrap items-center justify-between gap-6 pt-8 border-t border-white/5">
         <div class="flex flex-wrap items-center gap-3 text-sm">
-          <a href="https://github.com/sciensoft/agentic-bootstrap/stargazers"
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/stargazers"
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
             <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="currentColor">
               <polygon
@@ -1410,13 +1805,13 @@
             </svg>
             <span>Star on GitHub</span>
           </a>
-          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CHANGELOG.md"
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CHANGELOG.md"
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
             <span class="w-1.5 h-1.5 rounded-full bg-accent-400"></span>
-            <span class="font-mono text-xs">v2026-06-10</span>
+            <span class="font-mono text-xs">v2026-09-16</span>
             <span class="text-zinc-500">Changelog</span>
           </a>
-          <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CONTRIBUTING.md"
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CONTRIBUTING.md"
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300">
             <svg class="w-4 h-4 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
@@ -1427,7 +1822,7 @@
             </svg>
             <span>Contribute</span>
           </a>
-          <a href="https://github.com/sciensoft/agentic-bootstrap/actions/workflows/lint-bootstrap.yml"
+          <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/actions/workflows/lint-bootstrap.yml"
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-300"
             title="Cross-reference lint runs on every PR — Q-numbers, IF_FLAGs, decision-matrix rows, version↔changelog match">
             <img src="https://github.com/sciensoft/agentic-bootstrap/actions/workflows/lint-bootstrap.yml/badge.svg"
@@ -1446,13 +1841,13 @@
     <div class="max-w-4xl mx-auto px-6 text-center reveal">
       <p class="text-zinc-400">Found a bug, got an idea, or built something you'd like to ship?</p>
       <div class="mt-6 flex flex-wrap justify-center gap-3">
-        <a href="https://github.com/sciensoft/agentic-bootstrap/issues/new"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/issues/new"
           class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Open
           an issue</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/discussions"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/discussions"
           class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Start
           a discussion</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/compare"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/compare"
           class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border border-white/10 hover:border-white/25 hover:bg-white/5 transition text-zinc-200">Open
           a PR</a>
       </div>
@@ -1473,7 +1868,7 @@
         repo, an existing repo, or re-run it later — the bootstrap reuses your prior answers and only asks about what's
         new.</p>
       <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
-        <a href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC-BOOTSTRAP.md"
+        <a target="_blank" rel="noopener noreferrer" href="https://raw.githubusercontent.com/sciensoft/agentic-bootstrap/develop/AGENTIC-BOOTSTRAP.md"
           class="btn-primary inline-flex items-center gap-2 font-semibold px-6 py-3.5 rounded-xl">
           Download AGENTIC-BOOTSTRAP.md
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -1481,7 +1876,7 @@
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap"
           class="inline-flex items-center gap-2 font-medium px-6 py-3.5 rounded-xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition">
           Read it on GitHub
         </a>
@@ -1500,18 +1895,18 @@
         <span>Agentic Bootstrap · MIT licensed</span>
       </div>
       <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-        <a href="https://github.com/sciensoft/agentic-bootstrap" class="hover:text-zinc-300 transition">GitHub</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/AGENTIC-BOOTSTRAP.md"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap" class="hover:text-zinc-300 transition">GitHub</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/AGENTIC-BOOTSTRAP.md"
           class="hover:text-zinc-300 transition">The file</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/QUICKSTART.md"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/QUICKSTART.md"
           class="hover:text-zinc-300 transition">Quickstart</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/tree/develop/examples"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/tree/develop/examples"
           class="hover:text-zinc-300 transition">Examples</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CHANGELOG.md"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CHANGELOG.md"
           class="hover:text-zinc-300 transition">Changelog</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CONTRIBUTING.md"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/blob/develop/CONTRIBUTING.md"
           class="hover:text-zinc-300 transition">Contribute</a>
-        <a href="https://github.com/sciensoft/agentic-bootstrap/issues"
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/sciensoft/agentic-bootstrap/issues"
           class="hover:text-zinc-300 transition">Issues</a>
       </div>
     </div>
@@ -1604,6 +1999,27 @@
 
       // Small delay so the animation starts after the hero settles in view.
       setTimeout(type, 500);
+    })();
+  </script>
+
+  <!-- Agent tab sync: click any tab in the hero mockup or the file-tree section and both
+       places switch to the same agent. Uses the `hidden` attribute (browser default: display:none)
+       so no extra CSS is needed. Runs once on load; no framework, no dependencies. -->
+  <script>
+    (function () {
+      function switchAgent(agent) {
+        document.querySelectorAll('.tab-btn[data-agent]').forEach(function (btn) {
+          var isActive = btn.dataset.agent === agent;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-agent-panel]').forEach(function (panel) {
+          panel.hidden = panel.dataset.agentPanel !== agent;
+        });
+      }
+      document.querySelectorAll('.tab-btn[data-agent]').forEach(function (btn) {
+        btn.addEventListener('click', function () { switchAgent(btn.dataset.agent); });
+      });
     })();
   </script>
 </body>

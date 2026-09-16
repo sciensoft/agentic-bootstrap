@@ -29,6 +29,10 @@ Thumbs.db
 # Project-specific
 .temp/
 
+# Distribution / marketing plans — private working docs (drafts, post copy, target lists, etc.).
+# Not committed; kept local for the maintainer to iterate on before publishing.
+.docs/distribution/
+
 # Python caches (for the lint script under scripts/)
 __pycache__/
 .ruff_cache/

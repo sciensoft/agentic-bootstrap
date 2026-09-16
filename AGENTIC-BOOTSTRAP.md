@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD010 -->
 <!-- MD010 disabled: Makefile fenced blocks legitimately require hard tabs (POSIX make spec). -->
-<!-- bootstrap-version: 2026-06-12 -->
+<!-- bootstrap-version: 2026-09-16 -->
 <!-- Version is the ISO date this file was last meaningfully changed. -->
 <!-- Bumped manually on each notable change; the diff lives in CHANGELOG.md. -->
 
@@ -63,6 +63,21 @@ The bootstrap is **idempotent**: it's safe to re-run on a project that's already
   - **Migrate**: `git mv .claude/rules .agents/rules` + `git mv .claude/bootstrap.json .agents/bootstrap.json`; update any `@.claude/rules/…` refs in `CLAUDE.md` to `@.agents/rules/…` in the same step.
   - **Leave**: keep the legacy paths live for this re-run (write to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools is limited until the user migrates.
   - **Either way**: record the chosen layout in `bootstrap.json` so future re-runs don't re-ask.
+- **Brief-shape migration** (opt-in): if the bootstrap has run here (sentinel exists) and `AGENTS.md` or `CLAUDE.md` are still on the pre-trigger-index brief shape, offer a targeted migration. Sacred re-run policy still holds — this is not a silent rewrite. Detect content-based, not version-based, since a bootstrap-version bump is optional and users may have hand-edited before upgrading:
+  - `AGENTS.md` still contains a `## Rules` heading followed by an *"Always follow the rules in `.agents/rules/`:"* bullet list (rather than the `### Always` block + `### Read before you act` trigger index), **or**
+  - `CLAUDE.md` still contains `@.agents/rules/<name>.md` lines beyond the single `@AGENTS.md` include (rather than the thin-stub shape).
+
+  If either signal fires, ask the user (once — record the outcome so future re-runs don't re-ask):
+
+  > *"Your `AGENTS.md` / `CLAUDE.md` are on the pre-context-cut shape. Migrating replaces the `## Rules` bullet list with an `Always` block (five turn-level rules) + a trigger index (each `.agents/rules/*` file's condition and when to open it), and rewrites `CLAUDE.md` as a thin `@AGENTS.md` stub. Your `Purpose`, `Run`, `Architecture map`, `Conventions (summary)`, and any custom sections are preserved unchanged. Fixed always-loaded context typically drops from ~47k → ~4.5k tokens (measured). Migrate now, show me the diff first, or skip?"*
+
+  Then:
+  - **Migrate**: in Step 4's file writes, treat `AGENTS.md` and `CLAUDE.md` as a targeted rewrite rather than Sacred:
+    - `AGENTS.md`: replace only the `## Rules` section (from the `## Rules` heading up to the next `##`-level heading) with the current `Always` + `Read before you act` + `Measurement habit` shape from the `AGENTS.md` Part 4 template. Trigger-index rows are gated by the same `IF_*` flags read from `.agents/bootstrap.json`. Preserve `# {{PROJECT_NAME}}`, `## Purpose`, `## Run`, `## Architecture map`, `## Conventions (summary)`, `## Maintenance notes`, and any user-added sections **verbatim** (byte-for-byte outside the `## Rules` block).
+    - `CLAUDE.md`: overwrite with the current `CLAUDE.md` Part 4 template body (a thin `@AGENTS.md` stub + closing paragraph). The pre-Cut-1 shape carried no project-specific content beyond the `@`-imports, so a full replacement is safe.
+  - **Show me the diff first**: print the planned changes as a unified diff (no writes yet), then re-ask (migrate or skip).
+  - **Skip**: leave `AGENTS.md` and `CLAUDE.md` alone. Record the choice so future re-runs don't re-ask — the user can re-request explicitly if they change their mind.
+  - **Record the outcome** in `.agents/bootstrap.json` regardless: a top-level `brief_shape_migration` key set to `"applied"`, `"declined"`, or `"not-needed"` (last one for projects already on the new shape). This key sits alongside `bootstrap_version` and `interview_status`, not inside `answers` (it's metadata, not an interview answer). Future re-runs read it before offering the prompt; a value of `"declined"` skips the offer unless the user asks explicitly (*"re-offer the brief-shape migration"*), in which case flip the key back to unset and re-run this bullet.
 - If no sentinel exists at either path → **first-time mode**. Standard flow (Steps 1–8 as written).
 - **Read the version markers**. This bootstrap file carries `<!-- bootstrap-version: <YYYY-MM-DD> -->` near the top — parse it as `CURRENT_BOOTSTRAP_VERSION`. On re-run, also read `bootstrap_version` from `.agents/bootstrap.json` as `PREVIOUS_BOOTSTRAP_VERSION`. If they differ, the user is upgrading; carry both values through to Step 8 so the report can name what changed (see [CHANGELOG.md](./CHANGELOG.md) for the change log between versions). If they're identical, this is a re-run on the same version (e.g. to refresh after an interview tweak); the upgrade narrative is omitted.
 
@@ -95,6 +110,7 @@ When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo
 | 8 | **ADR index integrity** — `.docs/adrs/00*.md` files vs `.docs/adrs/README.md` index table | ADRs missing from index · index rows referencing missing files. |
 | 9 | **Todos hygiene** — entries in `.docs/todos/`; check each *Revisit when* trigger | Trigger obviously fired (date in past, referenced PR merged) → flag as sweepable. **Never auto-sweep** — that's a write. |
 | 10 | **Prompt-file presence** — count `.docs/prompts/*.md` vs commit count since bootstrap | Many commits but few prompts → `workflow.md` discipline likely not active. |
+| 11 | **Hook-reinforcement smoke test** — for each hook-shaped reinforcement emitted for this project's `AGENTS_USED`, verify it's *functional*, not just present. Described agent-agnostically; each running agent tests whichever hook applies to it. **Claude**: pipe a synthesized JSON payload matching a case-ladder arm (e.g. `echo '{"tool_input":{"file_path":"components/foo.tsx"},"session_id":"doctor"}' \| bash .claude/hooks/rule-reminder.sh`), expect the rule name in stdout. **Cursor**: parse `.cursor/rules/trigger-index.mdc`'s frontmatter (confirm `alwaysApply: true`), confirm the body carries the current-format path-shaped rows. **Other hosts with hook infrastructure**: verify by their host's contract. **Silent skip** if no hook applies to the current host (Aider, Codex, Continue, Windsurf, Copilot — no hook primitive; Layer 1 + Layer 2 enforcement covers them and doesn't need this check). Zero writes — pipe tests read the hook script's stdin, no file touched. | Hook present but reminder not observed on a synthesized trigger → environment gap (`jq` missing, non-standard case-ladder paths, WSL / Git Bash) or template bug — flag with the specific failure symptom the pipe output produced. |
 
 **Report shape** — print as Markdown so it's pasteable into chat or a doc:
 
@@ -116,7 +132,7 @@ When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo
 ### Stale (refinement / audit / version cadence)
 - <bullet> · <one-line remediation>
 
-### Drift (adapter / ADR / todo hygiene)
+### Drift (adapter / ADR / todo / hook-reinforcement hygiene)
 - <bullet> · <one-line remediation>
 
 ### Informational
@@ -295,6 +311,7 @@ In one short paragraph:
 - **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), which per-tool adapters were written (from `AGENTS_USED`), the natural next step — usually: open `AGENTS.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`.docs/adrs/0001-<slug>.md`).
 - **Re-run mode**: which Canon files were refreshed, which Mixed files were merged / kept / overwritten / skipped (with per-file user decisions), which Sacred files were preserved untouched, which new interview keys landed in `.agents/bootstrap.json`. Also flag any Sacred files that were missing on disk (the user may want to re-scaffold from the template manually).
 - **Upgrade narrative** (re-run mode, only when `PREVIOUS_BOOTSTRAP_VERSION ≠ CURRENT_BOOTSTRAP_VERSION`): one sentence naming the version delta — *"Upgrading from `<previous>` to `<current>`"* — and a 2-4 bullet summary of the relevant changes since the previous version (from `CHANGELOG.md`). Skip changes that don't apply to this project (e.g. a new tool adapter that isn't in `AGENTS_USED`).
+- **Brief-shape migration outcome** (re-run mode, only when Step 0 detected the pre-Cut-1 shape): whether the user opted to migrate, preview-then-decide, or skip. On *migrate*, name the byte / token delta (run `make rules-check` after the write to get the concrete number). On *skip*, one line: *"Brief-shape migration offered and declined — re-request explicitly if you change your mind."*
 - **Best-practices refinement status** (always — call this out explicitly so the user notices). Two outcomes:
   - *Refined*: name the sources cited (one-line summary), the accessed date, and that the file is now user-owned (re-runs won't touch it).
   - *Stubbed*: name the one-line failure reason (probe error / permission gated / no capability), point at `§ Enable refinement` in `best-practices.md` for the per-agent remediation matrix, and offer: *"Want me to try self-configuring your host's web access now?"* if the host gap appears to be permissions (not capability).
@@ -308,7 +325,7 @@ What to remember about idempotent re-runs in practice:
 3. **Canon vs Mixed vs Sacred is the contract on user-edits**:
    - Edited a Canon file (a rule, an ADR template, the security methodology)? Your edit is at risk of being silently overwritten on re-run. If the edit is load-bearing, **upstream the change into this bootstrap** instead of locally diverging — see Part 6.
    - Edited a Mixed file (settings.json, gitignore, Makefile, linter config)? The re-run will diff and ask. Your edit is safe unless you actively pick "overwrite".
-   - Edited a Sacred file (AGENTS.md, CLAUDE.md, README, code, real ADRs, todos)? Never touched on re-run, ever.
+   - Edited a Sacred file (AGENTS.md, CLAUDE.md, README, code, real ADRs, todos)? Never touched on re-run, ever — with one narrow, opt-in exception: the **brief-shape migration** in Step 0 rewrites the `## Rules` section of `AGENTS.md` and the whole of `CLAUDE.md`, but only after the user explicitly accepts the prompt. Every other user-authored section (`## Purpose`, `## Run`, `## Architecture map`, `## Conventions (summary)`, custom sections) is preserved verbatim.
 4. **Wipe-and-recreate is a separate flow.** The user can say *"treat this as first-time mode"* to force a clean rebuild — the agent backs up the existing config dirs before doing it. Don't assume re-run mode handles this case silently.
 5. **The persisted answers file is committed.** Team members re-running on a shared checkout reuse the same answers — they only get re-asked for newly-added interview keys. If a team member wants different per-machine settings, they layer them in `.claude/settings.local.json` (gitignored), not by changing `.agents/bootstrap.json`.
 
@@ -497,6 +514,7 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `<linter configs>` | Always | content variants picked by Q4 `LANG` (`ruff.toml` / `eslint.config.js` + `.prettierrc.json` / `.golangci.yml` / `rustfmt.toml` / skip) | M |
 | `Makefile` | Always | content variant picked by Q4 `LANG` | M |
 | `.pre-commit-config.yaml` | Always | universal (whitespace + YAML/JSON/TOML syntax + gitleaks); user layers language-specific hooks later | M |
+| `.mcp.example.json` | Always | starter template for project-scoped MCP servers; encodes the safety pattern (pinned versions, name-based allowlist, denylist for account-level connectors). Users copy to `.mcp.json` when adopting. | C |
 | `SECURITY.md` | Always | universal; private vulnerability disclosure | S |
 | `.gitattributes` | Always | universal; line-ending normalisation + binary detection + linguist hints | C |
 | `CHANGELOG.md` | Always | universal; Keep a Changelog format | S |
@@ -510,6 +528,9 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `.agents/rules/workflow-testing.md` | Opt-in | Q12 = yes (`TESTING`) | C |
 | `.agents/rules/workflow-frontend.md` | Opt-in | Q13 = yes (`FRONTEND`) | C |
 | `.agents/rules/frontend-visibility.md` | Opt-in | Q13 = yes (`FRONTEND`) | C |
+| `scripts/check_consulted_rules.sh` | Always | pre-commit hook body — cross-checks staged paths against the trigger index; case ladder gated by `UI_COMPONENTS` / `FRONTEND` / `CHANGES` / `METRICS`. | C |
+| `.claude/hooks/rule-reminder.sh` | Conditional | written if `CLAUDE ∈ AGENTS_USED`. PreToolUse hook body — injects a one-line reminder naming the rule to open when a matching path is edited; deduped per session. | C |
+| `.cursor/rules/trigger-index.mdc` | Conditional | written if `CURSOR ∈ AGENTS_USED`. Second Cursor rule beyond `agents.mdc`; `alwaysApply: true`, inlines path-shaped trigger-index rows so Cursor injects them every message. | C |
 
 ---
 
@@ -527,84 +548,88 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 613 → 641 |
-| `.agents/rules/workflow.md` | Always | 642 → 1084 |
-| `.agents/rules/workflow-todos.md` | Always | 1085 → 1189 |
-| `.agents/rules/workflow-security.md` | Always | 1190 → 1270 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1271 → 1418 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1419 → 1522 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1523 → 1655 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1656 → 1776 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1777 → 1884 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1885 → 1970 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 1971 → 2071 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2072 → 2129 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2130 → 2208 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2209 → 2287 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2288 → 2344 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2345 → 2464 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2465 → 2602 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2603 → 2675 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2676 → 2722 |
-| `.docs/adrs/README.md` | Always | 2723 → 2740 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2741 → 2834 |
-| `.docs/todos/README.md` | Always | 2835 → 2853 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2854 → 3103 |
-| `.gitignore` (Python) | `LANG=Python` | 3104 → 3169 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3170 → 3223 |
-| `.gitignore` (Go) | `LANG=Go` | 3224 → 3266 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3267 → 3302 |
-| `.gitignore` (fallback) | any other `LANG` | 3303 → 3336 |
-| `.env.example` | `ENV_VARS` | 3337 → 3364 |
-| `.editorconfig` | Always | 3365 → 3393 |
-| `README.md` | Always (Sacred) | 3394 → 3424 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3425 → 3454 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3455 → 3680 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3681 → 3702 |
-| `AGENTS.md` | Always (Sacred first-write) | 3703 → 3750 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3751 → 3785 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3786 → 3833 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3834 → 3869 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3870 → 3900 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 3901 → 3958 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 3959 → 3971 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 3972 → 4007 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4008 → 4068 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4069 → 4103 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4104 → 4117 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4118 → 4137 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4138 → 4157 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4158 → 4173 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4174 → 4188 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4189 → 4203 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4204 → 4224 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4225 → 4241 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4242 → 4255 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4256 → 4270 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4271 → 4289 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4290 → 4305 |
-| `.agents/bootstrap.json` | Always | 4306 → 4361 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4362 → 4408 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4409 → 4448 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4449 → 4480 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4481 → 4511 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4512 → 4519 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4520 → 4556 |
-| `SECURITY.md` | Always | 4557 → 4602 |
-| `.gitattributes` | Always | 4603 → 4645 |
-| `CHANGELOG.md` | Always | 4646 → 4671 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4672 → 4713 |
-| linter / formatter configs (Python) | `LANG=Python` | 4714 → 4737 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4738 → 4787 |
-| linter / formatter configs (Go) | `LANG=Go` | 4788 → 4818 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 4819 → 4839 |
-| linter / formatter configs (fallback) | any other `LANG` | 4840 → 4847 |
-| `Makefile` (Python) | `LANG=Python` | 4848 → 4888 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 4889 → 4929 |
-| `Makefile` (Go) | `LANG=Go` | 4930 → 4973 |
-| `Makefile` (Rust) | `LANG=Rust` | 4974 → 5011 |
-| `Makefile` (fallback) | any other `LANG` | 5012 → 5040 |
-| `.pre-commit-config.yaml` | Always | 5041 → 5077 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 638 → 653 |
+| `.agents/rules/workflow.md` | Always | 654 → 1119 |
+| `.agents/rules/workflow-todos.md` | Always | 1120 → 1224 |
+| `.agents/rules/workflow-security.md` | Always | 1225 → 1305 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1306 → 1453 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1454 → 1557 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1558 → 1690 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1691 → 1811 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1812 → 1919 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1920 → 2005 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 2006 → 2106 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2107 → 2164 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2165 → 2243 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2244 → 2322 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2323 → 2400 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2401 → 2520 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2521 → 2658 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2659 → 2731 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2732 → 2778 |
+| `.docs/adrs/README.md` | Always | 2779 → 2796 |
+| `.docs/adrs/0000-adr-template.md` | Always | 2797 → 2890 |
+| `.docs/todos/README.md` | Always | 2891 → 2909 |
+| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2910 → 3159 |
+| `.gitignore` (Python) | `LANG=Python` | 3160 → 3225 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3226 → 3279 |
+| `.gitignore` (Go) | `LANG=Go` | 3280 → 3322 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3323 → 3358 |
+| `.gitignore` (fallback) | any other `LANG` | 3359 → 3392 |
+| `.env.example` | `ENV_VARS` | 3393 → 3420 |
+| `.mcp.example.json` | Always | 3421 → 3452 |
+| `.editorconfig` | Always | 3453 → 3481 |
+| `README.md` | Always (Sacred) | 3482 → 3512 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3513 → 3542 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3543 → 3768 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3769 → 3790 |
+| `AGENTS.md` | Always (Sacred first-write) | 3791 → 3864 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3865 → 3882 |
+| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3883 → 3911 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3912 → 3950 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3951 → 3986 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3987 → 4000 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 4001 → 4063 |
+| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 4064 → 4129 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4130 → 4155 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4156 → 4204 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4205 → 4278 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4279 → 4326 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4327 → 4340 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4341 → 4360 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4361 → 4380 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4381 → 4396 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4397 → 4411 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4412 → 4426 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4427 → 4447 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4448 → 4464 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4465 → 4478 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4479 → 4493 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4494 → 4512 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4513 → 4528 |
+| `.agents/bootstrap.json` | Always | 4529 → 4584 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4585 → 4631 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4632 → 4671 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4672 → 4703 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4704 → 4734 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4735 → 4742 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4743 → 4779 |
+| `SECURITY.md` | Always | 4780 → 4825 |
+| `.gitattributes` | Always | 4826 → 4868 |
+| `CHANGELOG.md` | Always | 4869 → 4894 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4895 → 4936 |
+| linter / formatter configs (Python) | `LANG=Python` | 4937 → 4960 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4961 → 5010 |
+| linter / formatter configs (Go) | `LANG=Go` | 5011 → 5041 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 5042 → 5062 |
+| linter / formatter configs (fallback) | any other `LANG` | 5063 → 5070 |
+| `Makefile` (Python) | `LANG=Python` | 5071 → 5110 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5111 → 5150 |
+| `Makefile` (Go) | `LANG=Go` | 5151 → 5193 |
+| `Makefile` (Rust) | `LANG=Rust` | 5194 → 5230 |
+| `Makefile` (fallback) | any other `LANG` | 5231 → 5258 |
+| `.pre-commit-config.yaml` | Always | 5259 → 5309 |
+| `scripts/check_consulted_rules.sh` | Always | 5310 → 5392 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -612,29 +637,16 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 ### Template: `CLAUDE.md` *(written only if `CLAUDE ∈ AGENTS_USED`)*
 
-A thin Claude-specific adapter. The full brief — purpose, rules, run, architecture map — lives in `AGENTS.md`. Claude Code follows `@`-prefixed file references natively, so the rules under `.agents/rules/` get auto-loaded via the include below.
+A thin Claude-specific stub. The agnostic brief lives in `AGENTS.md`, carrying purpose, run, architecture, the always-on rules, and the trigger index for `.agents/rules/` — the rule files are reference, opened when their trigger fires, not preloaded. The `@AGENTS.md` include is the only reason this file exists on hosts that read `CLAUDE.md`; the closing paragraph is what stops it re-accumulating rule-file imports over time.
 
 ````markdown
 # {{PROJECT_NAME}} — Claude Code adapter
 
-This project's primary agent brief lives in [`AGENTS.md`](./AGENTS.md). Treat that file as the source of truth — title, purpose, run instructions, architecture map, rule pointers.
-
-Always follow the rules under `.agents/rules/`:
+The brief is [`AGENTS.md`](./AGENTS.md), and it is agent-agnostic: purpose, run instructions, architecture map, the always-on rules, the trigger index for `.agents/rules/`, and the hard constraints. It is imported below.
 
 @AGENTS.md
-@.agents/rules/workflow.md
-@.agents/rules/workflow-todos.md
-@.agents/rules/workflow-security.md
-@.agents/rules/best-practices.md
-{{IF_LAYERED}}@.agents/rules/layered-architecture.md
-{{IF_CHANGES}}@.agents/rules/workflow-changes.md
-{{IF_UI_COMPONENTS}}@.agents/rules/ui-components.md
-{{IF_METRICS}}@.agents/rules/workflow-metrics.md
-{{IF_TESTING}}@.agents/rules/workflow-testing.md
-{{IF_FRONTEND}}@.agents/rules/workflow-frontend.md
-{{IF_FRONTEND}}@.agents/rules/frontend-visibility.md
 
-When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as a thin pointer rather than a parallel brief.
+Nothing else belongs in this file. It exists because Claude Code reads `CLAUDE.md`, not because Claude needs different instructions. Anything true for every agent goes in `AGENTS.md`; put something here only when it is genuinely specific to this host, such as a tool or a permission it alone has.
 ````
 
 ---
@@ -644,20 +656,37 @@ When `AGENTS.md` and this file disagree, `AGENTS.md` wins — keep this file as 
 ````markdown
 # Workflow
 
-This rule defines the naming, contents, and ordering of the per-request artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
+This rule defines the naming, contents, and ordering of the per-task artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
 
-Every user request that changes files in this repository produces, all bundled into a single commit and pushed:
+Every user **task** in this repository produces, over one or more turns:
 
-- A **prompt file** under `.docs/prompts/` capturing what was asked and why.
-- **The code, config, or docs** the request produced.
+- **One prompt file** under `.docs/prompts/` capturing what was asked and why, amended across turns as the task continues (see § *Task boundaries* below for what closes a task).
+- **The code, config, or docs** the task produced.
 - When the change is architecturally significant — a new module, library, layer, or pattern, or a meaningful change to one — a **new or updated ADR** under `.docs/adrs/`.
 - **Telemetry** kept current — new behaviour gets new logs, changed behaviour gets existing logs updated, deleted behaviour gets its logs removed, at log levels that match each event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with sensitive-data redaction discipline (credentials, PII, request bodies — anything that shouldn't ride a wire to a third-party log service).
-- A **single git commit** bundling all of the above on the current branch.
-- A **push** of that commit to the remote.
+- **At least one git commit** on the current branch bundling all of the above (often one per task, sometimes two when refinements deserve separation — granularity to judgement).
+- **A push** of the commit(s) to the remote.
+
+## Task boundaries
+
+A **task** is one coherent piece of user intent that a coherent set of file changes serves. Detecting task boundaries is the agent's job, not the user's — the user should not have to explicitly say *"new task"* every time.
+
+At the top of each turn, silently classify the turn as one of:
+
+- **Continuing** — the turn refines, extends, or corrects the current task. Amend the existing prompt file's `## Output` section with a new bullet, or a timestamped entry under a `## Refinements` sub-section if the note is more than a line. Do not create a new prompt file.
+- **New** — the turn opens a new task. Create a new prompt file. Name the previous task's status inline before proceeding (e.g. *"Previous task ('add password reset') committed at abc1234, closed"*).
+
+Rules for the classification:
+
+- **A commit closes the current task by default.** The next turn is presumed new unless the agent explicitly declares it as a fix-up on the just-committed work (e.g. *"continuing: correcting the missed field in commit abc1234"*).
+- **Explicit user signals force a boundary.** *"Now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*, *"new task:"* — any of these open a new task even mid-flow.
+- **When the signal is ambiguous, continue.** The cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam. Bias asymmetric on purpose.
+
+State the classification in one line at the top of the response, before the work — so the user sees the boundary decision the same turn it happens and can correct it cheaply. Example: *"Task: continuing 'add password reset' — refinement to the previous turn"* or *"Task: new — 'wire up SES'. Previous task committed at abc1234, closed"*.
 
 ## When this rule applies
 
-Apply it whenever the response generates or modifies a file in the repository. Typical triggers:
+Apply it whenever a task will generate or modify a file in the repository. A task starts with the first turn that will produce an artifact (write the prompt file then) and ends with the commit that closes it (see § *Task boundaries* above). Subsequent turns of the same task amend the existing prompt file rather than creating a new one. Typical triggers for a task starting:
 
 - Writing, editing, or deleting source code
 - Adding or updating documentation, rules, configs, or scripts
@@ -673,36 +702,42 @@ Skip the prompt file and the commit for interactions that produce no artifact. E
 - Advice or recommendations the user has not yet asked you to implement
 - Explicit user instruction to look without changing ("just explore, don't commit")
 
-If a conversation starts as chitchat but later produces an artifact, the rule kicks in at that point — write the prompt file for the portion that generated work, not for the preceding discussion.
+If a conversation starts as chitchat but later produces an artifact, the rule kicks in at that point — the current turn is a new task's first turn; write the prompt file then, not for the preceding discussion.
 
-## 1. Create a prompt file
+## 1. Create (or amend) a prompt file
 
-For each user request, write a file to `.docs/prompts/` using the pattern:
+For a **new** task, write a file to `.docs/prompts/` using the pattern:
 
 ```
 <unix-timestamp>.<snake_case_slug>.md
 ```
 
-- **`<unix-timestamp>`**: seconds-since-epoch at the time of the request (e.g. `date +%s`). Keeps files chronologically sortable by filename.
-- **`<snake_case_slug>`**: 2–5 words summarizing the intent (e.g. `fix_navmenu_client`, `home_page_structure_ideas`).
+- **`<unix-timestamp>`**: seconds-since-epoch at the *first turn* of the task (e.g. `date +%s`). Keeps files chronologically sortable by filename; a continuing turn does not update it.
+- **`<snake_case_slug>`**: 2–5 words summarizing the task's intent, not any single turn's ask (e.g. `fix_navmenu_client`, `home_page_structure_ideas`).
+
+For a **continuing** task, open the existing file for the current task and amend its `## Output` section — a new bullet, or a timestamped entry under a `## Refinements` sub-section if the note is more than a line. Do not create a new file; the per-task file is what keeps the log honest about what actually happened.
 
 ### File contents
 
 ```markdown
 # Request
 
-<Verbatim or lightly-cleaned restatement of what the user asked for. Preserve intent — do not editorialize.>
+<Verbatim or lightly-cleaned restatement of what the user asked for on the first turn of this task. Preserve intent — do not editorialize.>
 
 ## Reasoning
 
 <Why the user asked for this: the motivation, the constraint, the trade-off being made. One short paragraph is usually enough.>
 
+## Consulted rules
+
+<Rules that a path or condition in the change fires, one per line as `<rule file> — <one-line summary of the trigger that fired>`. Attentional triggers (ADR, telemetry, security surface) name themselves here too when they applied, even though no path-check enforces them. Write `none` on its own line if no trigger fired. The pre-commit hook cross-checks this section against the staged paths — a mismatch is a soft fail with the missing rule name and an override syntax (`<rule> (n/a — <reason>)`) for the false-positive case.>
+
 ## Output
 
-<What was actually done in response: files created/modified, decisions taken, follow-ups noted. Bullet list or short paragraph. Keep it factual.>
+<What was actually done in response: files created/modified, decisions taken, follow-ups noted. Bullet list or short paragraph. Keep it factual. Amend as the task continues — append bullets, or a `## Refinements` sub-section when a turn's note is more than a line.>
 ```
 
-Write the prompt file **before** or **alongside** making the changes, not after. Treat it as the commit's companion note.
+Write the prompt file **before** or **alongside** the changes on the task's first turn, and **amend it in the same turn** as any refinement. Treat it as the task's companion note, not any single commit's.
 
 ## 2. Create or update an ADR
 
@@ -1026,7 +1061,7 @@ Security has its own companion rule: `workflow-security.md`. The short version: 
 
 ## 4. Commit the result
 
-Once the work is done, create a git commit that includes:
+Commit granularity is a judgement call, not a per-turn rule. Often one commit per task at the end; sometimes two when refinements deserve to be separated in `git log`. Each commit includes:
 
 - The prompt file (`.docs/prompts/<ts>.<slug>.md`).
 - Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
@@ -1069,11 +1104,11 @@ Exception: if the push is destructive (force-push to a shared branch, rewriting 
 
 ## Why this rule exists
 
-The `.docs/prompts/` history doubles as a per-request decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of how the project evolved, and each prompt maps to exactly one commit so `git log` and `ls .docs/prompts/` stay aligned.
+The `.docs/prompts/` history doubles as a per-task decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of what the project has done, and each file maps to one coherent task (usually one commit, sometimes two) so `git log` and `ls .docs/prompts/` stay aligned as *task*-scoped units rather than *turn*-scoped noise. A prompt file per turn produced a directory too noisy to read after two weeks; a prompt file per task keeps the log honest.
 
-The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what happened on day N?"*.
+The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what task ran on day N?"*.
 
-Breaking any of the pairings — prompt without commit, ADR-worthy change without ADR, commit without push — erodes that guarantee.
+Breaking any of the pairings — task without prompt file, ADR-worthy change without ADR, commit without push, or a task-continuation that spawns a new file instead of amending — erodes that guarantee.
 
 ## Amending vs. new commit
 
@@ -2292,6 +2327,27 @@ Documentation drift is slow and silent. A feature shipped without its surfaces u
 
 This rule supplements `workflow.md` for changes that touch the metering system — anywhere a metering counter is updated, a usage event is written, or a metrics-driven display reads from. The discipline exists because metrics drift silently: an event that no longer fires, a counter renamed but never updated downstream, a label growing in cardinality, a display that hasn't been told a new metric exists.
 
+**This rule is proactive-discipline, not reactive housekeeping.** When the project opted into metrics, every new meaningful subsystem ships with its events *in the same commit as the code* — the agent shouldn't wait for a follow-up ask. See § *When to add metrics* below for the trigger set. The rest of the rule then says *how* to add / modify / remove events correctly once the discipline says one is warranted.
+
+## When to add metrics (proactive discipline)
+
+Add a metric when you build one of these — same commit as the code, not a follow-up:
+
+- **A new user-facing flow** — an action a user takes that a product or ops person will ask about (signup, checkout, feature adoption, error a user sees, moderation trigger).
+- **A new business operation** — a system-side operation whose success rate, latency, or volume matters (a scheduled job, a queue drain, a batch import, a periodic reconciliation).
+- **A new external integration** — every new outbound call to a third-party service earns at least calls / errors / latency events.
+- **A new failure mode worth aggregating** — anywhere a `try/except` catches something callers would want to know about at aggregate scale (retry exhaustion, upstream 5xx, quota exceeded).
+
+If you're building code that fits any of those and the change ships without events, the discipline missed. The pre-commit hook doesn't catch this — the check is attentional; catch it yourself before commit.
+
+**Don't** add metrics for:
+
+- Internal refactors with no behaviour change.
+- Everything by reflex — the *Don't speculate* guardrails below apply. Concrete signal first.
+- Development-only code paths that won't ship (test scaffolds, `if __name__ == "__main__"` blocks, one-off scripts).
+
+**Deferrals.** If the user asks you to skip metrics for the current turn (*"just get the feature working; metrics later"*), honour it — but capture a todo under `.docs/todos/` with a `Revisit when` trigger like *"next commit that touches this subsystem"* or *"before the feature ships to users"*. Don't silently drop it; per `workflow-todos.md`, deferred proactive-discipline items are exactly what the todo mechanism exists for.
+
 ## Top-level rule
 
 > **Adding, modifying, or removing a metered event means moving the four surfaces in lockstep — write site, durable read side, observability labels, display — plus updating a catalog at `.docs/metrics/README.md` AND a per-metric deep-dive at `.docs/metrics/<kebab-kind>.md`. All in the same commit. The cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable and applies on every emit, not just new ones.**
@@ -3362,6 +3418,38 @@ Thumbs.db
 
 ---
 
+### Template: `.mcp.example.json`
+
+Starter template for project-scoped MCP servers. `.mcp.json` at the repo root is what MCP-aware agent hosts (Claude Code natively; Cursor, Codex, Continue, Windsurf where MCP support has landed) read on session start. This `.example` copy is what the bootstrap emits so the pattern is discoverable but MCP isn't activated by default — copy to `.mcp.json` (drop the `.example`) when you actually want project MCP servers to load.
+
+**Safety pattern the template encodes** (from `AGENTIC-B.Improvements.md` §7, if this project ships one — the guidance stands regardless):
+
+- **Pin every version explicitly.** Never `@latest`, never floating tags. `.mcp.json` is committed, so `@latest` silently invites a supply-chain drift every time someone starts a session — the server process is fetched and executed from whatever was published most recently.
+
+- **Approve servers by name, not in bulk.** In `.claude/settings.json` (or your host's equivalent), use `"enabledMcpjsonServers": ["playwright"]` naming each server explicitly. Never `"enableAllProjectMcpServers": true` — that auto-approves any new server anyone adds to `.mcp.json` in a later commit, before anyone has reviewed the command it runs. The safer form costs one line per server, once.
+
+- **Deny account-level connectors this project doesn't need.** Host-provided connectors (claude.ai Gmail, Drive, Microsoft 365, etc.) can carry 20k+ tokens of tool schemas per connector. Add their normalised names to `.claude/settings.local.json`'s `deniedMcpServers` array — that file is gitignored, so your personal denylist doesn't leak into commits. Verify names via `claude mcp list` before relying on them. A team can also put project-wide denies in the committed `.claude/settings.json` when the project doesn't develop the connector being denied.
+
+- **Budget the payload.** Every MCP server contributes tool-schema tokens to every session's context window, even when its tools aren't called. A browser MCP is typically ~9k tokens for 45 tools; a heavy account-level connector can top 20k. Check `/context` after adopting a server and drop ones the project doesn't actually use.
+
+Emit as `.mcp.example.json` (not `.mcp.json`) so file presence alone doesn't activate MCP on projects that don't need it. Users copy or rename to `.mcp.json` when they adopt.
+
+````json
+{
+  "$schema": "https://json.schemastore.org/mcp.json",
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@0.0.77"]
+    }
+  }
+}
+````
+
+The pinned Playwright version above is a placeholder — check for updates when adopting, and pin to whatever's current. Same discipline for any other server you add.
+
+---
+
 ### Template: `.editorconfig`
 
 ````editorconfig
@@ -3715,19 +3803,45 @@ The primary, tool-agnostic agent brief. Every supported assistant (Claude Code v
 
 ## Rules
 
-Always follow the rules in `.agents/rules/`:
+### Always
 
-- [`workflow.md`](.agents/rules/workflow.md) — every artifact-producing request gets a timestamped prompt file under `.docs/prompts/`, an optional new-or-updated ADR under `.docs/adrs/`, telemetry kept current (logs added/updated for new and changed code paths, at log levels that match each event's signal — DEBUG / INFO / WARNING / ERROR / CRITICAL — with sensitive-data redaction discipline covering credentials, PII, billing identifiers, and request bodies), a single git commit bundling the lot, and a push. Also defines how do-later ideas get captured proactively.
-- [`workflow-todos.md`](.agents/rules/workflow-todos.md) — the discipline for managing deferred ideas. Entries live as one file per idea under [`.docs/todos/`](.docs/todos/). Capture entries proactively when the user defers something ("for now / later / hold this"), sweep entries when a commit satisfies their *Revisit when* trigger, `git rm` rather than archive (git log is canonical).
-- [`workflow-security.md`](.agents/rules/workflow-security.md) — companion to `workflow.md` for security-sensitive changes. Before commit, walk the rubric in [`.docs/security/methodology.md`](.docs/security/methodology.md) for surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full audits live as dated sibling files under `.docs/security/<YYYY-MM-DD>-<slug>.md` and re-run on cadence.
-- [`best-practices.md`](.agents/rules/best-practices.md) — naming, dependency injection, repository / service patterns, language idioms, do/don't lists.
-{{IF_LAYERED}}- [`layered-architecture.md`](.agents/rules/layered-architecture.md) — `presentation → application → domain ← infrastructure`, plus `shared` available to all but depending on none. Inward dependencies only.
-{{IF_CHANGES}}- [`workflow-changes.md`](.agents/rules/workflow-changes.md) — companion to `workflow.md` for *product-affecting* changes. When a change alters anything a user can see, the surfaces that describe it must move in the same commit.
-{{IF_UI_COMPONENTS}}- [`ui-components.md`](.agents/rules/ui-components.md) — catalog of canonical UI affordances. Before adding a new affordance, check the catalog and clone the canonical file's shape; never invent a one-off variant inline.
-{{IF_METRICS}}- [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) — companion to `workflow.md` for *metering* changes. Adding / modifying / removing a metered event must move surfaces in lockstep — constant, call site, catalog row, display side — all in the same commit. Cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable.
-{{IF_TESTING}}- [`workflow-testing.md`](.agents/rules/workflow-testing.md) — companion to `workflow.md` for testing discipline. Every artifact-producing change ships with the tests that prove its behaviour, in the same commit. Pyramid-shaped (unit-heavy / integration-light / e2e-thin), mock at boundaries not internals, bug fixes start with a failing regression test, TDD encouraged but not mandated, coverage tracked without a hard floor.
-{{IF_FRONTEND}}- [`workflow-frontend.md`](.agents/rules/workflow-frontend.md) — companion to `workflow.md` for shared frontend code. Touch the source, sweep the consumers: before patching a consumer, find the canonical source; edit there; list every importer; fix or call out behavioural regressions in the same commit; never duplicate to make a local tweak. Removes the friction of having to re-request the same fix across pages.
-{{IF_FRONTEND}}- [`frontend-visibility.md`](.agents/rules/frontend-visibility.md) — companion to `workflow-frontend.md` for the visibility / communication side. Per-agent browser-tooling setup (Playwright MCP for Claude, `@web` for Cursor, screenshot-piping for Aider, etc.), Storybook / Histoire conventions for the visual catalog, the engineer-side reporting convention (screenshot + route + component + symptom), and the agent-side response convention (open via MCP if available; ask for a screenshot otherwise; grep for the source; cross-reference `ui-components.md`).
+Five things, on every turn, whichever agent is reading this.
+
+- **Confirm the reading before building.** When a request is short and admits more than one reading, say in one line which reading you are acting on, then act. Before the work, not after it. A wrong reading is cheap to correct at one line and expensive to correct at one commit.
+- **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
+- **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one — e.g. *"Task: continuing 'add password reset' — refinement to the previous turn"* or *"Task: new — 'wire up SES'. Previous task committed at abc1234, closed"*. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
+- **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement — often one per task, sometimes two when refinements deserve separation); a push. Stage by explicit path, never `git add -A`.
+- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
+
+### Read before you act
+
+The files under `.agents/rules/` are **reference, and are deliberately not preloaded**. Read the file when its trigger fires, and read it *before* acting rather than after: each exists to stop a specific mistake that is expensive to undo, and reaching for one after the code is written is the failure it was meant to prevent. If a trigger is ambiguous, read the file.
+
+Rules come in two flavors. **Reactive** rules (security, changes, UI, layered architecture, frontend) fire only when their specific surface is being touched — read them then, follow them then. **Proactive-discipline** rules (testing, metrics, telemetry) fire on *every* relevant work unit when opted in — read them once per session and apply the discipline on every code change, not only when the discipline's artifact is already being touched. If a project opted into metrics and you're building a new subsystem, ship events for it in the same commit; don't wait to be asked.
+
+| When | Read |
+| --- | --- |
+| the full per-task loop, once per session before the first commit | [`workflow.md`](.agents/rules/workflow.md) |
+| a new dependency, module, layer or pattern | [`workflow.md`](.agents/rules/workflow.md) §2 (ADR) |
+| a new, changed or deleted code path, or a new failure branch | [`workflow.md`](.agents/rules/workflow.md) §3 (telemetry) |
+| writing {{LANG}} | [`best-practices.md`](.agents/rules/best-practices.md) |
+| auth, input, SQL, output encoding, headers, secrets, logging, rate limits, deps | [`workflow-security.md`](.agents/rules/workflow-security.md) |
+| writing or removing a deferred-idea entry | [`workflow-todos.md`](.agents/rules/workflow-todos.md) |
+{{IF_LAYERED}}| adding a module, or moving code between layers | [`layered-architecture.md`](.agents/rules/layered-architecture.md) |
+{{IF_CHANGES}}| anything a user can see | [`workflow-changes.md`](.agents/rules/workflow-changes.md) |
+{{IF_UI_COMPONENTS}}| adding or changing any UI affordance | [`ui-components.md`](.agents/rules/ui-components.md) |
+{{IF_METRICS}}| a new user-facing flow, business operation, external integration, or a change to an existing metered event | [`workflow-metrics.md`](.agents/rules/workflow-metrics.md) |
+{{IF_TESTING}}| writing production code — tests ship in the same commit | [`workflow-testing.md`](.agents/rules/workflow-testing.md) |
+{{IF_FRONTEND}}| shared component, partial or styling token | [`workflow-frontend.md`](.agents/rules/workflow-frontend.md) |
+{{IF_FRONTEND}}| diagnosing or reporting a visual bug | [`frontend-visibility.md`](.agents/rules/frontend-visibility.md) |
+
+Each row states the *condition* and the *file*, not what the file is about. If two rows fit, read both.
+
+### Measurement habit
+
+The rules budget is small (a few kilobytes of always-loaded material) but three larger line items compete for the same window: the conversation itself (grows every turn), MCP tool schemas (varies by connected servers), and per-host system prompts. Check `/context` occasionally when a session starts feeling forgetful; the culprit is usually one of those three, not this file.
+
+For MCP specifically: this project's project-scoped servers, if any, are declared in `.mcp.json` at the repo root (see `.mcp.example.json` for the starter template and the safety pattern — pinned versions, name-based allowlist, per-project denylist for account-level connectors). Every server contributes tool-schema tokens to every session; a browser MCP is typically ~9k tokens for 45 tools, and heavy account-level connectors can top 20k each. On Claude Code, personal denies live in the gitignored `.claude/settings.local.json`'s `deniedMcpServers` array; on other hosts, the equivalent lives in the host's own settings.
 
 Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
 
@@ -3750,60 +3864,63 @@ See [`.agents/rules/best-practices.md`](.agents/rules/best-practices.md) for ful
 
 ### Template: `.cursor/rules/agents.mdc` *(written only if `CURSOR ∈ AGENTS_USED`)*
 
-A thin Cursor adapter. The frontmatter sets `alwaysApply: true` and a broad glob so Cursor includes this rule in every conversation across the workspace; the body points at `AGENTS.md` and the rules under `.agents/rules/`.
+A thin Cursor stub. The frontmatter sets `alwaysApply: true` and a broad glob so Cursor injects the pointer on every conversation; the body carries only the pointer at `AGENTS.md`, which itself carries the trigger index for `.agents/rules/`. Rule files are reference, opened by Cursor when their trigger fires, not preloaded.
 
 ````markdown
 ---
-description: Cross-tool agent brief — see AGENTS.md
+description: Pointer to the agnostic agent brief in AGENTS.md
 globs: ["**/*"]
 alwaysApply: true
 ---
 
-This project's primary agent brief lives in `AGENTS.md` at the repo root.
+The primary agent brief lives in [`AGENTS.md`](../../AGENTS.md) at the repo root, and it is agent-agnostic: purpose, run instructions, architecture map, the always-on rules that apply every turn, the trigger index for the reference files under `.agents/rules/`, and the hard constraints. Read it before starting any non-trivial task; open a `.agents/rules/*.md` file when its trigger in that index fires.
 
-Read these files at the start of any non-trivial task; they define the project's purpose, run instructions, architecture, and the workflow / security / best-practices rules every change must follow:
-
-- `AGENTS.md`
-- `.agents/rules/workflow.md`
-- `.agents/rules/workflow-todos.md`
-- `.agents/rules/workflow-security.md`
-- `.agents/rules/best-practices.md`
-{{IF_LAYERED}}- `.agents/rules/layered-architecture.md`
-{{IF_CHANGES}}- `.agents/rules/workflow-changes.md`
-{{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md`
-{{IF_METRICS}}- `.agents/rules/workflow-metrics.md`
-{{IF_TESTING}}- `.agents/rules/workflow-testing.md`
-{{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md`
-{{IF_FRONTEND}}- `.agents/rules/frontend-visibility.md`
-
-ADRs (architecture decisions) live under `.docs/adrs/` — read these before making structural changes. Do-later ideas live under `.docs/todos/`. Per-request prompt files live under `.docs/prompts/`.
-
-When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
+Nothing else belongs in this file. It exists because Cursor reads `.cursor/rules/*.mdc`, not because Cursor needs different instructions. Anything true for every agent goes in `AGENTS.md`; put something here only when it is genuinely specific to this host.
 ````
+
+---
+
+### Template: `.cursor/rules/trigger-index.mdc` *(written only if `CURSOR ∈ AGENTS_USED`)*
+
+A second Cursor rule beyond the `agents.mdc` stub — this one carries the path-shaped trigger-index rows inlined verbatim, with `alwaysApply: true` so Cursor's own rule loader injects them on every conversation. Reinforcement for the trigger index in `AGENTS.md`: the path-shaped rows are always seen without Cursor needing to chase the pointer, so a request that would touch a matching path sees the reminder in the same turn.
+
+Only path-shaped rows go here. Attentional rows (a new dependency triggering an ADR, a new failure branch triggering telemetry, an auth surface triggering the security rubric) stay in `AGENTS.md` — Cursor still has to read the brief for those; injecting them here would grow this file without adding leverage.
+
+````markdown
+---
+description: Path-shaped trigger index — open the named rule file before touching a matching path
+globs: ["**/*"]
+alwaysApply: true
+---
+
+The rule files under `.agents/rules/` are reference, opened when a trigger fires. Cursor injects this file on every message so path-shaped triggers are visible without chasing pointers. See [`AGENTS.md`](../../AGENTS.md) for the full trigger index and the always-on rules.
+
+**Open the named rule file *before* editing a matching path:**
+
+{{IF_UI_COMPONENTS}}- `components/**`, `src/components/**` → `.agents/rules/ui-components.md` — clone the canonical shape, never invent a one-off variant.
+{{IF_FRONTEND}}- `*.tsx`, `*.jsx`, `pages/**`, `partials/**` → `.agents/rules/workflow-frontend.md` (find source, sweep consumers) + `.agents/rules/frontend-visibility.md` (visual issue → screenshot + route + component name).
+{{IF_METRICS}}- `metrics/**`, `*/events.{py,ts,go}` → `.agents/rules/workflow-metrics.md` — cardinality discipline is non-negotiable.
+{{IF_CHANGES}}- `README.md`, `CHANGELOG.md`, `docs/**`, `public/**`, `static/**` → `.agents/rules/workflow-changes.md` — surfaces move with the change, same commit.
+
+Attentional triggers (adding a dependency, a new failure branch, an auth surface) stay in `AGENTS.md` — no path-shaped injection here for those.
+````
+
+If none of `UI_COMPONENTS` / `FRONTEND` / `METRICS` / `CHANGES` are set, this file's body reduces to the intro paragraph and the "Attentional triggers stay in AGENTS.md" line — still worth emitting, because it names the mechanism the always-loaded index rides on.
 
 ---
 
 ### Template: `.aider.conf.yml` *(written only if `AIDER ∈ AGENTS_USED`)*
 
-Aider config that always reads the brief + rule files into context, **plus** posture-driven autonomy keys picked from Q3 `POSTURE`. Users can layer their own model + edit-format preferences on top.
+Aider config that reads the agnostic brief into every session — the brief itself carries the trigger index for `.agents/rules/`, so the rule files are opened when their trigger fires rather than preloaded — **plus** posture-driven autonomy keys picked from Q3 `POSTURE`. Users can layer their own model + edit-format preferences on top.
 
 ````yaml
-# Aider config — keeps the cross-tool brief and rule files in context for every session.
+# Aider config — keeps the agnostic brief in context for every session.
+# The brief (AGENTS.md) itself names the reference files under .agents/rules/;
+# Aider opens those when their trigger fires, not preloaded.
 # See https://aider.chat/docs/config/aider_conf.html for the full option list.
 
 read:
   - AGENTS.md
-  - .agents/rules/workflow.md
-  - .agents/rules/workflow-todos.md
-  - .agents/rules/workflow-security.md
-  - .agents/rules/best-practices.md
-{{IF_LAYERED}}  - .agents/rules/layered-architecture.md
-{{IF_CHANGES}}  - .agents/rules/workflow-changes.md
-{{IF_UI_COMPONENTS}}  - .agents/rules/ui-components.md
-{{IF_METRICS}}  - .agents/rules/workflow-metrics.md
-{{IF_TESTING}}  - .agents/rules/workflow-testing.md
-{{IF_FRONTEND}}  - .agents/rules/workflow-frontend.md
-{{IF_FRONTEND}}  - .agents/rules/frontend-visibility.md
 
 # --- Q3 POSTURE-driven autonomy keys -----------------------------------------
 # CAUTIOUS  — every edit and shell command prompts; auto-commit off.
@@ -3833,7 +3950,7 @@ read:
 
 ### Template: `.continue/config.json` *(written only if `CONTINUE ∈ AGENTS_USED`)*
 
-A Continue.dev config with the `rules` block pointing at the canonical brief + rule files **and** a `tools` block gating which built-in tools auto-approve per Q3 `POSTURE`. Users layer their model providers and slash commands on top.
+A Continue.dev config with the `rules` block pointing at the agnostic brief (which itself carries the trigger index for `.agents/rules/` — reference files, opened when their trigger fires, not preloaded) **and** a `tools` block gating which built-in tools auto-approve per Q3 `POSTURE`. Users layer their model providers and slash commands on top.
 
 ````json
 {
@@ -3843,7 +3960,7 @@ A Continue.dev config with the `rules` block pointing at the canonical brief + r
       "name": "Agent brief",
       "description": "Cross-tool project brief and workflow / best-practice rules.",
       "globs": ["**/*"],
-      "rule": "Always read AGENTS.md and the files under .agents/rules/ before starting work. They define this project's purpose, run instructions, architecture, and the workflow / security / best-practices discipline every change must follow. ADRs live under .docs/adrs/ — consult before structural changes. Per-request prompt files go under .docs/prompts/. Do-later ideas go under .docs/todos/ as one file per entry."
+      "rule": "Always read AGENTS.md before starting work. It carries this project's purpose, run instructions, architecture, the always-on rules, and the trigger index for reference files under .agents/rules/ (open one when its trigger fires, not before). ADRs live under .docs/adrs/ — consult before structural changes. Per-task prompt files go under .docs/prompts/ (one per task, amended as the task continues). Do-later ideas go under .docs/todos/ as one file per entry."
     }
   ],
   "context": [
@@ -3869,79 +3986,69 @@ A Continue.dev config with the `rules` block pointing at the canonical brief + r
 
 ### Template: `.windsurfrules` *(written only if `WINDSURF ∈ AGENTS_USED`)*
 
-A thin Windsurf rules file. Windsurf reads `.windsurfrules` automatically; the body points at the canonical brief.
+A thin Windsurf stub. Windsurf reads `.windsurfrules` automatically; the body points at the agnostic brief in `AGENTS.md`, which itself carries the trigger index for `.agents/rules/`. Rule files are reference, opened when their trigger fires, not preloaded.
 
 ````markdown
 # Windsurf rules — pointer to AGENTS.md
 
-This project's primary agent brief lives in `AGENTS.md` at the repo root. Read it (and the rule files it links to) before starting any non-trivial task.
+The primary agent brief lives in [`AGENTS.md`](AGENTS.md) at the repo root, and it is agent-agnostic: purpose, run instructions, architecture map, the always-on rules that apply every turn, the trigger index for the reference files under `.agents/rules/`, and the hard constraints. Read it before starting any non-trivial task; open a `.agents/rules/*.md` file when its trigger in that index fires.
 
-Always-loaded context:
-
-- `AGENTS.md` — purpose, run, architecture map, rule pointers.
-- `.agents/rules/workflow.md` — prompt file → ADR → telemetry → commit → push.
-- `.agents/rules/workflow-todos.md` — deferred ideas as one file per entry under `.docs/todos/`.
-- `.agents/rules/workflow-security.md` — security rubric pass before commit.
-- `.agents/rules/best-practices.md` — naming, DI, patterns, idioms.
-{{IF_LAYERED}}- `.agents/rules/layered-architecture.md` — layer responsibilities and dependency direction.
-{{IF_CHANGES}}- `.agents/rules/workflow-changes.md` — product-surface sync rule.
-{{IF_UI_COMPONENTS}}- `.agents/rules/ui-components.md` — canonical component vocabulary.
-{{IF_METRICS}}- `.agents/rules/workflow-metrics.md` — metering / cardinality rules.
-{{IF_TESTING}}- `.agents/rules/workflow-testing.md` — testing pyramid + regression-first + same-commit test gate.
-{{IF_FRONTEND}}- `.agents/rules/workflow-frontend.md` — shared frontend code: touch source, sweep consumers, no inline duplication.
-{{IF_FRONTEND}}- `.agents/rules/frontend-visibility.md` — per-agent browser-tooling setup + engineer/agent communication conventions for UI issues.
-
-ADRs: `.docs/adrs/`. Per-request prompts: `.docs/prompts/`. Deferred ideas: `.docs/todos/`. Security audits: `.docs/security/`.
-
-When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
+Nothing else belongs in this file. It exists because Windsurf reads `.windsurfrules`, not because Windsurf needs different instructions. Anything true for every agent goes in `AGENTS.md`; put something here only when it is genuinely specific to this host.
 ````
 
 ---
 
 ### Template: `.github/copilot-instructions.md` *(written only if `COPILOT ∈ AGENTS_USED`)*
 
-GitHub Copilot reads `.github/copilot-instructions.md` automatically in repos but does *not* follow file references — it only sees what's inlined. The adapter therefore summarises the workflow + best-practice headlines directly and points to the canonical files for the agent (or human) to read on demand.
+GitHub Copilot reads `.github/copilot-instructions.md` automatically in repos but does *not* follow file references — it only sees what's inlined. Every other adapter can just point at `AGENTS.md`; Copilot's file must inline the always-on section and the trigger index verbatim, because that is the only content Copilot will ever see. Rule bodies under `.agents/rules/` stay reference-only — the trigger index tells the agent which file to open when, and Copilot will open them itself when a listed trigger fires.
 
 ````markdown
 # Copilot instructions — {{PROJECT_NAME}}
 
-This project follows the **agentic-bootstrap** workflow discipline. The canonical, full brief lives in [`AGENTS.md`](../AGENTS.md) and the rule files under [`.agents/rules/`](../.agents/rules/). Read those before any non-trivial change.
+The primary agent brief lives in [`AGENTS.md`](../AGENTS.md) at the repo root, and it is agent-agnostic. Because GitHub Copilot does not follow file references, the always-on section and the trigger index below are **inlined verbatim from `AGENTS.md`** — this file exists to give Copilot what other hosts can chase for themselves. When `AGENTS.md` and this file disagree, `AGENTS.md` wins.
 
-## Workflow (summary — full text in `.agents/rules/workflow.md`)
+ADRs live under `.docs/adrs/` — read before structural changes. Per-task prompt files live under `.docs/prompts/`. Deferred ideas live under `.docs/todos/` as one file per entry.
 
-Every artifact-producing request bundles:
+## Always
 
-1. A **prompt file** at `.docs/prompts/<unix-timestamp>.<slug>.md` capturing the request, reasoning, and output.
-2. A **new or updated ADR** under `.docs/adrs/` when the change is architecturally significant (new module / pattern / dependency / contract).
-3. **Telemetry kept current** — logs added/updated for new and changed code paths, at log levels matching the event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with no credentials / PII / billing IDs / request bodies in log output.
-4. A **single commit** bundling all of the above, with an explicit `git add` (never `git add -A`).
-5. A **push** to the remote when the commit succeeds.
+Five things, on every turn.
 
-Deferred ideas go to `.docs/todos/` as one file per entry — never as inline TODO comments or undocumented promises.
+- **Confirm the reading before building.** When a request is short and admits more than one reading, say in one line which reading you are acting on, then act. Before the work, not after it. A wrong reading is cheap to correct at one line and expensive to correct at one commit.
+- **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
+- **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
+- **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement); a push. Stage by explicit path, never `git add -A`.
+- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
 
-## Best practices (summary — full text in `.agents/rules/best-practices.md`)
+## Read before you act
 
-- Dependency injection at the composition root; never instantiate infrastructure inside business logic.
-- Repositories own data access; services own use cases; presentation orchestrates.
-- Names are intent-revealing; comments are reserved for non-obvious *why*, not *what*.
-- Tests cover behaviour at the right layer; mock at boundaries, not internals.
+The files under `.agents/rules/` are **reference, and are deliberately not preloaded**. Open the file when its trigger fires, and open it *before* acting rather than after: each exists to stop a specific mistake that is expensive to undo. If a trigger is ambiguous, open the file.
 
-## Security (summary — full text in `.agents/rules/workflow-security.md`)
+Rules come in two flavors. **Reactive** rules (security, changes, UI, layered architecture, frontend) fire only when their specific surface is being touched — open them then, follow them then. **Proactive-discipline** rules (testing, metrics, telemetry) fire on *every* relevant work unit when opted in — open them once per session and apply the discipline on every code change, not only when the discipline's artifact is already being touched. If a project opted into metrics and you're building a new subsystem, ship events for it in the same commit; don't wait to be asked.
 
-Before any security-sensitive commit, walk the rubric in [`.docs/security/methodology.md`](../.docs/security/methodology.md) for the surfaces your change touches (auth, inputs, SQL, output, transport, secrets, logging, rate limits, deps, LLM context). Full dated audits live as sibling files under `.docs/security/`.
+| When | Read |
+| --- | --- |
+| the full per-task loop, once per session before the first commit | `.agents/rules/workflow.md` |
+| a new dependency, module, layer or pattern | `.agents/rules/workflow.md` §2 (ADR) |
+| a new, changed or deleted code path, or a new failure branch | `.agents/rules/workflow.md` §3 (telemetry) |
+| writing {{LANG}} | `.agents/rules/best-practices.md` |
+| auth, input, SQL, output encoding, headers, secrets, logging, rate limits, deps | `.agents/rules/workflow-security.md` |
+| writing or removing a deferred-idea entry | `.agents/rules/workflow-todos.md` |
+{{IF_LAYERED}}| adding a module, or moving code between layers | `.agents/rules/layered-architecture.md` |
+{{IF_CHANGES}}| anything a user can see | `.agents/rules/workflow-changes.md` |
+{{IF_UI_COMPONENTS}}| adding or changing any UI affordance | `.agents/rules/ui-components.md` |
+{{IF_METRICS}}| a new user-facing flow, business operation, external integration, or a change to an existing metered event | `.agents/rules/workflow-metrics.md` |
+{{IF_TESTING}}| writing production code — tests ship in the same commit | `.agents/rules/workflow-testing.md` |
+{{IF_FRONTEND}}| shared component, partial or styling token | `.agents/rules/workflow-frontend.md` |
+{{IF_FRONTEND}}| diagnosing or reporting a visual bug | `.agents/rules/frontend-visibility.md` |
 
-{{IF_TESTING}}## Testing (summary — full text in `.agents/rules/workflow-testing.md`)
-{{IF_TESTING}}
-{{IF_TESTING}}Every artifact-producing change ships with its tests in the same commit. Pyramid shape: unit-heavy, integration-light, e2e-thin. Mock at boundaries (HTTP, clock, randomness, third-party SDKs) — never internals. Bug fixes start with a failing regression test. TDD is encouraged but not mandated; the hard rule is *tests + code in the same commit*. Coverage is tracked, not gated by a percentage. Flaky tests are P1 — fix or quarantine with a dated entry under `.docs/todos/`.
-{{IF_TESTING}}
-{{IF_FRONTEND}}## Shared frontend (summary — full text in `.agents/rules/workflow-frontend.md`)
-{{IF_FRONTEND}}
-{{IF_FRONTEND}}When a request says *"fix component X on page Y"*, find the canonical source first (`grep -r` for the import), edit there, and list every consumer in the prompt file. Sweep each consumer for regressions and opportunities; fold the consumer updates into the same commit. Never patch a consumer with a local copy of the fix — that's how drift starts. Anti-patterns: forking components into v2, hard-coding values where a token exists, leaving stale consumers after a prop rename.
-{{IF_FRONTEND}}
-{{IF_FRONTEND}}## Frontend visibility (summary — full text in `.agents/rules/frontend-visibility.md`)
-{{IF_FRONTEND}}
-{{IF_FRONTEND}}Copilot Chat accepts pasted screenshots — that's the primary visibility channel for UI issues. When a user reports a visual problem: ask for a screenshot if one isn't pasted, ask for the route, and ask for the component name if known. Cross-reference `ui-components.md` (if installed) for the project's canonical affordances before inventing a variant. Storybook story files (if the project uses them) are the canonical visual reference for any shared component. The engineer's reporting convention is *screenshot + route + component-name-or-precise-description + symptom + desired outcome*.
-{{IF_FRONTEND}}
+Each row states the *condition* and the *file*, not what the file is about. If two rows fit, open both.
+
+## Measurement habit
+
+The rules budget is small (a few kilobytes of always-loaded material) but three larger line items compete for the same window: the conversation itself (grows every turn), MCP tool schemas (varies by connected servers), and per-host system prompts. Check `/context` occasionally when a session starts feeling forgetful; the culprit is usually one of those three, not this file.
+
+For MCP specifically: this project's project-scoped servers, if any, are declared in `.mcp.json` at the repo root (see `.mcp.example.json` for the starter template and the safety pattern — pinned versions, name-based allowlist, per-project denylist for account-level connectors). Every server contributes tool-schema tokens to every session; a browser MCP is typically ~9k tokens for 45 tools, and heavy account-level connectors can top 20k each. On Claude Code, personal denies live in the gitignored `.claude/settings.local.json`'s `deniedMcpServers` array; on other hosts, the equivalent lives in the host's own settings.
+
 ## Autonomy posture (intent — apply manually in Copilot's IDE settings)
 
 GitHub Copilot does not have a file-based permission model the bootstrap can write. The project's chosen autonomy posture is **`{{POSTURE}}`**, which translates to Copilot behaviour as follows — set the matching preferences in your IDE's Copilot settings:
@@ -3950,9 +4057,73 @@ GitHub Copilot does not have a file-based permission model the bootstrap can wri
 {{IF_POSTURE_READONLY}}- **Read-only** — Copilot may suggest and explain freely; disable auto-apply for edits; never let it run terminal commands without prompt.
 {{IF_POSTURE_TRUSTED_DEV}}- **Trusted dev** — Copilot Workspace auto-applies edits; review terminal commands before running. Treat force-push / hard-reset / `rm -rf` as off-limits regardless.
 {{IF_POSTURE_BYPASS}}- **Bypass** — only in sandboxed personal workspaces; auto-apply everything Copilot proposes.
-
-When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
 ````
+
+---
+
+### Template: `.claude/hooks/rule-reminder.sh` *(written only if `CLAUDE ∈ AGENTS_USED`)*
+
+Claude Code `PreToolUse` hook body. Before every Edit or Write, cross-checks the target path against the trigger index and injects a one-line reminder naming the rule to open. Deduplicates per session via a sentinel dir under `$TMPDIR` so a long sweep costs one reminder per rule, not one per edit.
+
+Case ladder mirrors `scripts/check_consulted_rules.sh` — same path → rule mappings, different UX: this one fires *before* the edit (pre-facto), the pre-commit check fires *at commit* (post-facto). Attentional triggers stay attentional; only path-shaped rows get injected here. Registered from all four `.claude/settings.json` posture variants (same block in each) so the reminder fires regardless of the project's autonomy setting.
+
+Windows-native hosts need Git Bash; Linux, macOS, and WSL are native.
+
+````bash
+#!/usr/bin/env bash
+# PreToolUse: inject a one-line reminder when Claude is about to Edit / Write
+# a path that fires a trigger in AGENTS.md's index. Deduped per session so a
+# long sweep costs one reminder per rule, not one per edit.
+#
+# Payload arrives on stdin as JSON (Claude Code PreToolUse contract).
+# Response on stdout as JSON with a hookSpecificOutput.additionalContext.
+
+set -euo pipefail
+
+payload=$(cat)
+path=$(jq -r '.tool_input.file_path // .tool_input.path // empty' <<<"$payload")
+if [ -z "$path" ]; then exit 0; fi
+
+# Path patterns → reminder messages. Add arms here when a new path-shaped
+# row lands in AGENTS.md's trigger index. Interview flags gate each arm;
+# a project without a flag skips the arm entirely.
+declare -A rule_for=()
+case "$path" in
+{{IF_UI_COMPONENTS}}  components/*|src/components/*|packages/*/components/*)
+{{IF_UI_COMPONENTS}}    rule_for["ui-components.md"]="touching a UI affordance — open .agents/rules/ui-components.md before inventing a variant" ;;
+{{IF_FRONTEND}}  *.tsx|*.jsx|*.vue|*.svelte|src/pages/*|pages/*|partials/*)
+{{IF_FRONTEND}}    rule_for["workflow-frontend.md"]="editing shared frontend — open .agents/rules/workflow-frontend.md before patching a consumer" ;;
+{{IF_CHANGES}}  README.md|CHANGELOG.md|docs/*|public/*|static/*|assets/*)
+{{IF_CHANGES}}    rule_for["workflow-changes.md"]="user-visible surface — open .agents/rules/workflow-changes.md; surfaces move in the same commit" ;;
+{{IF_METRICS}}  metrics/*|analytics/*|*/events.py|*/events.ts|*/events.go)
+{{IF_METRICS}}    rule_for["workflow-metrics.md"]="changing metered events — open .agents/rules/workflow-metrics.md; cardinality is non-negotiable" ;;
+esac
+if [ ${#rule_for[@]} -eq 0 ]; then exit 0; fi
+
+# Session-keyed dedupe. If a marker for this rule already exists in the
+# session's sentinel dir, skip; otherwise emit and touch the marker.
+session=$(jq -r '.session_id // "nosession"' <<<"$payload")
+sentinel="${TMPDIR:-/tmp}/claude-hooks/${session}"
+mkdir -p "$sentinel"
+
+reminders=()
+for rule in "${!rule_for[@]}"; do
+  marker="${sentinel}/${rule}"
+  if [ ! -f "$marker" ]; then
+    reminders+=("- ${rule_for[$rule]}")
+    touch "$marker"
+  fi
+done
+
+if [ ${#reminders[@]} -eq 0 ]; then exit 0; fi
+
+context="Trigger index — rules that apply to $path (first reminder this session):"
+for line in "${reminders[@]}"; do context+=$'\n'"$line"; done
+
+jq -n --arg m "$context" '{hookSpecificOutput: {hookEventName: "PreToolUse", additionalContext: $m}}'
+````
+
+Requires `jq` on `$PATH`. If a project host lacks `jq`, the hook fails silently under `set -euo pipefail` (exit non-zero from `jq -r` on empty stdin). Document `jq` in the project's install guide when this hook is emitted; standard on macOS via Homebrew, Debian/Ubuntu via apt, WSL identically to Linux.
 
 ---
 
@@ -3961,7 +4132,20 @@ When this file and `AGENTS.md` disagree, `AGENTS.md` wins.
 ````json
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "claude-opus-4-7"
+  "model": "claude-opus-4-7",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
 ````
 
@@ -3996,6 +4180,19 @@ Every Bash command, every WebFetch, every tool call prompts for permission. Safe
       "Bash(git branch:*)",
       "Bash(git ls-files:*)",
       "Bash(git remote:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
     ]
   }
 }
@@ -4048,6 +4245,19 @@ Write the base template below; then append the language-specific allow entries (
       "Bash(git checkout .:*)",
       "Bash(git restore .:*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
+    ]
   }
 }
 ````
@@ -4074,6 +4284,19 @@ Daily development — install, lint, format, test, build, commit, push — runs 
   "model": "claude-opus-4-7",
   "permissions": {
     "defaultMode": "bypassPermissions"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rule-reminder.sh"
+          }
+        ]
+      }
+    ]
   }
 }
 ````
@@ -4852,13 +5075,13 @@ No config files written. Tell the user post-bootstrap:
 
 help:
 	@echo "Targets:"
-	@echo "  install   Install dependencies (and dev deps)"
-	@echo "  test      Run tests"
-	@echo "  lint      Run linter"
-	@echo "  format    Run formatter"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application (override per project)"
-	@echo "  clean     Remove build / cache artefacts"
+	@echo "  install      Install dependencies (and dev deps)"
+	@echo "  test         Run tests"
+	@echo "  lint         Run linter"
+	@echo "  format       Run formatter"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application (override per project)"
+	@echo "  clean        Remove build / cache artefacts"
 
 install:
 	uv sync --extra dev
@@ -4879,8 +5102,7 @@ run:
 
 clean:
 	rm -rf build/ dist/ *.egg-info/ .pytest_cache/ .ruff_cache/ .mypy_cache/ htmlcov/ .coverage
-	find . -type d -name __pycache__ -exec rm -rf {} +
-````
+	find . -type d -name __pycache__ -exec rm -rf {} +````
 
 If the project uses `pip` / `poetry` instead of `uv`, swap the commands accordingly.
 
@@ -4896,13 +5118,13 @@ PM := npm
 
 help:
 	@echo "Targets:"
-	@echo "  install   Install dependencies"
-	@echo "  test      Run tests"
-	@echo "  lint      Run linter"
-	@echo "  format    Run formatter"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application (override per project)"
-	@echo "  clean     Remove build / cache artefacts"
+	@echo "  install      Install dependencies"
+	@echo "  test         Run tests"
+	@echo "  lint         Run linter"
+	@echo "  format       Run formatter"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application (override per project)"
+	@echo "  clean        Remove build / cache artefacts"
 
 install:
 	$(PM) install
@@ -4922,8 +5144,7 @@ run:
 	@echo "Override the 'run' target per project (e.g. '$(PM) run dev')"
 
 clean:
-	rm -rf dist/ build/ coverage/ .turbo/ .next/ .vite/
-````
+	rm -rf dist/ build/ coverage/ .turbo/ .next/ .vite/````
 
 ---
 
@@ -4937,13 +5158,13 @@ BIN_NAME ?= {{PROJECT_NAME}}
 
 help:
 	@echo "Targets:"
-	@echo "  build     Compile the binary into $(BIN_DIR)/"
-	@echo "  test      Run tests"
-	@echo "  lint      Run golangci-lint"
-	@echo "  format    Run gofmt + goimports"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application"
-	@echo "  clean     Remove build artefacts"
+	@echo "  build        Compile the binary into $(BIN_DIR)/"
+	@echo "  test         Run tests"
+	@echo "  lint         Run golangci-lint"
+	@echo "  format       Run gofmt + goimports"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application"
+	@echo "  clean        Remove build artefacts"
 
 build:
 	mkdir -p $(BIN_DIR)
@@ -4966,8 +5187,7 @@ run:
 
 clean:
 	rm -rf $(BIN_DIR)/
-	go clean
-````
+	go clean````
 
 ---
 
@@ -4978,13 +5198,13 @@ clean:
 
 help:
 	@echo "Targets:"
-	@echo "  build     Compile (debug)"
-	@echo "  test      Run tests"
-	@echo "  lint      Run clippy"
-	@echo "  format    Run rustfmt"
-	@echo "  check     Lint + test (CI-style)"
-	@echo "  run       Run the application"
-	@echo "  clean     Remove target/"
+	@echo "  build        Compile (debug)"
+	@echo "  test         Run tests"
+	@echo "  lint         Run clippy"
+	@echo "  format       Run rustfmt"
+	@echo "  check        Lint + test (CI-style)"
+	@echo "  run          Run the application"
+	@echo "  clean        Remove target/"
 
 build:
 	cargo build
@@ -5004,8 +5224,7 @@ run:
 	cargo run
 
 clean:
-	cargo clean
-````
+	cargo clean````
 
 ---
 
@@ -5033,8 +5252,7 @@ run:
 	@echo "TODO: wire up the run command"
 
 clean:
-	@echo "TODO: wire up cache / artefact cleanup"
-````
+	@echo "TODO: wire up cache / artefact cleanup"````
 
 ---
 
@@ -5062,6 +5280,20 @@ repos:
     rev: v8.21.2
     hooks:
       - id: gitleaks
+
+  # Cross-check staged paths against the trigger index in AGENTS.md.
+  # A path that fires a trigger (per scripts/check_consulted_rules.sh's case
+  # ladder, generated from the interview flags) must be named in the committed
+  # prompt file's `## Consulted rules` section. Soft-skips when no prompt file
+  # is staged or on disk. Bash — Linux/macOS/WSL; Windows-native needs Git Bash.
+  - repo: local
+    hooks:
+      - id: check-consulted-rules
+        name: Trigger index — staged paths must name their rules in the prompt file
+        entry: bash scripts/check_consulted_rules.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
 ````
 
 Per-language hooks the user adds as the project matures (don't write them at bootstrap — they require the toolchain to be installed):
@@ -5072,6 +5304,89 @@ Per-language hooks the user adds as the project matures (don't write them at boo
 - **Rust**: `cargo fmt`, `cargo clippy`.
 
 The bootstrap ships the universal hooks (whitespace, YAML/JSON/TOML syntax, secret detection via gitleaks); each project layers its language-specific hooks on top.
+
+---
+
+### Template: `scripts/check_consulted_rules.sh`
+
+Pre-commit hook body. Cross-checks staged file paths against a case ladder of path → rule mappings (generated below from the interview flags) and fails the commit if the prompt file's `## Consulted rules` section doesn't name every rule a staged path fired. Only path-shaped triggers are enforced here; attentional triggers (ADR, telemetry, security surface) stay attentional — the always-loaded rule text in `AGENTS.md` nudges those.
+
+Windows-native hosts need Git Bash to run this script; Linux, macOS, and WSL are native. Invoked from `.pre-commit-config.yaml`'s `local` hook block. The script soft-skips (exits 0) when no prompt file is staged or on disk, and when the prompt file exists but has no `## Consulted rules` section — so the check adds no friction to existing repos that haven't adopted the section yet.
+
+````bash
+#!/usr/bin/env bash
+# Cross-check: staged paths → trigger index → prompt file's Consulted rules.
+# See AGENTS.md's "Read before you act" table for what each rule stops.
+
+set -euo pipefail
+
+mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACM)
+if [ ${#staged[@]} -eq 0 ]; then exit 0; fi
+
+# The prompt file being committed, or the most recent one on disk if we're
+# amending / continuing a task. Missing = soft-skip.
+prompt_file=""
+for f in "${staged[@]}"; do
+  case "$f" in .docs/prompts/*.md) prompt_file="$f"; break ;; esac
+done
+if [ -z "$prompt_file" ]; then
+  prompt_file=$(ls -1t .docs/prompts/*.md 2>/dev/null | head -n 1 || true)
+fi
+if [ -z "$prompt_file" ] || [ ! -f "$prompt_file" ]; then
+  echo "check_consulted_rules: no prompt file staged or on disk — soft-skip"
+  exit 0
+fi
+if ! grep -q '^## Consulted rules' "$prompt_file"; then
+  echo "check_consulted_rules: $prompt_file has no '## Consulted rules' section — soft-skip"
+  echo "  (add the section per .agents/rules/workflow.md §1 for the check to fire)"
+  exit 0
+fi
+
+# Path patterns that fire triggers. Add arms here when a new path-shaped
+# row lands in AGENTS.md's trigger index. Interview flags gate each arm;
+# a project without a flag skips the arm entirely.
+declare -A needs=()
+for path in "${staged[@]}"; do
+  case "$path" in
+{{IF_UI_COMPONENTS}}    components/*|src/components/*|packages/*/components/*)
+{{IF_UI_COMPONENTS}}      needs["ui-components.md"]=1 ;;
+{{IF_FRONTEND}}    src/pages/*|pages/*|partials/*|src/partials/*|*.tsx|*.jsx|*.vue|*.svelte)
+{{IF_FRONTEND}}      needs["workflow-frontend.md"]=1
+{{IF_FRONTEND}}      needs["frontend-visibility.md"]=1 ;;
+{{IF_CHANGES}}    README.md|CHANGELOG.md|docs/*|public/*|static/*|assets/*)
+{{IF_CHANGES}}      needs["workflow-changes.md"]=1 ;;
+{{IF_METRICS}}    metrics/*|analytics/*|*/events.py|*/events.ts|*/events.go)
+{{IF_METRICS}}      needs["workflow-metrics.md"]=1 ;;
+  esac
+done
+if [ ${#needs[@]} -eq 0 ]; then exit 0; fi
+
+# Extract the Consulted rules block for cross-checking. A rule is satisfied
+# either by a plain mention or by an explicit waiver: `<rule> (n/a — reason)`.
+consulted=$(awk '/^## Consulted rules/{f=1; next} /^## /{f=0} f' "$prompt_file")
+
+missing=()
+for rule in "${!needs[@]}"; do
+  if ! grep -qF "$rule" <<<"$consulted"; then
+    missing+=("$rule")
+  fi
+done
+
+if [ ${#missing[@]} -eq 0 ]; then exit 0; fi
+
+echo "check_consulted_rules: staged paths fire trigger(s) not named in"
+echo "  $prompt_file's '## Consulted rules' section:"
+for rule in "${missing[@]}"; do
+  echo "  - $rule"
+done
+echo
+echo "Fix: open the rule file and confirm you followed it, then add a line to"
+echo "'## Consulted rules' naming it. If the trigger doesn't apply to this"
+echo "change, waive it explicitly with the reason: '<rule> (n/a — <one-line>)'"
+exit 1
+````
+
+Emit the script executable — the bootstrap should `chmod +x scripts/check_consulted_rules.sh` after writing it, or the pre-commit invocation via `bash <path>` will still work (the local hook uses `bash` explicitly so the file's executable bit is not load-bearing).
 
 ---
 
