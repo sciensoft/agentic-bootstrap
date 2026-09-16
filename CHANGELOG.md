@@ -9,6 +9,10 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+### Added
+
+- **Doctor mode gains an agent-agnostic hook-reinforcement smoke test** (Check #11 in the doctor-mode playbook, `AGENTIC-BOOTSTRAP.md` Part 1 Step 0). Closes the remaining gap from the context-management improvements review. For each hook-shaped reinforcement emitted for the project's `AGENTS_USED`, doctor mode now verifies the hook is *functional*, not just present: Claude's `.claude/hooks/rule-reminder.sh` gets a synthesized JSON payload piped in (no file touched — script reads stdin) and the expected reminder is checked in stdout; Cursor's `.cursor/rules/trigger-index.mdc` gets a frontmatter + body parse check. Silent skip if no hook applies (Aider, Codex, Continue, Windsurf, Copilot have no runtime hook primitive — Layer 1 attentional and Layer 2 pre-commit cover them). Report shape's `Drift` subsection expanded to name hook-reinforcement hygiene alongside adapter / ADR / todo. Catches the failure mode Cut 2's mechanical enforcement layer would silently degrade to (`jq` missing, non-standard case-ladder paths, WSL / Git Bash edge cases, template bugs) — environment gaps re-running the bootstrap can't fix.
+
 ## [2026-09-09] — Context-management overhaul (trigger index, enforcement, proactive rules, MCP, migration) + interview + UX polish
 
 ### Added
