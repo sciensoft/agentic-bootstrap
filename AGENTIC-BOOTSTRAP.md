@@ -92,7 +92,7 @@ Both modes share the same playbook from this point on, with these behavioural di
 
 If the user explicitly wants a clean wipe-and-recreate, they can tell you to *"treat this as first-time mode"*; in that case, ask them to confirm the destructive intent, then back up the existing `.agents/`, `.claude/`, `.docs/`, and root config files (rename to `.agents.backup-<ts>/` etc.) before running first-time mode.
 
-#### Doctor mode (audit-only — no writes)
+#### Doctor mode
 
 When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo"*, or equivalent, the agent does **not** write or modify anything. It produces a structured drift report — what the bootstrap *would* fix if run normally — and stops. Teams use this on a cadence to detect when the project has drifted from the conventions.
 
