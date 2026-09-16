@@ -321,33 +321,28 @@
 
 <body class="text-zinc-100 font-sans antialiased selection:bg-accent-400/30 selection:text-accent-100">
 
-  <!-- Site-wide fixed header stack: subscription-cost banner + nav in one fixed container so they
-       stack in normal document flow. The banner wraps freely on narrow viewports without knocking
-       the nav out of place. -->
-  <div class="fixed top-0 inset-x-0 z-50">
-    <!-- Subscription-cost heads-up. Not a functionality gate — a cost heads-up for anyone running
-         against per-token API billing. Scaffold-time cost is absorbed on fixed-rate plans (Claude
-         Code, Cursor Pro, Codex on ChatGPT, Copilot); on direct-API billing a single run can add
-         up. See the Runtime footprint section for the actual numbers. -->
-    <div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-200 text-xs md:text-sm">
-      <div class="max-w-7xl mx-auto px-6 py-2 flex items-start md:items-center gap-2">
-        <svg class="w-4 h-4 flex-shrink-0 mt-0.5 md:mt-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <span>
-          <strong class="font-semibold">Best used with fixed-rate subscriptions</strong>
-          (Claude Code · Cursor Pro · Codex on ChatGPT · Copilot).
-          On per-token API billing, a single scaffold run can be costly —
-          <a href="#footprint" class="underline underline-offset-2 hover:text-amber-100">check the runtime footprint below</a>.
-        </span>
-      </div>
+  <!-- Subscription-cost banner. In normal document flow (not fixed) so it scrolls out of view as
+       the user reads down and reappears only when they scroll back to the top. Copy leads with
+       the runtime improvement so readers see the win before the caveat. -->
+  <div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-200 text-xs md:text-sm">
+    <div class="max-w-7xl mx-auto px-6 py-2 flex items-start md:items-center gap-2">
+      <svg class="w-4 h-4 flex-shrink-0 mt-0.5 md:mt-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>
+        <strong class="font-semibold">Now 10&times; lighter every turn</strong> (~4.5k tokens, measured).
+        Best used with fixed-rate subscriptions (Claude Code · Cursor Pro · Codex on ChatGPT · Copilot).
+        On per-token API billing, scaffold-time cost adds up —
+        <a href="#footprint" class="underline underline-offset-2 hover:text-amber-100">runtime footprint &rarr;</a>.
+      </span>
     </div>
+  </div>
 
-    <!-- Nav -->
-    <header class="nav-blur border-b border-white/5">
+  <!-- Nav. Sticky so it pins to the top of the viewport as the user scrolls past the banner. -->
+  <header class="sticky top-0 z-50 nav-blur border-b border-white/5">
     <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
       <a href="#" class="flex items-center gap-2.5 group">
         <span
@@ -370,11 +365,10 @@
         GitHub
       </a>
     </nav>
-    </header>
-  </div>
+  </header>
 
   <!-- Hero -->
-  <section class="relative pt-32 pb-24 overflow-hidden">
+  <section class="relative pt-16 pb-24 overflow-hidden">
     <div class="absolute inset-0 grid-bg pointer-events-none"></div>
     <div class="absolute inset-0 glow-hero pointer-events-none"></div>
 
@@ -1020,183 +1014,183 @@
 
             <!-- Claude Code tree (default visible) -->
             <pre data-agent-panel="claude"><span class="tk-p">your-repo/</span>
-├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># primary cross-tool brief — purpose, run, architecture, trigger index</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine — same across every agent</span>
-│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># reference, not preloaded — opened when trigger fires</span>
-│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop: prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change security rubric</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers — re-runnable</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
 │   <span class="tk-c"># ── Claude Code adapter ─────────────────────</span>
 ├── <span class="tk-k">CLAUDE.md</span>                          <span class="tk-c"># thin @AGENTS.md stub</span>
 ├── <span class="tk-p">.claude/</span><span class="tk-k">settings.json</span>             <span class="tk-c"># permission posture (cautious → bypass)</span>
-├── <span class="tk-p">.claude/hooks/</span><span class="tk-k">rule-reminder.sh</span>    <span class="tk-c"># PreToolUse: reminds you which rule fires</span>
-├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter — pinned versions, safe defaults</span>
+├── <span class="tk-p">.claude/hooks/</span><span class="tk-k">rule-reminder.sh</span>    <span class="tk-c"># PreToolUse reminder</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task, amended across turns</span>
-    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
 
             <!-- Cursor tree -->
             <pre data-agent-panel="cursor" hidden><span class="tk-p">your-repo/</span>
-├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># primary cross-tool brief — purpose, run, architecture, trigger index</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine — same across every agent</span>
-│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># reference, not preloaded — opened when trigger fires</span>
-│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop: prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change security rubric</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers — re-runnable</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
 │   <span class="tk-c"># ── Cursor adapter ──────────────────────────</span>
 ├── <span class="tk-p">.cursor/rules/</span><span class="tk-k">agents.mdc</span>         <span class="tk-c"># pointer stub, alwaysApply: true</span>
 ├── <span class="tk-p">.cursor/rules/</span><span class="tk-k">trigger-index.mdc</span>  <span class="tk-c"># path-shaped trigger index (always-injected)</span>
 ├── <span class="tk-p">.cursor/</span><span class="tk-k">settings.json</span>             <span class="tk-c"># permission posture</span>
-├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter — pinned versions, safe defaults</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task, amended across turns</span>
-    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
 
             <!-- Codex CLI tree -->
             <pre data-agent-panel="codex" hidden><span class="tk-p">your-repo/</span>
 ├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># read natively by Codex — no adapter file needed</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine — same across every agent</span>
-│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># reference, not preloaded — opened when trigger fires</span>
-│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop: prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change security rubric</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers — re-runnable</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
 │   <span class="tk-c"># ── Codex CLI adapter ───────────────────────</span>
 ├── <span class="tk-p">.codex/</span><span class="tk-k">config.toml</span>               <span class="tk-c"># approval mode + sandbox profile</span>
-├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter — pinned versions, safe defaults</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task, amended across turns</span>
-    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
 
             <!-- Windsurf tree -->
             <pre data-agent-panel="windsurf" hidden><span class="tk-p">your-repo/</span>
-├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># primary cross-tool brief — purpose, run, architecture, trigger index</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine — same across every agent</span>
-│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># reference, not preloaded — opened when trigger fires</span>
-│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop: prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change security rubric</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers — re-runnable</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
 │   <span class="tk-c"># ── Windsurf adapter ────────────────────────</span>
 ├── <span class="tk-k">.windsurfrules</span>                     <span class="tk-c"># thin adapter, points at AGENTS.md</span>
 ├── <span class="tk-p">.windsurf/</span><span class="tk-k">settings.json</span>           <span class="tk-c"># Cascade permission mode</span>
-├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter — pinned versions, safe defaults</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task, amended across turns</span>
-    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
 
             <!-- Copilot tree -->
             <pre data-agent-panel="copilot" hidden><span class="tk-p">your-repo/</span>
-├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># primary cross-tool brief — purpose, run, architecture, trigger index</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine — same across every agent</span>
-│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># reference, not preloaded — opened when trigger fires</span>
-│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop: prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change security rubric</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers — re-runnable</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
 │   <span class="tk-c"># ── GitHub Copilot adapter ──────────────────</span>
 ├── <span class="tk-p">.github/</span><span class="tk-k">copilot-instructions.md</span>   <span class="tk-c"># inlines Always + trigger index (Copilot can't chase refs)</span>
-├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter — pinned versions, safe defaults</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task, amended across turns</span>
-    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
 
             <!-- Aider tree -->
             <pre data-agent-panel="aider" hidden><span class="tk-p">your-repo/</span>
-├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># primary cross-tool brief — purpose, run, architecture, trigger index</span>
+├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># cross-tool brief + trigger index</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine — same across every agent</span>
-│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># reference, not preloaded — opened when trigger fires</span>
-│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop: prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change security rubric</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers — re-runnable</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
 │   <span class="tk-c"># ── Aider adapter ───────────────────────────</span>
 ├── <span class="tk-k">.aider.conf.yml</span>                    <span class="tk-c"># read: [AGENTS.md] + posture-driven autonomy keys</span>
-├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter — pinned versions, safe defaults</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task, amended across turns</span>
-    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
 
             <!-- OpenCode tree -->
             <pre data-agent-panel="opencode" hidden><span class="tk-p">your-repo/</span>
 ├── <span class="tk-k">AGENTS.md</span>                          <span class="tk-c"># read natively by OpenCode — no adapter file needed</span>
 ├── <span class="tk-k">README.md</span> · <span class="tk-k">LICENSE</span> · <span class="tk-k">SECURITY.md</span>
 │
-├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine — same across every agent</span>
-│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># reference, not preloaded — opened when trigger fires</span>
-│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop: prompt → ADR → telemetry → commit → push</span>
-│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># how do-later ideas are captured</span>
-│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change security rubric</span>
+├── <span class="tk-p">.agents/</span>                           <span class="tk-c"># tool-agnostic spine</span>
+│   ├── <span class="tk-p">rules/</span>                         <span class="tk-c"># opened when trigger fires</span>
+│   │   ├── <span class="tk-k">workflow.md</span>                <span class="tk-c"># per-task loop</span>
+│   │   ├── <span class="tk-k">workflow-todos.md</span>          <span class="tk-c"># deferred ideas</span>
+│   │   ├── <span class="tk-k">workflow-security.md</span>       <span class="tk-c"># per-change rubric</span>
 │   │   ├── <span class="tk-k">best-practices.md</span>          <span class="tk-c"># code-style + idioms</span>
-│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># 4-Layer / 3-Tier / SPA / Monorepo / Serverless</span>
-│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers — re-runnable</span>
+│   │   └── <span class="tk-k">layered-architecture.md</span>    <span class="tk-c"># architecture pattern</span>
+│   └── <span class="tk-k">bootstrap.json</span>                 <span class="tk-c"># interview answers</span>
 │
 │   <span class="tk-c"># ── OpenCode ────────────────────────────────</span>
 │   <span class="tk-c"># AGENTS.md read natively — no adapter file, no permission config</span>
-├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter — pinned versions, safe defaults</span>
+├── <span class="tk-k">.mcp.example.json</span>                  <span class="tk-c"># MCP starter, pinned</span>
 │
 └── <span class="tk-p">.docs/</span>
-    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task, amended across turns</span>
-    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard format, indexed</span>
-    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per deferred idea</span>
+    ├── <span class="tk-p">prompts/</span>                       <span class="tk-c"># one file per task</span>
+    ├── <span class="tk-p">adrs/</span>                          <span class="tk-c"># slim Nygard, indexed</span>
+    ├── <span class="tk-p">todos/</span>                         <span class="tk-c"># one file per idea</span>
     └── <span class="tk-p">security/</span>
-        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM-specific rubric</span></pre>
+        └── <span class="tk-k">methodology.md</span>              <span class="tk-c"># OWASP + LLM rubric</span></pre>
 
           </div>
         </div>
