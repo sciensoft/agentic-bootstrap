@@ -321,29 +321,33 @@
 
 <body class="text-zinc-100 font-sans antialiased selection:bg-accent-400/30 selection:text-accent-100">
 
-  <!-- Subscription-cost heads-up. Site-wide, above the nav. Not a functionality gate — a cost heads-up
-       for anyone running against per-token API billing. Scaffold-time cost is absorbed on fixed-rate
-       plans (Claude Code, Cursor Pro, Codex on ChatGPT, Copilot); on direct-API billing a single run
-       can add up. See the Runtime footprint section for the actual numbers. -->
-  <div class="fixed top-0 inset-x-0 z-[60] bg-amber-500/10 border-b border-amber-500/20 text-amber-200 text-xs md:text-sm">
-    <div class="max-w-7xl mx-auto px-6 py-2 flex items-start md:items-center gap-2">
-      <svg class="w-4 h-4 flex-shrink-0 mt-0.5 md:mt-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span>
-        <strong class="font-semibold">Best used with fixed-rate subscriptions</strong>
-        (Claude Code · Cursor Pro · Codex on ChatGPT · Copilot).
-        On per-token API billing, a single scaffold run can be costly —
-        <a href="#footprint" class="underline underline-offset-2 hover:text-amber-100">check the runtime footprint below</a>.
-      </span>
+  <!-- Site-wide fixed header stack: subscription-cost banner + nav in one fixed container so they
+       stack in normal document flow. The banner wraps freely on narrow viewports without knocking
+       the nav out of place. -->
+  <div class="fixed top-0 inset-x-0 z-50">
+    <!-- Subscription-cost heads-up. Not a functionality gate — a cost heads-up for anyone running
+         against per-token API billing. Scaffold-time cost is absorbed on fixed-rate plans (Claude
+         Code, Cursor Pro, Codex on ChatGPT, Copilot); on direct-API billing a single run can add
+         up. See the Runtime footprint section for the actual numbers. -->
+    <div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-200 text-xs md:text-sm">
+      <div class="max-w-7xl mx-auto px-6 py-2 flex items-start md:items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0 mt-0.5 md:mt-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>
+          <strong class="font-semibold">Best used with fixed-rate subscriptions</strong>
+          (Claude Code · Cursor Pro · Codex on ChatGPT · Copilot).
+          On per-token API billing, a single scaffold run can be costly —
+          <a href="#footprint" class="underline underline-offset-2 hover:text-amber-100">check the runtime footprint below</a>.
+        </span>
+      </div>
     </div>
-  </div>
 
-  <!-- Nav -->
-  <header class="fixed top-9 md:top-8 inset-x-0 z-50 nav-blur border-b border-white/5">
+    <!-- Nav -->
+    <header class="nav-blur border-b border-white/5">
     <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
       <a href="#" class="flex items-center gap-2.5 group">
         <span
@@ -366,7 +370,8 @@
         GitHub
       </a>
     </nav>
-  </header>
+    </header>
+  </div>
 
   <!-- Hero -->
   <section class="relative pt-32 pb-24 overflow-hidden">
