@@ -1090,6 +1090,18 @@ commit a1b2c3d adds the token-bucket middleware that satisfies the
       btn.addEventListener('click', () => {
         const svgEl = document.querySelector('#' + containerId + ' svg');
         if (!svgEl) return;
+        // Read the true drawing size from the viewBox, not the rendered CSS size,
+        // so the exported PNG isn't clipped to whatever width the container shrank it to.
+        let vbWidth, vbHeight;
+        const vb = svgEl.viewBox && svgEl.viewBox.baseVal;
+        if (vb && vb.width && vb.height) {
+          vbWidth = vb.width;
+          vbHeight = vb.height;
+        } else {
+          const bbox = svgEl.getBoundingClientRect();
+          vbWidth = bbox.width;
+          vbHeight = bbox.height;
+        }
         const svgData = new XMLSerializer().serializeToString(svgEl);
         const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
         const url = URL.createObjectURL(svgBlob);
@@ -1097,11 +1109,11 @@ commit a1b2c3d adds the token-bucket middleware that satisfies the
         img.onload = () => {
           const scale = 2;
           const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
+          canvas.width = vbWidth * scale;
+          canvas.height = vbHeight * scale;
           const ctx = canvas.getContext('2d');
           ctx.scale(scale, scale);
-          ctx.drawImage(img, 0, 0);
+          ctx.drawImage(img, 0, 0, vbWidth, vbHeight);
           URL.revokeObjectURL(url);
           canvas.toBlob((blob) => {
             const a = document.createElement('a');
