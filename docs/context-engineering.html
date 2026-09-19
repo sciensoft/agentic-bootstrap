@@ -153,6 +153,7 @@
       transition: opacity .7s ease, transform .7s ease;
     }
 
+    details[open] > .learn-summary .learn-chevron { transform: rotate(180deg); }
     .reveal.in {
       opacity: 1;
       transform: translateY(0);
@@ -284,6 +285,42 @@
           <h2 class="text-2xl md:text-3xl font-bold tracking-tight">Progressive disclosure</h2>
         </div>
         <p class="text-zinc-400 max-w-3xl leading-relaxed mb-3">
+          Setting up your AGENTS.md well means designing it around progressive disclosure, just-in-time context loading, and retrieval on demand, so the agent only ever carries the context it actually needs, right when it needs it.
+        </p>
+
+        <details class="learn-box max-w-3xl mb-6 rounded-xl border border-white/10 bg-white/[0.03] p-5">
+          <summary class="learn-summary cursor-pointer flex items-center gap-2 text-sm font-semibold text-violet-300 select-none list-none">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0">
+              <path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Z"/>
+            </svg>
+            <span>Why does this matter?</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="learn-chevron w-4 h-4 shrink-0 ml-auto transition-transform">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </summary>
+          <div class="mt-4 text-sm text-zinc-400 leading-relaxed space-y-4">
+            <p>
+              The problem: if an agent loads every rule file upfront, it burns a huge chunk of its context window before it has done any work, and the model has to wade through mostly irrelevant instructions to find what matters for the task at hand. That costs tokens, money, and accuracy.
+            </p>
+            <div>
+              <p class="text-zinc-200 font-medium mb-1">Progressive disclosure</p>
+              <p>Keep the always-loaded prompt small on purpose. Only a handful of rules stay resident on every cold start; everything else waits until it is actually needed. In practice, this means writing a short summary or index that always loads, with the fuller detail kept in separate files that are pulled in only when relevant.</p>
+              <p class="mt-2">How you set that up depends on the host. Most hosts, Claude Code, Cursor, and plain markdown-based setups alike, support a small always-loaded entry file, commonly named something like AGENTS.md or a host-specific equivalent, that stays short by design and simply points at where the fuller detail lives.</p>
+            </div>
+            <div>
+              <p class="text-zinc-200 font-medium mb-1">Just-in-time context loading</p>
+              <p>Detail is fetched at the exact moment a condition is met, not stuffed in eagerly at session start. In practice, this means attaching a clear condition to each piece of detailed context, so it is only loaded once that condition is actually triggered, rather than every single time.</p>
+              <p class="mt-2">How you trigger that load depends on the host too. Hosts with a hook primitive, like Claude Code, can fire the load automatically off a tool call. Hosts without one rely on the agent reading a condition-to-file table in the always-loaded entry file and following it itself when a condition matches.</p>
+            </div>
+            <div>
+              <p class="text-zinc-200 font-medium mb-1">Retrieval on demand</p>
+              <p>A deterministic lookup from a condition to the exact piece of content needed, a lighter, non-hallucinating cousin of RAG. In practice, this means keying content off explicit, matchable conditions rather than a fuzzy search, so the right piece of context is found by a direct match, not a guess.</p>
+              <p class="mt-2">This works the same regardless of host, since it is just a table: one row per condition, pointing at exactly one file. No embeddings, no vector database, no similarity search, just a direct lookup any agent can follow.</p>
+            </div>
+          </div>
+        </details>
+
+        <p class="text-zinc-400 max-w-3xl leading-relaxed mb-3">
           <span class="font-mono text-zinc-300 text-sm">.agents/rules/*.md</span> is never preloaded into context.
           <span class="font-mono text-zinc-300 text-sm">AGENTS.md</span> carries only two small things on every cold
           start: a five-item <span class="text-zinc-200 font-medium">Always</span> block, and a
@@ -343,6 +380,32 @@ graph TB
           <span class="step-num">2</span>
           <h2 class="text-2xl md:text-3xl font-bold tracking-tight">Hooks &amp; triggers</h2>
         </div>
+        <p class="text-zinc-400 max-w-3xl leading-relaxed mb-3">
+          Rules only help if the agent can not talk its way out of them, which is what tool-call interception is for: catching every edit before it lands and injecting the right rule right then, instead of hoping the model remembers on its own.
+        </p>
+
+        <details class="learn-box max-w-3xl mb-6 rounded-xl border border-white/10 bg-white/[0.03] p-5">
+          <summary class="learn-summary cursor-pointer flex items-center gap-2 text-sm font-semibold text-violet-300 select-none list-none">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0">
+              <path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Z"/>
+            </svg>
+            <span>Why does this matter?</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="learn-chevron w-4 h-4 shrink-0 ml-auto transition-transform">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </summary>
+          <div class="mt-4 text-sm text-zinc-400 leading-relaxed space-y-4">
+            <p>
+              The problem: a rule sitting in a text file is only a suggestion, and a busy agent under time pressure can simply forget it or talk itself past it. Nothing forces the rule to actually apply at the moment it is needed.
+            </p>
+            <div>
+              <p class="text-zinc-200 font-medium mb-1">Tool-call interception</p>
+              <p>A hook inspects every action before it is allowed to land, acting as middleware that cannot be reasoned with, talked out of, or skipped. In practice, this means wiring a check into the point right before an edit or write happens, rather than relying on an instruction the agent has to remember and choose to follow.</p>
+              <p class="mt-2">How you wire that in depends on the host. In Claude Code, you register a PreToolUse hook, a small script that runs before every Edit or Write and can inspect or block the call. In Cursor, there is no hook primitive, so you get the closest equivalent with an always-apply rule file, one marked to load on every single message, so the rule is present before the edit rather than triggered by it. Hosts with neither option, such as Aider, Codex, Continue, Windsurf or Copilot, have to fall back to a clear, always-loaded index of conditions and rules, backed up by a check at commit time.</p>
+            </div>
+          </div>
+        </details>
+
         <p class="text-zinc-400 max-w-3xl leading-relaxed mb-3">
           The trigger index is self-enforcing on hosts that support it. Claude Code registers
           <span class="font-mono text-zinc-300 text-sm">rule-reminder.sh</span> as a
@@ -410,8 +473,35 @@ sequenceDiagram
       <section id="memory" class="reveal">
         <div class="flex items-center gap-3 mb-3">
           <span class="step-num">3</span>
-          <h2 class="text-2xl md:text-3xl font-bold tracking-tight">Persistent memory: ADRs and todos</h2>
+          <h2 class="text-2xl md:text-3xl font-bold tracking-tight">Persistent memory: prompts, ADRs, and TODOs</h2>
         </div>
+        <p class="text-zinc-400 max-w-3xl leading-relaxed mb-3">
+          A chat window forgets everything the moment it closes, so any decision or deferred task that matters later has to be written down somewhere the next session will actually read, not just remembered and hoped for.
+        </p>
+
+        <details class="learn-box max-w-3xl mb-6 rounded-xl border border-white/10 bg-white/[0.03] p-5">
+          <summary class="learn-summary cursor-pointer flex items-center gap-2 text-sm font-semibold text-violet-300 select-none list-none">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0">
+              <path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Z"/>
+            </svg>
+            <span>Why does this matter?</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="learn-chevron w-4 h-4 shrink-0 ml-auto transition-transform">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </summary>
+          <div class="mt-4 text-sm text-zinc-400 leading-relaxed space-y-4">
+            <p>
+              The problem: an agent's context window is temporary. Decisions made, reasons given, and work deliberately set aside all disappear once the session ends, so the next session either repeats the same debate or forgets the deferred work entirely.
+            </p>
+            <div>
+              <p class="text-zinc-200 font-medium mb-1">External / long-term memory</p>
+              <p>State that needs to survive past one session gets written to a plain file outside the chat, and read back before acting, rather than trusted to the model's memory. It does not matter what you call these files, what matters is that they are durable, checked into version control, and actually read before related work starts.</p>
+              <p class="mt-2">In this project that takes the shape of three logs. Architecture decision records, one file per significant decision, capturing the context, the decision, and its consequences. TODOs, one file per deferred task, capturing why it was deferred and what should trigger revisiting it. And prompt files, one file per task, capturing what was actually asked. Every interaction is a prompt, but they are smartly grouped: while the back-and-forth stays on the same task, it keeps amending that one task's prompt file; the moment the conversation moves to a new task, a fresh prompt file is started for it. Neither ADRs nor TODOs are auto-deleted, removal requires citing the specific change that closes it out, and git history is the permanent archive either way.</p>
+              <p class="mt-2">Because these files live in the repository, not in one person's chat history, the whole team benefits from them, not just whoever made the original decision. Any engineer, human or agent, can read the reasoning and trade-offs behind a past choice instead of re-litigating it from scratch. And because the prompt log preserves what was actually asked, task by task, nobody has to re-teach the agent the same context twice, or burn hours reverse-engineering why something was built the way it was — the history reads it back for them.</p>
+            </div>
+          </div>
+        </details>
+
         <p class="text-zinc-400 max-w-3xl leading-relaxed mb-3">
           Two append-mostly logs under <span class="font-mono text-zinc-300 text-sm">.docs/</span> carry state
           across sessions that would otherwise live only in a chat window and vanish. Neither is auto-swept —
@@ -431,7 +521,7 @@ graph LR
         A2 --> A3["Index in adrs/README.md"]
     end
 
-    subgraph TODO["Todos"]
+    subgraph TODO["TODOs"]
         direction TB
         T1["User defers work<br/>'skip this for now'"] --> T2["Write .docs/todos/&lt;slug&gt;.md<br/>Context / Deferred because / Revisit when"]
         T2 --> T3{"Revisit when<br/>trigger fired?"}
@@ -449,7 +539,16 @@ graph LR
           </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="grid md:grid-cols-3 gap-4 mb-4">
+          <div class="card rounded-xl p-5">
+            <p class="text-sm font-semibold text-zinc-200 mb-1.5">Prompts: what was actually asked</p>
+            <p class="text-sm text-zinc-400 leading-relaxed">
+              One file per task, amended as the task continues rather than duplicated per turn. It answers
+              <span class="text-zinc-300">what ran on day N</span> the way ADRs answer
+              <span class="text-zinc-300">why the project looks like this</span> — a task-scoped log, not a
+              turn-scoped transcript.
+            </p>
+          </div>
           <div class="card rounded-xl p-5">
             <p class="text-sm font-semibold text-zinc-200 mb-1.5">ADRs: why, not just what</p>
             <p class="text-sm text-zinc-400 leading-relaxed">
@@ -459,7 +558,7 @@ graph LR
             </p>
           </div>
           <div class="card rounded-xl p-5">
-            <p class="text-sm font-semibold text-zinc-200 mb-1.5">Todos: deferral with a trigger, not a wish</p>
+            <p class="text-sm font-semibold text-zinc-200 mb-1.5">TODOs: deferral with a trigger, not a wish</p>
             <p class="text-sm text-zinc-400 leading-relaxed">
               Every entry needs a concrete <span class="text-zinc-300">Revisit when</span> condition — a date, a
               merged PR, "next commit that touches this subsystem." A todo without a re-check condition is just
@@ -491,7 +590,7 @@ commit a1b2c3d adds the token-bucket middleware that satisfies the
 
         <div class="diagram-card p-4 md:p-6 mb-4" style="overflow-x: auto;">
           <div id="bigPictureBanner" style="max-width: 640px; margin: 0 auto;">
-<svg viewBox="0 0 1240 1925" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif" role="img" aria-labelledby="ceBannerTitle ceBannerDesc" style="width:100%; height:auto; display:block; shape-rendering:geometricPrecision; text-rendering:optimizeLegibility;" shape-rendering="geometricPrecision" text-rendering="optimizeLegibility">
+<svg viewBox="0 0 1240 2015" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif" role="img" aria-labelledby="ceBannerTitle ceBannerDesc" style="width:100%; height:auto; display:block; shape-rendering:geometricPrecision; text-rendering:optimizeLegibility;" shape-rendering="geometricPrecision" text-rendering="optimizeLegibility">
   <title id="ceBannerTitle">Agentic Bootstrap — full run, tagged with the concept each lane implements</title>
   <desc id="ceBannerDesc">The same bootstrap run as the big picture banner, with each lane tagged by the specific context-engineering concept it is an implementation of.</desc>
 
@@ -546,7 +645,7 @@ commit a1b2c3d adds the token-bucket middleware that satisfies the
     </filter>
   </defs>
 
-  <rect x="0" y="28" width="1240" height="1900" fill="#0b0b0e"/>
+  <rect x="0" y="28" width="1240" height="1990" fill="#0b0b0e"/>
   <rect x="0" y="28" width="1240" height="1900" fill="url(#ceBgGlow)"/>
   <rect x="0" y="28" width="1240" height="1900" fill="url(#ceBgGlow2)"/>
 
@@ -732,45 +831,55 @@ commit a1b2c3d adds the token-bucket middleware that satisfies the
 
   <!-- LANE 5: PERSISTENT MEMORY -->
   <g font-size="12.5">
-    <text x="70" y="1649" font-size="16" font-weight="700" fill="#d4d4d8">5. Persistent memory — ADRs and todos</text>
+    <text x="70" y="1649" font-size="16" font-weight="700" fill="#d4d4d8">5. Persistent memory — prompts, ADRs and TODOs</text>
     <rect x="890" y="1633" width="250" height="26" rx="13" fill="url(#ceFillMemory)" stroke="#4ade80"/>
     <text x="1015" y="1650" text-anchor="middle" fill="#dcfce7" font-size="11" font-weight="700">External / long-term memory</text>
 
     <rect x="70" y="1667" width="270" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
-    <text x="205" y="1693" text-anchor="middle" fill="#dcfce7" font-weight="600">Significant decision</text>
-    <text x="205" y="1711" text-anchor="middle" fill="#bbf7d0" font-size="11">new dependency, layer, pattern</text>
+    <text x="205" y="1693" text-anchor="middle" fill="#dcfce7" font-weight="600">Any interaction</text>
+    <text x="205" y="1711" text-anchor="middle" fill="#bbf7d0" font-size="11">per task, not per turn</text>
 
     <rect x="370" y="1667" width="270" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
-    <text x="505" y="1693" text-anchor="middle" fill="#dcfce7" font-weight="600">.docs/adrs/&lt;n&gt;.md</text>
-    <text x="505" y="1711" text-anchor="middle" fill="#bbf7d0" font-size="11">Context / Decision / Consequences</text>
+    <text x="505" y="1693" text-anchor="middle" fill="#dcfce7" font-weight="600">.docs/prompts/&lt;slug&gt;.md</text>
+    <text x="505" y="1711" text-anchor="middle" fill="#bbf7d0" font-size="11">What was actually asked</text>
 
     <rect x="70" y="1757" width="270" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
-    <text x="205" y="1783" text-anchor="middle" fill="#dcfce7" font-weight="600">Deferred idea</text>
-    <text x="205" y="1801" text-anchor="middle" fill="#bbf7d0" font-size="11">"skip this for now"</text>
+    <text x="205" y="1783" text-anchor="middle" fill="#dcfce7" font-weight="600">Significant decision</text>
+    <text x="205" y="1801" text-anchor="middle" fill="#bbf7d0" font-size="11">new dependency, layer, pattern</text>
 
     <rect x="370" y="1757" width="270" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
-    <text x="505" y="1783" text-anchor="middle" fill="#dcfce7" font-weight="600">.docs/todos/&lt;slug&gt;.md</text>
-    <text x="505" y="1801" text-anchor="middle" fill="#bbf7d0" font-size="11">Revisit-when, no auto-sweep</text>
+    <text x="505" y="1783" text-anchor="middle" fill="#dcfce7" font-weight="600">.docs/adrs/&lt;n&gt;.md</text>
+    <text x="505" y="1801" text-anchor="middle" fill="#bbf7d0" font-size="11">Context / Decision / Consequences</text>
 
-    <rect x="700" y="1703" width="260" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
-    <text x="830" y="1729" text-anchor="middle" fill="#dcfce7" font-weight="600">Read before you act</text>
-    <text x="830" y="1747" text-anchor="middle" fill="#bbf7d0" font-size="11">external / long-term memory</text>
+    <rect x="70" y="1847" width="270" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
+    <text x="205" y="1873" text-anchor="middle" fill="#dcfce7" font-weight="600">Deferred idea</text>
+    <text x="205" y="1891" text-anchor="middle" fill="#bbf7d0" font-size="11">"skip this for now"</text>
 
-    <rect x="1000" y="1703" width="170" height="70" rx="16" fill="url(#ceFillNeutral)" stroke="#52525b" filter="url(#ceSoftShadow)"/>
-    <text x="1085" y="1729" text-anchor="middle" fill="#e4e4e7" font-weight="600" font-size="11.5">Next session</text>
-    <text x="1085" y="1747" text-anchor="middle" fill="#a1a1aa" font-size="10">starts with context</text>
+    <rect x="370" y="1847" width="270" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
+    <text x="505" y="1873" text-anchor="middle" fill="#dcfce7" font-weight="600">.docs/todos/&lt;slug&gt;.md</text>
+    <text x="505" y="1891" text-anchor="middle" fill="#bbf7d0" font-size="11">Revisit-when, no auto-sweep</text>
+
+    <rect x="700" y="1757" width="260" height="70" rx="16" fill="url(#ceFillMemory)" stroke="#4ade80" filter="url(#ceSoftShadow)"/>
+    <text x="830" y="1783" text-anchor="middle" fill="#dcfce7" font-weight="600">Read before you act</text>
+    <text x="830" y="1801" text-anchor="middle" fill="#bbf7d0" font-size="11">external / long-term memory</text>
+
+    <rect x="1000" y="1757" width="170" height="70" rx="16" fill="url(#ceFillNeutral)" stroke="#52525b" filter="url(#ceSoftShadow)"/>
+    <text x="1085" y="1783" text-anchor="middle" fill="#e4e4e7" font-weight="600" font-size="11.5">Next session</text>
+    <text x="1085" y="1801" text-anchor="middle" fill="#a1a1aa" font-size="10">starts with context</text>
 
     <path d="M340,1699 L365,1699" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
     <path d="M340,1789 L365,1789" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
-    <path d="M640,1693 L695,1728" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
-    <path d="M640,1783 L695,1748" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
-    <path d="M960,1738 L995,1738" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
+    <path d="M340,1879 L365,1879" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
+    <path d="M640,1699 L695,1780" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
+    <path d="M640,1783 L695,1792" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
+    <path d="M640,1873 L695,1804" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
+    <path d="M960,1792 L995,1792" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ceArrow)"/>
   </g>
 
   <!-- FOOTER -->
-  <line x1="70" y1="1871" x2="1170" y2="1871" stroke="#27272a" stroke-width="1"/>
-  <text x="70" y="1905" font-size="13" fill="#71717a">agentic-bootstrap.md</text>
-  <text x="1170" y="1905" font-size="13" fill="#71717a" text-anchor="end">MIT licensed</text>
+  <line x1="70" y1="1961" x2="1170" y2="1961" stroke="#27272a" stroke-width="1"/>
+  <text x="70" y="1995" font-size="13" fill="#71717a">agentic-bootstrap.md</text>
+  <text x="1170" y="1995" font-size="13" fill="#71717a" text-anchor="end">MIT licensed</text>
 </svg>
           </div>
         </div>
@@ -811,7 +920,7 @@ commit a1b2c3d adds the token-bucket middleware that satisfies the
             <p class="text-sm text-zinc-400 leading-relaxed">
               State that outlives a single context window by living outside it — plain files under
               <span class="font-mono text-zinc-300 text-xs">.docs/</span> read back by a future session, rather
-              than a specialized vector or graph memory store. ADRs capture the "why" behind a decision; todos
+              than a specialized vector or graph memory store. ADRs capture the "why" behind a decision; TODOs
               capture the "not yet, and here's when to revisit" — both are the agent's only way to remember
               anything past the end of the current run.
             </p>
