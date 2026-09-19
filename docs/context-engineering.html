@@ -515,6 +515,11 @@ sequenceDiagram
         <div class="diagram-card p-6 md:p-8 mb-6">
           <div class="mermaid">
 graph LR
+    subgraph PROMPT["Prompt log"]
+        direction TB
+        P1["Any interaction<br/>per task, not per turn"] --> P2["Write .docs/prompts/&lt;slug&gt;.md<br/>What was actually asked"]
+    end
+
     subgraph ADR["Architecture Decision Records"]
         direction TB
         A1["New dependency,<br/>module or pattern"] --> A2["Write .docs/adrs/&lt;n&gt;.md<br/>Context / Decision / Consequences"]
@@ -529,10 +534,11 @@ graph LR
         T3 -- "yes, cite the commit" --> T4["git rm in the closing commit"]
     end
 
-    A3 -.->|"read before structural changes"| R["Next agent session"]
+    P2 -.->|"read before repeating a task"| R["Next agent session"]
+    A3 -.->|"read before structural changes"| R
     T2 -.->|"read before related work"| R
-
     style A2 fill:#3f2d63,stroke:#a78bfa,stroke-width:1.5px,color:#ede9fe
+    style P2 fill:#3f2d63,stroke:#a78bfa,stroke-width:1.5px,color:#ede9fe
     style T2 fill:#3f2d63,stroke:#a78bfa,stroke-width:1.5px,color:#ede9fe
     style R fill:#4c1d95,stroke:#e879f9,stroke-width:1.5px,color:#f5d0fe
     style T4 fill:#18181b,stroke:#52525b,stroke-width:1px,color:#a1a1aa
