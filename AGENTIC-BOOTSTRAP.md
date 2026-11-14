@@ -1,14 +1,14 @@
 <!-- markdownlint-disable MD010 -->
 <!-- MD010 disabled: Makefile fenced blocks legitimately require hard tabs (POSIX make spec). -->
-<!-- bootstrap-version: 2026-09-16 -->
+<!-- bootstrap-version: 2026-10-24 -->
 <!-- Version is the ISO date this file was last meaningfully changed. -->
 <!-- Bumped manually on each notable change; the diff lives in CHANGELOG.md. -->
 
 # Agentic Bootstrap
 
-> One file. Project-agnostic. Tool-agnostic. Hand it to any agentic coding assistant in a fresh (or existing) repo and say *"follow this bootstrap"*; the agent interviews you and lays down a cross-tool workflow scaffold — `AGENTS.md` (the primary brief), `.agents/rules/` (workflow + best-practices + architecture), `.docs/prompts/`, `.docs/adrs/`, `.docs/todos/` — plus a thin adapter file for each agentic tool the project supports (Claude Code, Cursor, Aider, Codex CLI, OpenCode, Continue.dev, Windsurf, GitHub Copilot), plus the first commit that records the bootstrap itself.
+> One file. Project-agnostic. Tool-agnostic. Hand it to any agentic coding assistant in a fresh (or existing) repo and say *"follow this bootstrap"*; the agent interviews you and lays down a cross-tool workflow scaffold — `AGENTS.md` (the primary brief), `.agents/rules/` (workflow + best-practices + architecture), `docs/prompts/`, `docs/adrs/`, `docs/todos/` — plus a thin adapter file for each agentic tool the project supports (Claude Code, Cursor, Aider, Codex CLI, OpenCode, Continue.dev, Windsurf, GitHub Copilot), plus the first commit that records the bootstrap itself.
 >
-> The discipline encoded here: every artifact-producing request gets a timestamped prompt file under `.docs/prompts/`, an ADR under `.docs/adrs/` when architecturally significant, deferred ideas as one-file-per-entry under `.docs/todos/`, telemetry kept current, security-sensitive changes run through the rubric in `.docs/security/methodology.md` before commit (dated audits as sibling files on a cadence), and a single commit + push wrapping all of the above.
+> The discipline encoded here: every artifact-producing request gets a timestamped prompt file under `docs/prompts/`, an ADR under `docs/adrs/` when architecturally significant, deferred ideas as one-file-per-entry under `docs/todos/`, telemetry kept current, security-sensitive changes run through the rubric in `docs/security/methodology.md` before commit (dated audits as sibling files on a cadence), and a single commit + push wrapping all of the above.
 >
 > The file is self-contained. The agent does not need to fetch anything. To evolve the bootstrap, edit this file in place — your next bootstrap reflects the change.
 
@@ -63,6 +63,12 @@ The bootstrap is **idempotent**: it's safe to re-run on a project that's already
   - **Migrate**: `git mv .claude/rules .agents/rules` + `git mv .claude/bootstrap.json .agents/bootstrap.json`; update any `@.claude/rules/…` refs in `CLAUDE.md` to `@.agents/rules/…` in the same step.
   - **Leave**: keep the legacy paths live for this re-run (write to `.claude/rules/` and `.claude/bootstrap.json`); flag in the Step 8 report that adapter generation for non-Claude tools is limited until the user migrates.
   - **Either way**: record the chosen layout in `bootstrap.json` so future re-runs don't re-ask.
+- **Docs-folder migration**: if `.docs/` exists (any of `.docs/adrs/`, `.docs/prompts/`, `.docs/todos/`, `.docs/security/`), this is a project bootstrapped under the pre-rename convention (artifacts under hidden `.docs/`; renamed to visible `docs/` in the 2026-10-24 bootstrap version). Treat it as re-run mode, then migrate without asking — the rename is lossless (same content, different parent), there's nothing for the user to weigh in on:
+  - For each sub-directory the project uses, `git mv .docs/<sub> docs/<sub>` (adrs, prompts, todos, security — plus any custom siblings like `.docs/metrics/`, `.docs/distribution/`). If `docs/` doesn't exist yet (e.g. no landing page in `docs/`), git creates it; if it already exists (landing-page sites commonly live there), the sub-directories land alongside — no collision because `.docs/`'s children (`adrs/`, `prompts/`, `todos/`, `security/`, `metrics/`) don't clash with typical landing-page paths (`index.html`, `favicon.svg`, `CNAME`, `assets/`).
+  - If a sub-directory conflict *does* exist (e.g. `docs/adrs/` already present with unrelated content), **stop and ask the user** — don't silently merge. Likely the project has a hand-built `docs/adrs/` that pre-dates the bootstrap; the user picks which wins.
+  - After the moves, `rmdir .docs/` if empty (keep it if `.docs/distribution/` or similar gitignored siblings remain — those are per-user working dirs, not part of the convention).
+  - Rewrite `.docs/` → `docs/` text references in-place across `.agents/rules/*.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CHANGELOG.md`, `SECURITY.md`, `.gitignore` (the `.docs/distribution/` ignore line becomes `docs/distribution/`), prompt-file bodies under the newly-moved `docs/prompts/`, and ADR bodies under `docs/adrs/`. A single global replace is safe: the string `.docs/` is unambiguous.
+  - Flag in the Step 8 report that the migration ran, with the list of moved sub-directories and the count of text references rewritten.
 - **Brief-shape migration** (opt-in): if the bootstrap has run here (sentinel exists) and `AGENTS.md` or `CLAUDE.md` are still on the pre-trigger-index brief shape, offer a targeted migration. Sacred re-run policy still holds — this is not a silent rewrite. Detect content-based, not version-based, since a bootstrap-version bump is optional and users may have hand-edited before upgrading:
   - `AGENTS.md` still contains a `## Rules` heading followed by an *"Always follow the rules in `.agents/rules/`:"* bullet list (rather than the `### Always` block + `### Read before you act` trigger index), **or**
   - `CLAUDE.md` still contains `@.agents/rules/<name>.md` lines beyond the single `@AGENTS.md` include (rather than the thin-stub shape).
@@ -85,12 +91,12 @@ Both modes share the same playbook from this point on, with these behavioural di
 
 | | First-time mode | Re-run / update mode |
 | --- | --- | --- |
-| Step 1 collision check | Stop on any of `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/` | Expected to exist; no abort |
+| Step 1 collision check | Stop on any of `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `docs/adrs/`, `docs/todos/`, `.docs/adrs/` (legacy), `.docs/todos/` (legacy) | Expected to exist; no abort |
 | Step 2 interview | Ask all 17 questions. Write `.agents/bootstrap.json` after each answered question with `interview_status: "in_progress"`; flip to `"done"` on completion. | Depends on `interview_status`: resume mode picks up mid-interview from the last unanswered key; done-mode asks only for missing keys or user-requested answer changes. See Step 2's *Resume / re-run mode* sub-section. |
 | Step 4 file writes | Write every applicable file from scratch | Apply the per-file **re-run policy** (Canon / Mixed / Sacred — see Part 3 matrix) |
 | Step 6 commit message | `Bootstrap project with agentic workflow conventions` | `Re-bootstrap: <one-line summary of what changed>` (e.g. *"refresh rules to `<date>` bootstrap version"*) |
 
-If the user explicitly wants a clean wipe-and-recreate, they can tell you to *"treat this as first-time mode"*; in that case, ask them to confirm the destructive intent, then back up the existing `.agents/`, `.claude/`, `.docs/`, and root config files (rename to `.agents.backup-<ts>/` etc.) before running first-time mode.
+If the user explicitly wants a clean wipe-and-recreate, they can tell you to *"treat this as first-time mode"*; in that case, ask them to confirm the destructive intent, then back up the existing `.agents/`, `.claude/`, `docs/`, `.docs/` (if the project is on the pre-2026-10-24 layout), and root config files (rename to `.agents.backup-<ts>/` etc.) before running first-time mode.
 
 #### Doctor mode (audit-only — no writes)
 
@@ -105,11 +111,11 @@ When the user invokes the bootstrap with *"bootstrap-doctor"*, *"audit this repo
 | 3 | **`bootstrap.json` freshness** — `bootstrap_version` in the cache vs `CURRENT_BOOTSTRAP_VERSION` (this file's header); every key the current bootstrap knows about present in `answers` | Version drift → list the `CHANGELOG.md` bullets the user hasn't picked up. Missing keys → would re-ask on next re-run. |
 | 4 | **Architecture rule freshness** — first line of `.agents/rules/layered-architecture.md` matches the variant header for the `ARCH` value (`# Layered Architecture (...)` / `# Hexagonal Architecture (Ports and Adapters)` / `# Microservice Architecture` / etc.) | Mismatch → file was hand-edited, or `ARCH` answer changed without a re-run. |
 | 5 | **Best-practices refinement status** — top-of-file marker in `.agents/rules/best-practices.md` (`refined` with accessed date, `stub` with reason, or `custom`) | If `stub` and marker older than current bootstrap version → suggest a re-refinement attempt. |
-| 6 | **Security audit cadence** — dated files under `.docs/security/*.md`; report the most recent audit date | No dated audit at all (rubric isn't being walked), or most recent > 90 days old. |
+| 6 | **Security audit cadence** — dated files under `docs/security/*.md`; report the most recent audit date | No dated audit at all (rubric isn't being walked), or most recent > 90 days old. |
 | 7 | **Per-tool adapter coverage** — for each tool in `AGENTS_USED`, the matching adapter file at the expected path | Missing adapters (tool added without re-run) · stray adapters (file exists for a tool not in `AGENTS_USED`). |
-| 8 | **ADR index integrity** — `.docs/adrs/00*.md` files vs `.docs/adrs/README.md` index table | ADRs missing from index · index rows referencing missing files. |
-| 9 | **Todos hygiene** — entries in `.docs/todos/`; check each *Revisit when* trigger | Trigger obviously fired (date in past, referenced PR merged) → flag as sweepable. **Never auto-sweep** — that's a write. |
-| 10 | **Prompt-file presence** — count `.docs/prompts/*.md` vs commit count since bootstrap | Many commits but few prompts → `workflow.md` discipline likely not active. |
+| 8 | **ADR index integrity** — `docs/adrs/00*.md` files vs `docs/adrs/README.md` index table | ADRs missing from index · index rows referencing missing files. |
+| 9 | **Todos hygiene** — entries in `docs/todos/`; check each *Revisit when* trigger | Trigger obviously fired (date in past, referenced PR merged) → flag as sweepable. **Never auto-sweep** — that's a write. |
+| 10 | **Prompt-file presence** — count `docs/prompts/*.md` vs commit count since bootstrap | Many commits but few prompts → `workflow.md` discipline likely not active. |
 | 11 | **Hook-reinforcement smoke test** — for each hook-shaped reinforcement emitted for this project's `AGENTS_USED`, verify it's *functional*, not just present. Described agent-agnostically; each running agent tests whichever hook applies to it. **Claude**: pipe a synthesized JSON payload matching a case-ladder arm (e.g. `echo '{"tool_input":{"file_path":"components/foo.tsx"},"session_id":"doctor"}' \| bash .claude/hooks/rule-reminder.sh`), expect the rule name in stdout. **Cursor**: parse `.cursor/rules/trigger-index.mdc`'s frontmatter (confirm `alwaysApply: true`), confirm the body carries the current-format path-shaped rows. **Other hosts with hook infrastructure**: verify by their host's contract. **Silent skip** if no hook applies to the current host (Aider, Codex, Continue, Windsurf, Copilot — no hook primitive; Layer 1 + Layer 2 enforcement covers them and doesn't need this check). Zero writes — pipe tests read the hook script's stdin, no file touched. | Hook present but reminder not observed on a synthesized trigger → environment gap (`jq` missing, non-standard case-ladder paths, WSL / Git Bash) or template bug — flag with the specific failure symptom the pipe output produced. |
 
 **Report shape** — print as Markdown so it's pasteable into chat or a doc:
@@ -159,8 +165,8 @@ Doctor mode is the safe way for teams to ask *"how compliant are we right now?"*
 ### Step 1. Sanity-check the working directory
 
 - Run `pwd` to confirm where you are; run `ls -la` to see what's already here.
-- **First-time mode**: if **any** of these already exist — `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `.docs/adrs/`, `.docs/todos/`, `AGENTIC-BOOTSTRAP.md` itself — **stop and ask the user** how to proceed (overwrite? merge? skip the conflicting files? switch to re-run mode?). Never silently overwrite their work.
-- **Re-run mode**: these files are expected to exist; no abort. Still sanity-check for unexpected state — if `.agents/rules/` (or the legacy `.agents/rules/` if migration was deferred) is missing files the matrix knows about, or `.docs/security/methodology.md` was deleted, or anything else seems wrong, surface it before proceeding.
+- **First-time mode**: if **any** of these already exist — `AGENTS.md`, `CLAUDE.md`, `.agents/rules/`, `.claude/rules/` (legacy), `docs/adrs/`, `docs/todos/`, `.docs/adrs/` (legacy), `.docs/todos/` (legacy), `AGENTIC-BOOTSTRAP.md` itself — **stop and ask the user** how to proceed (overwrite? merge? skip the conflicting files? switch to re-run mode?). Never silently overwrite their work.
+- **Re-run mode**: these files are expected to exist; no abort. Still sanity-check for unexpected state — if `.agents/rules/` (or the legacy `.agents/rules/` if migration was deferred) is missing files the matrix knows about, or `docs/security/methodology.md` was deleted, or anything else seems wrong, surface it before proceeding.
 - If `.git/` doesn't exist, ask whether to `git init` as part of the bootstrap (default: yes). Re-run mode in a non-git directory is unusual; mention it.
 
 ### Step 2. Run the interview (Part 2)
@@ -281,7 +287,7 @@ Two writes here, in order:
 1. **Prompt file**. Per the `workflow.md` rule you just installed, every artifact-producing request gets a prompt file. The bootstrap is an artifact-producing request. Create:
 
    ```text
-   .docs/prompts/<unix-timestamp>.bootstrap_project.md
+   docs/prompts/<unix-timestamp>.bootstrap_project.md
    ```
 
    Use `date +%s` for the timestamp. Use the standard prompt-file shape (described in `workflow.md`): three sections — `# Request`, `## Reasoning`, `## Output`. Be specific about what was written and which interview answers shaped the output. On re-run, the prompt file documents what *changed* in this re-bootstrap (which Canon files were refreshed, which Mixed files were merged/kept/overwritten, which new flags landed).
@@ -290,7 +296,7 @@ Two writes here, in order:
 
 ### Step 6. First commit
 
-- Stage explicitly: `git add AGENTS.md .agents/ .docs/` plus any per-tool adapters written based on `AGENTS_USED` — `CLAUDE.md` and `.claude/` (if `CLAUDE`), `.cursor/` (if `CURSOR`), `.aider.conf.yml` (if `AIDER`), `.continue/` (if `CONTINUE`), `.windsurfrules` (if `WINDSURF`), `.github/copilot-instructions.md` (if `COPILOT`), and any root-level config files written this run (`.gitignore`, `.editorconfig`, `Makefile`, manifest, linter configs, etc.). Never `git add -A` or `git add .`.
+- Stage explicitly: `git add AGENTS.md .agents/ docs/` plus any per-tool adapters written based on `AGENTS_USED` — `CLAUDE.md` and `.claude/` (if `CLAUDE`), `.cursor/` (if `CURSOR`), `.aider.conf.yml` (if `AIDER`), `.continue/` (if `CONTINUE`), `.windsurfrules` (if `WINDSURF`), `.github/copilot-instructions.md` (if `COPILOT`), and any root-level config files written this run (`.gitignore`, `.editorconfig`, `Makefile`, manifest, linter configs, etc.). Never `git add -A` or `git add .`.
 - Commit message:
 
   ```text
@@ -308,7 +314,7 @@ Two writes here, in order:
 
 In one short paragraph:
 
-- **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), which per-tool adapters were written (from `AGENTS_USED`), the natural next step — usually: open `AGENTS.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`.docs/adrs/0001-<slug>.md`).
+- **First-time mode**: what was written (paths), which opt-in rules landed (and which were skipped, by interview answer), which per-tool adapters were written (from `AGENTS_USED`), the natural next step — usually: open `AGENTS.md` and expand the *Purpose* / *Architecture map* sections; if the project starts with a load-bearing decision, write the first real ADR (`docs/adrs/0001-<slug>.md`).
 - **Re-run mode**: which Canon files were refreshed, which Mixed files were merged / kept / overwritten / skipped (with per-file user decisions), which Sacred files were preserved untouched, which new interview keys landed in `.agents/bootstrap.json`. Also flag any Sacred files that were missing on disk (the user may want to re-scaffold from the template manually).
 - **Upgrade narrative** (re-run mode, only when `PREVIOUS_BOOTSTRAP_VERSION ≠ CURRENT_BOOTSTRAP_VERSION`): one sentence naming the version delta — *"Upgrading from `<previous>` to `<current>`"* — and a 2-4 bullet summary of the relevant changes since the previous version (from `CHANGELOG.md`). Skip changes that don't apply to this project (e.g. a new tool adapter that isn't in `AGENTS_USED`).
 - **Brief-shape migration outcome** (re-run mode, only when Step 0 detected the pre-Cut-1 shape): whether the user opted to migrate, preview-then-decide, or skip. On *migrate*, name the byte / token delta (run `make rules-check` after the write to get the concrete number). On *skip*, one line: *"Brief-shape migration offered and declined — re-request explicitly if you change your mind."*
@@ -501,10 +507,10 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `.windsurfrules` | Conditional | written if `WINDSURF ∈ AGENTS_USED`. Thin adapter pointing at `AGENTS.md` + `.agents/rules/`. | C |
 | `.windsurf/settings.json` | Conditional | written if `WINDSURF ∈ AGENTS_USED`. Content variant picked by Q3 `POSTURE` — tunes Cascade flow mode. | M |
 | `.github/copilot-instructions.md` | Conditional | written if `COPILOT ∈ AGENTS_USED`. Thin adapter inlining the AGENTS.md pointer + rules summary (Copilot does not follow file refs). Carries a posture note (no file-based control; user applies the intent in the IDE). | C |
-| `.docs/adrs/README.md` | Always | — | M |
-| `.docs/adrs/0000-adr-template.md` | Always | — | C |
-| `.docs/todos/README.md` | Always | — | C |
-| `.docs/security/methodology.md` | Always | sub-sections gated by `WEB` and `LLM` flags | C |
+| `docs/adrs/README.md` | Always | — | M |
+| `docs/adrs/0000-adr-template.md` | Always | — | C |
+| `docs/todos/README.md` | Always | — | C |
+| `docs/security/methodology.md` | Always | sub-sections gated by `WEB` and `LLM` flags | C |
 | `.gitignore` | Always | content variant picked by Q4 `LANG`; OS / editor sweep is universal | M |
 | `.env.example` | Opt-in | Q8 = yes (`ENV_VARS`). Skipped for purely static frontends, libraries, and scripts with no runtime config. | S |
 | `.editorconfig` | Always | universal | C |
@@ -520,7 +526,7 @@ The **Re-run** column codes how each file is handled when the bootstrap runs aga
 | `CHANGELOG.md` | Always | universal; Keep a Changelog format | S |
 | `CODE_OF_CONDUCT.md` | Opt-in | Q15 = yes (`CONTRIB`) — same gate as CONTRIBUTING | S |
 | `CONTRIBUTING.md` | Opt-in | Q15 = yes (`CONTRIB`) | S |
-| `.docs/prompts/<ts>.bootstrap_project.md` | Always | written in Step 5 | N |
+| `docs/prompts/<ts>.bootstrap_project.md` | Always | written in Step 5 | N |
 | `.agents/rules/layered-architecture.md` | Opt-in | Q5 ≠ FLAT (`LAYERED` derived). Template variant picked by `ARCH` value — `4_LAYER_DDD`, `HEXAGONAL`, `MICROSERVICE`, `VERTICAL_SLICE`, `3_TIER`, `SPA`, `MONOREPO`, `SERVERLESS`, or `OTHER` stub. | C |
 | `.agents/rules/workflow-changes.md` | Opt-in | Q9 = yes (`CHANGES`) | C |
 | `.agents/rules/ui-components.md` | Opt-in | Q10 = yes (`UI_COMPONENTS`) | C |
@@ -548,88 +554,88 @@ Each template below is wrapped in a **four-backtick fence** so that three-backti
 
 | Template | Trigger | Lines (start → end) |
 | --- | --- | --- |
-| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 638 → 653 |
-| `.agents/rules/workflow.md` | Always | 654 → 1119 |
-| `.agents/rules/workflow-todos.md` | Always | 1120 → 1224 |
-| `.agents/rules/workflow-security.md` | Always | 1225 → 1305 |
-| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1306 → 1453 |
-| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1454 → 1557 |
-| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1558 → 1690 |
-| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1691 → 1811 |
-| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1812 → 1919 |
-| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1920 → 2005 |
-| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 2006 → 2106 |
-| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2107 → 2164 |
-| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2165 → 2243 |
-| `.agents/rules/workflow-changes.md` | `CHANGES` | 2244 → 2322 |
-| `.agents/rules/workflow-metrics.md` | `METRICS` | 2323 → 2400 |
-| `.agents/rules/workflow-testing.md` | `TESTING` | 2401 → 2520 |
-| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2521 → 2658 |
-| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2659 → 2731 |
-| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2732 → 2778 |
-| `.docs/adrs/README.md` | Always | 2779 → 2796 |
-| `.docs/adrs/0000-adr-template.md` | Always | 2797 → 2890 |
-| `.docs/todos/README.md` | Always | 2891 → 2909 |
-| `.docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2910 → 3159 |
-| `.gitignore` (Python) | `LANG=Python` | 3160 → 3225 |
-| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3226 → 3279 |
-| `.gitignore` (Go) | `LANG=Go` | 3280 → 3322 |
-| `.gitignore` (Rust) | `LANG=Rust` | 3323 → 3358 |
-| `.gitignore` (fallback) | any other `LANG` | 3359 → 3392 |
-| `.env.example` | `ENV_VARS` | 3393 → 3420 |
-| `.mcp.example.json` | Always | 3421 → 3452 |
-| `.editorconfig` | Always | 3453 → 3481 |
-| `README.md` | Always (Sacred) | 3482 → 3512 |
-| `LICENSE` (MIT) | `LICENSE=MIT` | 3513 → 3542 |
-| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3543 → 3768 |
-| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3769 → 3790 |
-| `AGENTS.md` | Always (Sacred first-write) | 3791 → 3864 |
-| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3865 → 3882 |
-| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3883 → 3911 |
-| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3912 → 3950 |
-| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3951 → 3986 |
-| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3987 → 4000 |
-| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 4001 → 4063 |
-| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 4064 → 4129 |
-| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4130 → 4155 |
-| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4156 → 4204 |
-| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4205 → 4278 |
-| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4279 → 4326 |
-| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4327 → 4340 |
-| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4341 → 4360 |
-| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4361 → 4380 |
-| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4381 → 4396 |
-| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4397 → 4411 |
-| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4412 → 4426 |
-| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4427 → 4447 |
-| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4448 → 4464 |
-| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4465 → 4478 |
-| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4479 → 4493 |
-| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4494 → 4512 |
-| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4513 → 4528 |
-| `.agents/bootstrap.json` | Always | 4529 → 4584 |
-| manifest + test scaffold (Python) | `LANG=Python` | 4585 → 4631 |
-| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4632 → 4671 |
-| manifest + test scaffold (Go) | `LANG=Go` | 4672 → 4703 |
-| manifest + test scaffold (Rust) | `LANG=Rust` | 4704 → 4734 |
-| manifest + test scaffold (fallback) | any other `LANG` | 4735 → 4742 |
-| `CONTRIBUTING.md` | `CONTRIB` | 4743 → 4779 |
-| `SECURITY.md` | Always | 4780 → 4825 |
-| `.gitattributes` | Always | 4826 → 4868 |
-| `CHANGELOG.md` | Always | 4869 → 4894 |
-| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4895 → 4936 |
-| linter / formatter configs (Python) | `LANG=Python` | 4937 → 4960 |
-| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4961 → 5010 |
-| linter / formatter configs (Go) | `LANG=Go` | 5011 → 5041 |
-| linter / formatter configs (Rust) | `LANG=Rust` | 5042 → 5062 |
-| linter / formatter configs (fallback) | any other `LANG` | 5063 → 5070 |
-| `Makefile` (Python) | `LANG=Python` | 5071 → 5110 |
-| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5111 → 5150 |
-| `Makefile` (Go) | `LANG=Go` | 5151 → 5193 |
-| `Makefile` (Rust) | `LANG=Rust` | 5194 → 5230 |
-| `Makefile` (fallback) | any other `LANG` | 5231 → 5258 |
-| `.pre-commit-config.yaml` | Always | 5259 → 5309 |
-| `scripts/check_consulted_rules.sh` | Always | 5310 → 5392 |
+| `CLAUDE.md` | `CLAUDE ∈ AGENTS_USED` | 644 → 659 |
+| `.agents/rules/workflow.md` | Always | 660 → 1125 |
+| `.agents/rules/workflow-todos.md` | Always | 1126 → 1230 |
+| `.agents/rules/workflow-security.md` | Always | 1231 → 1311 |
+| `.agents/rules/best-practices.md` (stub + refined variants) | Always | 1312 → 1459 |
+| `.agents/rules/layered-architecture.md` (4_LAYER_DDD) | `ARCH=4_LAYER_DDD` | 1460 → 1563 |
+| `.agents/rules/layered-architecture.md` (HEXAGONAL) | `ARCH=HEXAGONAL` | 1564 → 1696 |
+| `.agents/rules/layered-architecture.md` (MICROSERVICE) | `ARCH=MICROSERVICE` | 1697 → 1817 |
+| `.agents/rules/layered-architecture.md` (VERTICAL_SLICE) | `ARCH=VERTICAL_SLICE` | 1818 → 1925 |
+| `.agents/rules/layered-architecture.md` (3_TIER) | `ARCH=3_TIER` | 1926 → 2011 |
+| `.agents/rules/layered-architecture.md` (SPA) | `ARCH=SPA` | 2012 → 2112 |
+| `.agents/rules/layered-architecture.md` (MONOREPO) | `ARCH=MONOREPO` | 2113 → 2170 |
+| `.agents/rules/layered-architecture.md` (SERVERLESS) | `ARCH=SERVERLESS` | 2171 → 2249 |
+| `.agents/rules/workflow-changes.md` | `CHANGES` | 2250 → 2328 |
+| `.agents/rules/workflow-metrics.md` | `METRICS` | 2329 → 2406 |
+| `.agents/rules/workflow-testing.md` | `TESTING` | 2407 → 2526 |
+| `.agents/rules/workflow-frontend.md` | `FRONTEND` | 2527 → 2664 |
+| `.agents/rules/frontend-visibility.md` | `FRONTEND` | 2665 → 2737 |
+| `.agents/rules/ui-components.md` | `UI_COMPONENTS` | 2738 → 2784 |
+| `docs/adrs/README.md` | Always | 2785 → 2802 |
+| `docs/adrs/0000-adr-template.md` | Always | 2803 → 2896 |
+| `docs/todos/README.md` | Always | 2897 → 2915 |
+| `docs/security/methodology.md` | Always (sub-sections gated by `WEB` / `LLM`) | 2916 → 3165 |
+| `.gitignore` (Python) | `LANG=Python` | 3166 → 3231 |
+| `.gitignore` (TypeScript/Node) | `LANG=TypeScript/Node` | 3232 → 3285 |
+| `.gitignore` (Go) | `LANG=Go` | 3286 → 3328 |
+| `.gitignore` (Rust) | `LANG=Rust` | 3329 → 3364 |
+| `.gitignore` (fallback) | any other `LANG` | 3365 → 3398 |
+| `.env.example` | `ENV_VARS` | 3399 → 3426 |
+| `.mcp.example.json` | Always | 3427 → 3458 |
+| `.editorconfig` | Always | 3459 → 3487 |
+| `README.md` | Always (Sacred) | 3488 → 3518 |
+| `LICENSE` (MIT) | `LICENSE=MIT` | 3519 → 3548 |
+| `LICENSE` (APACHE_2_0) | `LICENSE=APACHE_2_0` | 3549 → 3774 |
+| `LICENSE` (PROPRIETARY) | `LICENSE=PROPRIETARY` | 3775 → 3796 |
+| `AGENTS.md` | Always (Sacred first-write) | 3797 → 3870 |
+| `.cursor/rules/agents.mdc` | `CURSOR ∈ AGENTS_USED` | 3871 → 3888 |
+| `.cursor/rules/trigger-index.mdc` | `CURSOR ∈ AGENTS_USED` | 3889 → 3917 |
+| `.aider.conf.yml` | `AIDER ∈ AGENTS_USED` | 3918 → 3956 |
+| `.continue/config.json` | `CONTINUE ∈ AGENTS_USED` | 3957 → 3992 |
+| `.windsurfrules` | `WINDSURF ∈ AGENTS_USED` | 3993 → 4006 |
+| `.github/copilot-instructions.md` | `COPILOT ∈ AGENTS_USED` | 4007 → 4069 |
+| `.claude/hooks/rule-reminder.sh` | `CLAUDE ∈ AGENTS_USED` | 4070 → 4135 |
+| `.claude/settings.json` (CAUTIOUS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4136 → 4161 |
+| `.claude/settings.json` (READONLY) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4162 → 4210 |
+| `.claude/settings.json` (TRUSTED_DEV) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4211 → 4284 |
+| `.claude/settings.json` (BYPASS) | `CLAUDE ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4285 → 4332 |
+| `.cursor/settings.json` (CAUTIOUS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4333 → 4346 |
+| `.cursor/settings.json` (READONLY) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4347 → 4366 |
+| `.cursor/settings.json` (TRUSTED_DEV) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4367 → 4386 |
+| `.cursor/settings.json` (BYPASS) | `CURSOR ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4387 → 4402 |
+| `.codex/config.toml` (CAUTIOUS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4403 → 4417 |
+| `.codex/config.toml` (READONLY) | `CODEX ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4418 → 4432 |
+| `.codex/config.toml` (TRUSTED_DEV) | `CODEX ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4433 → 4453 |
+| `.codex/config.toml` (BYPASS) | `CODEX ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4454 → 4470 |
+| `.windsurf/settings.json` (CAUTIOUS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=CAUTIOUS` | 4471 → 4484 |
+| `.windsurf/settings.json` (READONLY) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=READONLY` | 4485 → 4499 |
+| `.windsurf/settings.json` (TRUSTED_DEV) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=TRUSTED_DEV` | 4500 → 4518 |
+| `.windsurf/settings.json` (BYPASS) | `WINDSURF ∈ AGENTS_USED ∧ POSTURE=BYPASS` | 4519 → 4534 |
+| `.agents/bootstrap.json` | Always | 4535 → 4590 |
+| manifest + test scaffold (Python) | `LANG=Python` | 4591 → 4637 |
+| manifest + test scaffold (TypeScript/Node) | `LANG=TypeScript/Node` | 4638 → 4677 |
+| manifest + test scaffold (Go) | `LANG=Go` | 4678 → 4709 |
+| manifest + test scaffold (Rust) | `LANG=Rust` | 4710 → 4740 |
+| manifest + test scaffold (fallback) | any other `LANG` | 4741 → 4748 |
+| `CONTRIBUTING.md` | `CONTRIB` | 4749 → 4785 |
+| `SECURITY.md` | Always | 4786 → 4831 |
+| `.gitattributes` | Always | 4832 → 4874 |
+| `CHANGELOG.md` | Always | 4875 → 4900 |
+| `CODE_OF_CONDUCT.md` | `CONTRIB` | 4901 → 4942 |
+| linter / formatter configs (Python) | `LANG=Python` | 4943 → 4966 |
+| linter / formatter configs (TypeScript/Node) | `LANG=TypeScript/Node` | 4967 → 5016 |
+| linter / formatter configs (Go) | `LANG=Go` | 5017 → 5047 |
+| linter / formatter configs (Rust) | `LANG=Rust` | 5048 → 5068 |
+| linter / formatter configs (fallback) | any other `LANG` | 5069 → 5076 |
+| `Makefile` (Python) | `LANG=Python` | 5077 → 5116 |
+| `Makefile` (TypeScript/Node) | `LANG=TypeScript/Node` | 5117 → 5156 |
+| `Makefile` (Go) | `LANG=Go` | 5157 → 5199 |
+| `Makefile` (Rust) | `LANG=Rust` | 5200 → 5236 |
+| `Makefile` (fallback) | any other `LANG` | 5237 → 5264 |
+| `.pre-commit-config.yaml` | Always | 5265 → 5315 |
+| `scripts/check_consulted_rules.sh` | Always | 5316 → 5398 |
 
 > **Drift safeguard.** These line ranges may shift slightly when the bootstrap is edited. If an offset read doesn't land on the expected `### Template:` heading, search forward a few lines to find it — or re-grep `^### Template:` against the current file to get fresh offsets. A future lint check will enforce that the table stays in sync with the actual template positions.
 
@@ -656,13 +662,13 @@ Nothing else belongs in this file. It exists because Claude Code reads `CLAUDE.m
 ````markdown
 # Workflow
 
-This rule defines the naming, contents, and ordering of the per-task artifacts so `git log`, `ls .docs/prompts/`, and `ls .docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
+This rule defines the naming, contents, and ordering of the per-task artifacts so `git log`, `ls docs/prompts/`, and `ls docs/adrs/` together reconstruct the project's history — and the *why* behind it — from the repository alone.
 
 Every user **task** in this repository produces, over one or more turns:
 
-- **One prompt file** under `.docs/prompts/` capturing what was asked and why, amended across turns as the task continues (see § *Task boundaries* below for what closes a task).
+- **One prompt file** under `docs/prompts/` capturing what was asked and why, amended across turns as the task continues (see § *Task boundaries* below for what closes a task).
 - **The code, config, or docs** the task produced.
-- When the change is architecturally significant — a new module, library, layer, or pattern, or a meaningful change to one — a **new or updated ADR** under `.docs/adrs/`.
+- When the change is architecturally significant — a new module, library, layer, or pattern, or a meaningful change to one — a **new or updated ADR** under `docs/adrs/`.
 - **Telemetry** kept current — new behaviour gets new logs, changed behaviour gets existing logs updated, deleted behaviour gets its logs removed, at log levels that match each event's signal (DEBUG / INFO / WARNING / ERROR / CRITICAL), with sensitive-data redaction discipline (credentials, PII, request bodies — anything that shouldn't ride a wire to a third-party log service).
 - **At least one git commit** on the current branch bundling all of the above (often one per task, sometimes two when refinements deserve separation — granularity to judgement).
 - **A push** of the commit(s) to the remote.
@@ -706,7 +712,7 @@ If a conversation starts as chitchat but later produces an artifact, the rule ki
 
 ## 1. Create (or amend) a prompt file
 
-For a **new** task, write a file to `.docs/prompts/` using the pattern:
+For a **new** task, write a file to `docs/prompts/` using the pattern:
 
 ```
 <unix-timestamp>.<snake_case_slug>.md
@@ -741,7 +747,7 @@ Write the prompt file **before** or **alongside** the changes on the task's firs
 
 ## 2. Create or update an ADR
 
-ADRs (Architecture Decision Records) live under `.docs/adrs/` and capture the **why** behind structural choices: which framework, which layer pattern, which library, which interaction model. Each is a single file in slim Nygard format and is indexed by `.docs/adrs/README.md`.
+ADRs (Architecture Decision Records) live under `docs/adrs/` and capture the **why** behind structural choices: which framework, which layer pattern, which library, which interaction model. Each is a single file in slim Nygard format and is indexed by `docs/adrs/README.md`.
 
 The prompt file records *what happened in this request*; the ADR records *what shape the project now has and why*. Many requests produce a prompt without touching an ADR — that's expected. The ADR question is only "did the architectural picture change?"
 
@@ -753,7 +759,7 @@ A request introduces a new ADR when it adds something the existing ADRs don't al
 - A new module, layer, or pattern that future code is expected to follow.
 - A decision with trade-offs worth recording — alternatives considered, constraints, deferred follow-ups.
 
-Filename pattern: `.docs/adrs/<NNNN>-<kebab-case-slug>.md`. `NNNN` is the next free four-digit number; numbers never get reused. Append the new ADR's row to the table in `.docs/adrs/README.md` so the index stays current.
+Filename pattern: `docs/adrs/<NNNN>-<kebab-case-slug>.md`. `NNNN` is the next free four-digit number; numbers never get reused. Append the new ADR's row to the table in `docs/adrs/README.md` so the index stays current.
 
 ### When to update an existing ADR
 
@@ -1014,7 +1020,7 @@ Add or update logs on any of these triggers:
 - **New failure mode** — anywhere a `try/except` is added, the `except` branch needs at least one log call before re-raising or returning. Silent catches are observability bugs.
 - **A field's meaning shifts** — if a `user_id` becomes a `session_id`, all log payloads using the old name follow. Same for renames and type changes.
 
-If telemetry is genuinely needed but truly out of scope for the current change, capture the gap as a new file under `.docs/todos/` so it's not forgotten (rules in `workflow-todos.md`).
+If telemetry is genuinely needed but truly out of scope for the current change, capture the gap as a new file under `docs/todos/` so it's not forgotten (rules in `workflow-todos.md`).
 
 ### Conventions
 
@@ -1057,14 +1063,14 @@ In auth, billing, admin, or any flow handling personal data, do the redaction ch
 
 ### Security checks
 
-Security has its own companion rule: `workflow-security.md`. The short version: changes that touch a security-sensitive surface (auth, input validation, SQL, output encoding, transport headers, secrets, logging, rate limits, dependency adds/upgrades, LLM context) walk the rubric in `.docs/security/methodology.md` *before commit*, the same way telemetry coherence is checked. The rubric is grouped by surface — read only the sub-sections that match what your change touched. Full audits remain dated sibling files under `.docs/security/<YYYY-MM-DD>-<slug>.md` on a cadence.
+Security has its own companion rule: `workflow-security.md`. The short version: changes that touch a security-sensitive surface (auth, input validation, SQL, output encoding, transport headers, secrets, logging, rate limits, dependency adds/upgrades, LLM context) walk the rubric in `docs/security/methodology.md` *before commit*, the same way telemetry coherence is checked. The rubric is grouped by surface — read only the sub-sections that match what your change touched. Full audits remain dated sibling files under `docs/security/<YYYY-MM-DD>-<slug>.md` on a cadence.
 
 ## 4. Commit the result
 
 Commit granularity is a judgement call, not a per-turn rule. Often one commit per task at the end; sometimes two when refinements deserve to be separated in `git log`. Each commit includes:
 
-- The prompt file (`.docs/prompts/<ts>.<slug>.md`).
-- Any new or updated ADR file under `.docs/adrs/` (and the README index entry, if a new ADR was added).
+- The prompt file (`docs/prompts/<ts>.<slug>.md`).
+- Any new or updated ADR file under `docs/adrs/` (and the README index entry, if a new ADR was added).
 {{IF_TESTING}}- The tests that cover the change (per [`workflow-testing.md`](./workflow-testing.md) — same commit as the behaviour they prove; bug fixes start with a failing regression test).
 {{IF_FRONTEND}}- For shared frontend changes: every consumer update that follows from the change (per [`workflow-frontend.md`](./workflow-frontend.md) — touch source, sweep consumers, no inline duplication). The communication side — how the UI issue was reported and how it was confirmed (screenshot, browser MCP, etc.) — gets a brief note in the prompt file per [`frontend-visibility.md`](./frontend-visibility.md).
 - Every other file produced or modified while handling the request.
@@ -1077,14 +1083,14 @@ Commit message conventions:
 
 Stage files by explicit path (`git add <paths>`). Never `git add -A` or `git add .` — the prompt file, ADR, and outputs are a curated set, not everything dirty in the tree.
 
-## 5. Capture do-later ideas under `.docs/todos/`
+## 5. Capture do-later ideas under `docs/todos/`
 
-Deferred ideas — features the agent (or the user) suggested but didn't ship in the moment, follow-ups noted in commit messages or ADR consequence sections, scope cuts surfaced during implementation — live as **one file per idea** under `.docs/todos/`. The dedicated rule `workflow-todos.md` owns the full discipline (filename pattern, file content structure, when-to-add triggers, sweep-and-remove safeguards); this section names the per-commit obligation so the rest of `workflow.md` doesn't have to duplicate it.
+Deferred ideas — features the agent (or the user) suggested but didn't ship in the moment, follow-ups noted in commit messages or ADR consequence sections, scope cuts surfaced during implementation — live as **one file per idea** under `docs/todos/`. The dedicated rule `workflow-todos.md` owns the full discipline (filename pattern, file content structure, when-to-add triggers, sweep-and-remove safeguards); this section names the per-commit obligation so the rest of `workflow.md` doesn't have to duplicate it.
 
 Manage the directory as part of every workflow turn:
 
-- **Add** when a deferral happens. A new file at `.docs/todos/<kebab-slug>.md` with the title + Area + Refs + Context + Deferred because + Revisit when shape from `workflow-todos.md`. Surface the draft inline in your response — *"I'll capture this in `.docs/todos/<slug>.md` as: …"* — so the user sees what lands. Add in the same commit as the related work unless the deferral is the only thing the turn produced (then it's its own commit).
-- **Sweep** before staging files. Scan `.docs/todos/` for entries this change satisfies. If an entry's *Revisit when* trigger has fired, `git rm` the file in the same commit. There is no archive directory; git log is canonical.
+- **Add** when a deferral happens. A new file at `docs/todos/<kebab-slug>.md` with the title + Area + Refs + Context + Deferred because + Revisit when shape from `workflow-todos.md`. Surface the draft inline in your response — *"I'll capture this in `docs/todos/<slug>.md` as: …"* — so the user sees what lands. Add in the same commit as the related work unless the deferral is the only thing the turn produced (then it's its own commit).
+- **Sweep** before staging files. Scan `docs/todos/` for entries this change satisfies. If an entry's *Revisit when* trigger has fired, `git rm` the file in the same commit. There is no archive directory; git log is canonical.
 - **Remove safely** using the three-layer safeguard from `workflow-todos.md` — scope test, cite the closing change, announce inline before pushing. When in doubt, leave the entry; cost of a stale file is small, cost of dropping in-progress work is high.
 - **Update** when reality drifts — edit the file in place; its `git log` is the audit trail.
 
@@ -1104,9 +1110,9 @@ Exception: if the push is destructive (force-push to a shared branch, rewriting 
 
 ## Why this rule exists
 
-The `.docs/prompts/` history doubles as a per-task decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of what the project has done, and each file maps to one coherent task (usually one commit, sometimes two) so `git log` and `ls .docs/prompts/` stay aligned as *task*-scoped units rather than *turn*-scoped noise. A prompt file per turn produced a directory too noisy to read after two weeks; a prompt file per task keeps the log honest.
+The `docs/prompts/` history doubles as a per-task decision log and a reconstruction aid: reading the prompts in timestamp order tells the story of what the project has done, and each file maps to one coherent task (usually one commit, sometimes two) so `git log` and `ls docs/prompts/` stay aligned as *task*-scoped units rather than *turn*-scoped noise. A prompt file per turn produced a directory too noisy to read after two weeks; a prompt file per task keeps the log honest.
 
-The ADRs in `.docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what task ran on day N?"*.
+The ADRs in `docs/adrs/` distill the architecturally significant subset — the decisions worth re-reading at scale, with their alternatives and trade-offs preserved. Reading the ADRs answers *"what is this project shaped like, and why?"*; reading the prompts answers *"what task ran on day N?"*.
 
 Breaking any of the pairings — task without prompt file, ADR-worthy change without ADR, commit without push, or a task-continuation that spawns a new file instead of amending — erodes that guarantee.
 
@@ -1126,7 +1132,7 @@ This rule governs how the project tracks ideas explicitly deferred — features 
 
 ## Where entries live
 
-Entries live as **one file per idea** under `.docs/todos/`, not inline in this rule. A directory listing is the index; each file is a self-contained, individually-addressable artifact. The companion `.docs/todos/README.md` explains what lives in the directory; this rule explains *how to manage entries there*.
+Entries live as **one file per idea** under `docs/todos/`, not inline in this rule. A directory listing is the index; each file is a self-contained, individually-addressable artifact. The companion `docs/todos/README.md` explains what lives in the directory; this rule explains *how to manage entries there*.
 
 The split is deliberate: this rule is stable (the discipline doesn't churn); the entries churn constantly (added, edited, removed every few commits). Keeping the rule small and the entries individually-addressable makes both halves easier to read, link, and `git mv` without dragging surrounding noise.
 
@@ -1135,11 +1141,11 @@ The split is deliberate: this rule is stable (the discipline doesn't churn); the
 Each entry is a single markdown file named:
 
 ```
-.docs/todos/<kebab-case-slug>.md
+docs/todos/<kebab-case-slug>.md
 ```
 
 - **`<kebab-case-slug>`**: short, descriptive, scoped enough to avoid colliding with neighbours. Read at a glance from `ls`.
-- Files sit **flat** in `.docs/todos/`. The topical grouping lives inside each file's **Area** field — `ls` is the index, no subdirectories.
+- Files sit **flat** in `docs/todos/`. The topical grouping lives inside each file's **Area** field — `ls` is the index, no subdirectories.
 - Slug derives from the entry's title. If the slug ever collides with an existing file, disambiguate by prefixing with the area (e.g. `auth-`, `ingest-`) — don't suffix with a number.
 
 ## File content structure
@@ -1175,10 +1181,10 @@ should be unambiguous.
 
 The 3–5+-sentence minimum on **Context** is load-bearing. *AI agents satisfice on minimums* — "1-2 sentences" gets read as "two words" and produces uselessly-thin entries that nobody else has the back-conversation to interpret. Don't compress it; if an entry feels long, the entry probably *should* be long.
 
-**Cross-references** in `Refs` and `Context` use repo-relative paths from `.docs/todos/`:
+**Cross-references** in `Refs` and `Context` use repo-relative paths from `docs/todos/`:
 
 - ADRs: `../adrs/<NNNN>-<slug>.md`
-- Prompts: `../../.docs/prompts/<ts>.<slug>.md`
+- Prompts: `../../docs/prompts/<ts>.<slug>.md`
 - Code: `../../<layer>/<path>.<ext>`
 - Sibling docs: `../<dir>/<file>.md`
 
@@ -1189,11 +1195,11 @@ The 3–5+-sentence minimum on **Context** is load-bearing. *AI agents satisfice
 - An ADR's *Consequences* names a deferred follow-up that wouldn't otherwise be tracked anywhere actionable.
 - Implementation reveals an out-of-scope sub-task worth remembering — a refactor opportunity, a known limitation that needs revisiting once a constraint changes, a "we should also do X" that the user agrees to defer.
 
-When you spot one of these, surface the draft entry inline in your response — *"I'll capture this in `.docs/todos/<slug>.md` as: …"* — so the user sees what lands without having to open the file. Create it in the same commit as the related work unless the deferral is the only thing the turn produced (then it's its own commit per the prompt-file + commit + push rule in `workflow.md`).
+When you spot one of these, surface the draft entry inline in your response — *"I'll capture this in `docs/todos/<slug>.md` as: …"* — so the user sees what lands without having to open the file. Create it in the same commit as the related work unless the deferral is the only thing the turn produced (then it's its own commit per the prompt-file + commit + push rule in `workflow.md`).
 
 ## Consistency sweep on every commit
 
-Before staging files for a commit, scan `.docs/todos/` for entries this change satisfies. If an entry's *Revisit when* trigger has fired — either because this commit closes it, or because the underlying state has changed since the entry was written — **remove the file** (`git rm`) in the same commit. There is no archive directory; git log is canonical history.
+Before staging files for a commit, scan `docs/todos/` for entries this change satisfies. If an entry's *Revisit when* trigger has fired — either because this commit closes it, or because the underlying state has changed since the entry was written — **remove the file** (`git rm`) in the same commit. There is no archive directory; git log is canonical history.
 
 When the same commit also touches an ADR a file references, check that file's framing against current reality: a blocker that has since been resolved should be reframed or removed even if the underlying idea is still deferred for other reasons.
 
@@ -1205,7 +1211,7 @@ Three layers of safeguard, in order:
 
 2. **Cite the closing change.** To remove an entry, you must point at the specific commit / file / lines that satisfy the entry's *Revisit when* trigger. If you can't articulate that link in one sentence, the file stays. **When in doubt, leave it** — cost of an extra stale file is small; cost of dropping in-progress work is high.
 
-3. **Announce inline before pushing.** Same pattern as the inline-draft-then-add for new entries: your response always names what was removed and why, with the citation. *"Removing **<entry title>** (`.docs/todos/<slug>.md`): <commit/ADR/feature> satisfies the *Revisit when* trigger because <one sentence>. Refs cross-checked."* The user sees it before push and can override same-turn.
+3. **Announce inline before pushing.** Same pattern as the inline-draft-then-add for new entries: your response always names what was removed and why, with the citation. *"Removing **<entry title>** (`docs/todos/<slug>.md`): <commit/ADR/feature> satisfies the *Revisit when* trigger because <one sentence>. Refs cross-checked."* The user sees it before push and can override same-turn.
 
 These combine into: automation stays (no per-removal approval gate), paper trail exists (the announcement + cite is reviewable), failure mode is conservative (when scope or citation isn't clean, the entry stays).
 
@@ -1215,7 +1221,7 @@ When reality drifts under an entry — a blocker resolves but other reasons keep
 
 ## Why this rule exists
 
-The do-later list is a working memory across contributors and across time. If entries are scattered (in commit messages only, in chat history only, in ADR consequences only), the team forgets ideas and ships duplicates of work that was already considered and rejected. Pinning entries to individual files under `.docs/todos/` — and pinning the discipline of *when to add / sweep / remove* to this rule — keeps the list honest without requiring a separate review step.
+The do-later list is a working memory across contributors and across time. If entries are scattered (in commit messages only, in chat history only, in ADR consequences only), the team forgets ideas and ships duplicates of work that was already considered and rejected. Pinning entries to individual files under `docs/todos/` — and pinning the discipline of *when to add / sweep / remove* to this rule — keeps the list honest without requiring a separate review step.
 
 The shape is the contract: every entry shows its back-story, its blocker, its trigger, and its refs, so the next contributor (often future-you, often a different agent session) can read a single file and decide whether the idea has aged into action.
 ````
@@ -1227,7 +1233,7 @@ The shape is the contract: every entry shows its back-story, its blocker, its tr
 ````markdown
 # Workflow: keeping security checks honest
 
-This rule supplements `workflow.md` for changes that touch a security-sensitive surface. The discipline: a lightweight per-request rubric pass before commit, full audits as dated sibling files re-run on cadence, findings that introduce a new mitigation pattern promoted to an ADR. The rubric, severity scale, and framework references all live in [`.docs/security/methodology.md`](../../.docs/security/methodology.md) — this rule says *when and how* to use it, not *what* it contains.
+This rule supplements `workflow.md` for changes that touch a security-sensitive surface. The discipline: a lightweight per-request rubric pass before commit, full audits as dated sibling files re-run on cadence, findings that introduce a new mitigation pattern promoted to an ADR. The rubric, severity scale, and framework references all live in [`docs/security/methodology.md`](../../docs/security/methodology.md) — this rule says *when and how* to use it, not *what* it contains.
 
 ## When this rule applies
 
@@ -1257,7 +1263,7 @@ If your change touches any of these surfaces, walk the matching `§5.X` block of
 The rubric in `methodology.md §5` is grouped by surface. For each surface your change touches:
 
 1. Locate the matching `§5.X` block.
-2. Walk each bullet and ask: *"does my change still satisfy this?"*. If yes, fine. If no, the change either fixes the regression *before* commit or includes a same-commit `.docs/todos/` entry citing the gap with a severity assessed per `§4` of `methodology.md`.
+2. Walk each bullet and ask: *"does my change still satisfy this?"*. If yes, fine. If no, the change either fixes the regression *before* commit or includes a same-commit `docs/todos/` entry citing the gap with a severity assessed per `§4` of `methodology.md`.
 3. The pass is a self-review — no separate artefact is produced. The discipline is the act of walking the rubric, not a file you generate.
 
 If your change introduces a *new* security-sensitive surface not yet covered (a new dependency layer, a new untrusted input source, a new tool the LLM can call), update `methodology.md §5` in the same commit so the next change has something to grep against. Treat that update like any other rule edit.
@@ -1267,7 +1273,7 @@ If your change introduces a *new* security-sensitive surface not yet covered (a 
 A full audit is a dated sibling file:
 
 ```text
-.docs/security/<YYYY-MM-DD>-<slug>.md
+docs/security/<YYYY-MM-DD>-<slug>.md
 ```
 
 The audit:
@@ -1290,7 +1296,7 @@ Previous audits stay where they are; the new audit is a sibling. The diff betwee
 
 ## Findings → ADRs
 
-When a finding's fix introduces a *pattern future code is expected to follow* — a new middleware, a new repository-layer check, a new sanitiser, a new dependency convention — promote the decision to an ADR under `.docs/adrs/`. The ADR captures the pattern; the audit file captures the finding that motivated it. Cross-link both ways.
+When a finding's fix introduces a *pattern future code is expected to follow* — a new middleware, a new repository-layer check, a new sanitiser, a new dependency convention — promote the decision to an ADR under `docs/adrs/`. The ADR captures the pattern; the audit file captures the finding that motivated it. Cross-link both ways.
 
 When a finding is fixed *without* introducing a load-bearing pattern (a one-off config tweak, a one-off bug fix), the audit file plus the regular workflow.md commit are enough — no ADR needed.
 
@@ -1466,7 +1472,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
-├── .docs/                              # ADRs, todos, project docs
+├── docs/                              # ADRs, todos, project docs
 ├── .python-version / .nvmrc / etc.     # Language/runtime version pin
 ├── .gitignore
 ├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
@@ -1572,7 +1578,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
-├── .docs/                              # ADRs, prompts, todos, project docs
+├── docs/                              # ADRs, prompts, todos, project docs
 ├── .python-version / .nvmrc / etc.     # Language/runtime version pin
 ├── .gitignore
 ├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
@@ -1705,7 +1711,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
-├── .docs/                              # ADRs, prompts, todos, project docs
+├── docs/                              # ADRs, prompts, todos, project docs
 ├── .gitignore
 ├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
 ├── <deploy manifest>                   # Dockerfile + helm chart / docker-compose / kustomize / nomad job / serverless.yml
@@ -1826,7 +1832,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
-├── .docs/                              # ADRs, prompts, todos, project docs
+├── docs/                              # ADRs, prompts, todos, project docs
 ├── .gitignore
 ├── <pkg manifest>
 │
@@ -1932,7 +1938,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
-├── .docs/                              # ADRs, todos, project docs
+├── docs/                              # ADRs, todos, project docs
 ├── .gitignore
 ├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
 │
@@ -2018,7 +2024,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
-├── .docs/                              # ADRs, todos, project docs
+├── docs/                              # ADRs, todos, project docs
 ├── .gitignore
 ├── package.json
 ├── tsconfig.json (or jsconfig.json)
@@ -2097,7 +2103,7 @@ If an import would break the arrows above, the organization is wrong — refacto
 ## What this rule does NOT cover
 
 - **Component shape and styling conventions** — those live in [`ui-components.md`](./ui-components.md) (if installed) or grow as a project-specific catalog.
-- **State management choice** (Zustand / Redux / Context-only / Pinia / Svelte stores) — that's an ADR-level decision; record the choice and its trade-offs in `.docs/adrs/`.
+- **State management choice** (Zustand / Redux / Context-only / Pinia / Svelte stores) — that's an ADR-level decision; record the choice and its trade-offs in `docs/adrs/`.
 - **Routing library choice** — same as above.
 - **Backend communication shape** (REST / GraphQL / tRPC / RPC) — same. The `services/` layer hides whichever choice you make from the rest of the app.
 ````
@@ -2119,7 +2125,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json (shared across sub-projects)
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED, shared across sub-projects)
-├── .docs/                              # ADRs, prompts, todos, project docs (cross-cutting)
+├── docs/                              # ADRs, prompts, todos, project docs (cross-cutting)
 ├── .gitignore
 ├── README.md
 ├── <workspace manifest>                # pnpm-workspace.yaml / package.json (workspaces) / Cargo.toml / go.work / turbo.json / nx.json
@@ -2145,11 +2151,11 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 
 ## Top-level rules
 
-- **Each sub-project owns its internal architecture.** When adding a new `apps/<name>` or `services/<name>`, re-run the bootstrap *inside* that directory, or capture the chosen layering (4-Layer DDD / 3-Tier / SPA / Flat / Serverless / Other) in an ADR under `.docs/adrs/`. Sub-projects do **not** silently inherit a top-level layering — the decision is explicit per sub-project.
+- **Each sub-project owns its internal architecture.** When adding a new `apps/<name>` or `services/<name>`, re-run the bootstrap *inside* that directory, or capture the chosen layering (4-Layer DDD / 3-Tier / SPA / Flat / Serverless / Other) in an ADR under `docs/adrs/`. Sub-projects do **not** silently inherit a top-level layering — the decision is explicit per sub-project.
 - **Dependency direction across the monorepo**: `apps/` and `services/` depend on `packages/`; `packages/` depend on each other in a DAG (no cycles); `tools/` may depend on anything (but is not depended on by anything that ships).
 - **Cross-cutting code lives in `packages/`**, never copy-pasted between sub-projects. If two sub-projects need the same helper, lift it to a package before the third user shows up.
 - **Per-sub-project deployability**. Each `apps/<name>` and `services/<name>` should be runnable and deployable on its own. Shared CI sequences sub-project pipelines but doesn't merge them.
-- **One ADR per significant cross-cutting decision** — workspace tool (npm / pnpm / yarn workspaces / nx / turborepo / cargo / go workspaces), shared linting strategy, release/versioning model (fixed vs independent), CI orchestration, cross-sub-project import boundaries. Capture in `.docs/adrs/` so the next sub-project's author understands the constraints they inherit.
+- **One ADR per significant cross-cutting decision** — workspace tool (npm / pnpm / yarn workspaces / nx / turborepo / cargo / go workspaces), shared linting strategy, release/versioning model (fixed vs independent), CI orchestration, cross-sub-project import boundaries. Capture in `docs/adrs/` so the next sub-project's author understands the constraints they inherit.
 
 ## When to consider promoting a sub-project out of the monorepo
 
@@ -2177,7 +2183,7 @@ Concrete entries are placeholders; rename / extend as the project takes shape.
 {project-folder}/
 ├── .agents/                            # Tool-agnostic agent config: rules/, bootstrap.json
 ├── .claude/                            # Claude Code: settings.json (if Claude in AGENTS_USED)
-├── .docs/                              # ADRs, todos, project docs
+├── docs/                              # ADRs, todos, project docs
 ├── .gitignore
 ├── <pkg manifest>                      # pyproject.toml / package.json / go.mod / …
 ├── <deploy manifest>                   # serverless.yml / template.yaml (SAM) / main.tf / wrangler.toml / vercel.json
@@ -2234,7 +2240,7 @@ The deploy manifest (`serverless.yml` / SAM template / Terraform / `wrangler.tom
 
 ## What this rule does NOT cover
 
-- **Platform choice** (AWS Lambda / GCP Cloud Functions / Cloudflare Workers / Vercel / Netlify / Azure Functions) — that's an ADR-level decision; capture in `.docs/adrs/`.
+- **Platform choice** (AWS Lambda / GCP Cloud Functions / Cloudflare Workers / Vercel / Netlify / Azure Functions) — that's an ADR-level decision; capture in `docs/adrs/`.
 - **Local development story** (sam-local, serverless-offline, wrangler dev, miniflare) — document in `AGENTS.md` Run section.
 - **State storage backend** (DynamoDB / Firestore / RDS / Postgres / KV) — ADR if it's load-bearing.
 ````
@@ -2346,11 +2352,11 @@ If you're building code that fits any of those and the change ships without even
 - Everything by reflex — the *Don't speculate* guardrails below apply. Concrete signal first.
 - Development-only code paths that won't ship (test scaffolds, `if __name__ == "__main__"` blocks, one-off scripts).
 
-**Deferrals.** If the user asks you to skip metrics for the current turn (*"just get the feature working; metrics later"*), honour it — but capture a todo under `.docs/todos/` with a `Revisit when` trigger like *"next commit that touches this subsystem"* or *"before the feature ships to users"*. Don't silently drop it; per `workflow-todos.md`, deferred proactive-discipline items are exactly what the todo mechanism exists for.
+**Deferrals.** If the user asks you to skip metrics for the current turn (*"just get the feature working; metrics later"*), honour it — but capture a todo under `docs/todos/` with a `Revisit when` trigger like *"next commit that touches this subsystem"* or *"before the feature ships to users"*. Don't silently drop it; per `workflow-todos.md`, deferred proactive-discipline items are exactly what the todo mechanism exists for.
 
 ## Top-level rule
 
-> **Adding, modifying, or removing a metered event means moving the four surfaces in lockstep — write site, durable read side, observability labels, display — plus updating a catalog at `.docs/metrics/README.md` AND a per-metric deep-dive at `.docs/metrics/<kebab-kind>.md`. All in the same commit. The cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable and applies on every emit, not just new ones.**
+> **Adding, modifying, or removing a metered event means moving the four surfaces in lockstep — write site, durable read side, observability labels, display — plus updating a catalog at `docs/metrics/README.md` AND a per-metric deep-dive at `docs/metrics/<kebab-kind>.md`. All in the same commit. The cardinality discipline (no PII, no high-cardinality identifiers in labels) is non-negotiable and applies on every emit, not just new ones.**
 
 ## The four surfaces
 
@@ -2358,7 +2364,7 @@ Every metered event sits at the intersection of four surfaces. A change that tou
 
 1. **Constant** — the canonical `kind` name (a string constant defined in one place in code so consumers import it instead of typing it).
 2. **Call site** — where the meter is emitted. Always through a centralised meter helper (never a raw counter call) so the dual-write to ledger + observability is preserved.
-3. **Catalog row + deep-dive** — `.docs/metrics/README.md` is the index; `.docs/metrics/<kebab-kind>.md` is the per-metric record of decisions (what counts as one event, what the bounded labels are *for*, what the metric does NOT measure, where it surfaces, caveats).
+3. **Catalog row + deep-dive** — `docs/metrics/README.md` is the index; `docs/metrics/<kebab-kind>.md` is the per-metric record of decisions (what counts as one event, what the bounded labels are *for*, what the metric does NOT measure, where it surfaces, caveats).
 4. **Display** — wherever the metric is read (analytics endpoint, user-facing usage page, dashboard chart). Removing a metric without removing the display crashes the page; adding a metric without wiring the display means it's invisible.
 
 ## Cardinality discipline
@@ -2483,7 +2489,7 @@ When TDD genuinely doesn't: trivial helpers, configuration plumbing, generated c
 A flaky test is a broken test — it just hasn't decided which failure mode it prefers yet. Treat them as P1:
 
 - **First flake**: investigate the same day. Time / order / race / network non-determinism. Fix the underlying cause.
-- **Can't fix immediately**: quarantine (skip with a clear `Flaky: <reason>` annotation) and file a `.docs/todos/<ts>.<slug>.md` entry per `workflow-todos.md` so the quarantine is visible and dated.
+- **Can't fix immediately**: quarantine (skip with a clear `Flaky: <reason>` annotation) and file a `docs/todos/<ts>.<slug>.md` entry per `workflow-todos.md` so the quarantine is visible and dated.
 - **Never** disable a flaky test silently. A skipped flake with no entry is technical debt that compounds.
 
 ## Test data and fixtures
@@ -2505,7 +2511,7 @@ If the agent commits code without tests when this rule applies, the commit is in
 ## Cross-references
 
 - **Security findings** (per `workflow-security.md`): every finding's fix must include a regression test that proves the vulnerability is closed and won't return. That test is part of the same commit as the fix.
-- **Bug fixes** triggered by a `.docs/todos/` entry: the regression test lives in the commit that closes the entry.
+- **Bug fixes** triggered by a `docs/todos/` entry: the regression test lives in the commit that closes the entry.
 - **Metering changes** (per `workflow-metrics.md`, if installed): tests cover the catalog entry, the emit site, and the read side — at integration level where they actually exercise the wiring.
 - **Product-surface changes** (per `workflow-changes.md`, if installed): the test layer that matches the surface — UI components → component tests, public API → contract tests, docs → link / build checks.
 
@@ -2613,7 +2619,7 @@ The prompt file's *Reasoning* section names the consumer sweep explicitly so a f
 - Shared change: `<Button>` gained an optional `loading` prop (default `false`)
 - Consumers swept: `pages/checkout.tsx`, `pages/profile/settings.tsx`, `components/forms/submit-button.tsx`
 - Applied to `pages/checkout.tsx` (place-order action shows a spinner now)
-- `components/forms/submit-button.tsx` already had its own spinner — flagged as a candidate for retirement (added to `.docs/todos/`)
+- `components/forms/submit-button.tsx` already had its own spinner — flagged as a candidate for retirement (added to `docs/todos/`)
 - `pages/profile/settings.tsx` unaffected — submit happens synchronously
 ```
 
@@ -2776,7 +2782,7 @@ Adding a row mid-commit is the right move when the work introduces the pattern. 
 
 ---
 
-### Template: `.docs/adrs/README.md`
+### Template: `docs/adrs/README.md`
 
 ````markdown
 # Architecture Decision Records
@@ -2794,7 +2800,7 @@ This directory holds the [Architecture Decision Records (ADRs)](https://cognitec
 
 ---
 
-### Template: `.docs/adrs/0000-adr-template.md`
+### Template: `docs/adrs/0000-adr-template.md`
 
 ````markdown
 # 0. ADR Template
@@ -2881,14 +2887,14 @@ What follows from this — both positive and negative. Bulleted list works well:
 - Positive consequence one.
 - Positive consequence two.
 - Cost or trade-off accepted.
-- Deferred follow-up (capture under `.docs/todos/` if actionable).
+- Deferred follow-up (capture under `docs/todos/` if actionable).
 
 Cross-link to related ADRs by number.
 ````
 
 ---
 
-### Template: `.docs/todos/README.md`
+### Template: `docs/todos/README.md`
 
 ````markdown
 # Do-Later Ideas
@@ -2902,19 +2908,19 @@ The discipline for managing this directory is documented in `.agents/rules/workf
 - **Add proactively** when the user defers something.
 - **Sweep on every commit** for entries the change satisfies; `git rm` to remove (no archive — git log is canonical).
 
-`ls .docs/todos/` is the index — files are individually-addressable artifacts.
+`ls docs/todos/` is the index — files are individually-addressable artifacts.
 ````
 
 ---
 
-### Template: `.docs/security/methodology.md`
+### Template: `docs/security/methodology.md`
 
 ````markdown
 # Security Review — Methodology
 
 This is the playbook for security reviews of this project. It defines the frameworks used, the order in which the codebase is walked, the severity rubric applied to findings, and the "best practice" checklist behind each check. It is intentionally evergreen: it should change only when the *approach* changes, not when a finding lands or gets fixed.
 
-Each individual audit lives in its own dated sibling file (`.docs/security/<YYYY-MM-DD>-<slug>.md`). Audit files cite this document for definitions and rubric so the findings can stay tight. The companion rule `.agents/rules/workflow-security.md` says *when* to consult this doc — both per-request (rubric pass on security-sensitive commits) and on cadence (full audits).
+Each individual audit lives in its own dated sibling file (`docs/security/<YYYY-MM-DD>-<slug>.md`). Audit files cite this document for definitions and rubric so the findings can stay tight. The companion rule `.agents/rules/workflow-security.md` says *when* to consult this doc — both per-request (rubric pass on security-sensitive commits) and on cadence (full audits).
 
 ---
 
@@ -3148,9 +3154,9 @@ Short definitions for the acronyms and jargon used in audits that follow this pl
 2. For each category, grep / read the matching files and capture findings as `(severity, file:line, what, risk, recommendation)`.
 3. Assign severity per the rubric in §4.
 4. Capture an `[Info]` note for every category with no findings, so absences are explicit.
-5. Save the audit as a sibling file under `.docs/security/<YYYY-MM-DD>-<slug>.md`. Each audit is a snapshot in time; previous audits stay where they were so the diff between them is the story.
+5. Save the audit as a sibling file under `docs/security/<YYYY-MM-DD>-<slug>.md`. Each audit is a snapshot in time; previous audits stay where they were so the diff between them is the story.
 6. The audit file itself should carry: scope + date, executive summary, per-category findings, prioritised recommendation list (highest risk reduction per hour, first), and an explicit "out of scope" section. It should *not* re-state the framework descriptions, the severity rubric, the rubric of best practices, or the glossary — those live here.
-7. If a finding becomes load-bearing for the project's shape (e.g. introduces a new mitigation pattern future code is expected to follow), promote the consequence to an ADR under `.docs/adrs/`.
+7. If a finding becomes load-bearing for the project's shape (e.g. introduces a new mitigation pattern future code is expected to follow), promote the consequence to an ADR under `docs/adrs/`.
 
 A re-run of the audit after the prioritised recommendations from the previous audit ship should produce a noticeably shorter `[High]` list — that's the signal the previous audit caught real risk, not just style. The re-run produces a new sibling file; the previous audit is left alone.
 ````
@@ -3493,8 +3499,8 @@ trim_trailing_whitespace = false
 ## Documentation
 
 - **For contributors and agents**: read [`AGENTS.md`](./AGENTS.md) — the cold-start brief covering architecture, conventions, and the rules under [`.agents/rules/`](./.agents/rules/). Per-tool adapters (e.g. `CLAUDE.md`, `.cursor/rules/`, `.aider.conf.yml`) all point back to it.
-- **Architecture decisions**: see [`.docs/adrs/`](./.docs/adrs/) for the trade-offs behind structural choices.
-- **Security**: the rubric and methodology live at [`.docs/security/methodology.md`](./.docs/security/methodology.md). Dated audits are sibling files.
+- **Architecture decisions**: see [`docs/adrs/`](./docs/adrs/) for the trade-offs behind structural choices.
+- **Security**: the rubric and methodology live at [`docs/security/methodology.md`](./docs/security/methodology.md). Dated audits are sibling files.
 
 {{IF_CONTRIB}}## Contributing
 {{IF_CONTRIB}}
@@ -3810,8 +3816,8 @@ Five things, on every turn, whichever agent is reading this.
 - **Confirm the reading before building.** When a request is short and admits more than one reading, say in one line which reading you are acting on, then act. Before the work, not after it. A wrong reading is cheap to correct at one line and expensive to correct at one commit.
 - **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
 - **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one — e.g. *"Task: continuing 'add password reset' — refinement to the previous turn"* or *"Task: new — 'wire up SES'. Previous task committed at abc1234, closed"*. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
-- **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement — often one per task, sometimes two when refinements deserve separation); a push. Stage by explicit path, never `git add -A`.
-- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
+- **One prompt file per task**, under `docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement — often one per task, sometimes two when refinements deserve separation); a push. Stage by explicit path, never `git add -A`.
+- **Capture deferrals** as one file per idea under `docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
 
 ### Read before you act
 
@@ -3843,7 +3849,7 @@ The rules budget is small (a few kilobytes of always-loaded material) but three 
 
 For MCP specifically: this project's project-scoped servers, if any, are declared in `.mcp.json` at the repo root (see `.mcp.example.json` for the starter template and the safety pattern — pinned versions, name-based allowlist, per-project denylist for account-level connectors). Every server contributes tool-schema tokens to every session; a browser MCP is typically ~9k tokens for 45 tools, and heavy account-level connectors can top 20k each. On Claude Code, personal denies live in the gitignored `.claude/settings.local.json`'s `deniedMcpServers` array; on other hosts, the equivalent lives in the host's own settings.
 
-Architecture decisions and their trade-offs live in [`.docs/adrs/`](.docs/adrs/) — read these before making structural changes.
+Architecture decisions and their trade-offs live in [`docs/adrs/`](docs/adrs/) — read these before making structural changes.
 
 ## Run
 
@@ -3960,7 +3966,7 @@ A Continue.dev config with the `rules` block pointing at the agnostic brief (whi
       "name": "Agent brief",
       "description": "Cross-tool project brief and workflow / best-practice rules.",
       "globs": ["**/*"],
-      "rule": "Always read AGENTS.md before starting work. It carries this project's purpose, run instructions, architecture, the always-on rules, and the trigger index for reference files under .agents/rules/ (open one when its trigger fires, not before). ADRs live under .docs/adrs/ — consult before structural changes. Per-task prompt files go under .docs/prompts/ (one per task, amended as the task continues). Do-later ideas go under .docs/todos/ as one file per entry."
+      "rule": "Always read AGENTS.md before starting work. It carries this project's purpose, run instructions, architecture, the always-on rules, and the trigger index for reference files under .agents/rules/ (open one when its trigger fires, not before). ADRs live under docs/adrs/ — consult before structural changes. Per-task prompt files go under docs/prompts/ (one per task, amended as the task continues). Do-later ideas go under docs/todos/ as one file per entry."
     }
   ],
   "context": [
@@ -4007,7 +4013,7 @@ GitHub Copilot reads `.github/copilot-instructions.md` automatically in repos bu
 
 The primary agent brief lives in [`AGENTS.md`](../AGENTS.md) at the repo root, and it is agent-agnostic. Because GitHub Copilot does not follow file references, the always-on section and the trigger index below are **inlined verbatim from `AGENTS.md`** — this file exists to give Copilot what other hosts can chase for themselves. When `AGENTS.md` and this file disagree, `AGENTS.md` wins.
 
-ADRs live under `.docs/adrs/` — read before structural changes. Per-task prompt files live under `.docs/prompts/`. Deferred ideas live under `.docs/todos/` as one file per entry.
+ADRs live under `docs/adrs/` — read before structural changes. Per-task prompt files live under `docs/prompts/`. Deferred ideas live under `docs/todos/` as one file per entry.
 
 ## Always
 
@@ -4016,8 +4022,8 @@ Five things, on every turn.
 - **Confirm the reading before building.** When a request is short and admits more than one reading, say in one line which reading you are acting on, then act. Before the work, not after it. A wrong reading is cheap to correct at one line and expensive to correct at one commit.
 - **Answer the request that was made.** Not the adjacent one you can answer more impressively. If a rule below would have you produce an artifact the request did not ask for, the request wins and the artifact waits to be offered.
 - **Declare the task boundary.** State in one line at the top of each turn whether it continues the current task or opens a new one. A commit closes the current task by default; the next turn is presumed new unless it is a fix-up on the just-committed work. Explicit user signals (*"now let's..."*, *"moving on..."*, *"unrelated:"*, *"different topic:"*) always open a new task. When the signal is ambiguous, **continue** — the cost of a mis-continuation is a longer prompt file; the cost of a mis-new-task is directory spam.
-- **One prompt file per task**, under `.docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement); a push. Stage by explicit path, never `git add -A`.
-- **Capture deferrals** as one file per idea under `.docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
+- **One prompt file per task**, under `docs/prompts/`, amended as the task continues (not one per turn); the work itself; a commit (granularity to judgement); a push. Stage by explicit path, never `git add -A`.
+- **Capture deferrals** as one file per idea under `docs/todos/`, and remove an entry in the commit that satisfies its trigger. This especially applies to **proactive-discipline rules** (testing, metrics, telemetry — see below): when the user says *"skip this for now"*, don't drop it silently — capture a todo with a revisit trigger like *"next commit that touches this subsystem"* so the discipline gets picked up when the deferral's premise no longer holds.
 
 ## Read before you act
 
@@ -4320,7 +4326,7 @@ No prompts. Ever. Every tool call auto-approved.
 **Notes for all variants**:
 
 - `.claude/settings.local.json` is a per-machine override file the user may layer on top (their personal WebFetch domains, additional command allowlists, etc.). It's gitignored by the bootstrap so personal additions don't leak into commits.
-- Document any later additions to `settings.json` (new permissions, hooks, env vars) in an ADR under `.docs/adrs/`. Permission changes especially — they alter what future agent sessions can do without prompting.
+- Document any later additions to `settings.json` (new permissions, hooks, env vars) in an ADR under `docs/adrs/`. Permission changes especially — they alter what future agent sessions can do without prompting.
 
 ---
 
@@ -4767,12 +4773,12 @@ Thanks for considering a contribution. This file covers the bare minimum to get 
 ## Filing issues
 
 - **Bug reports**: include the steps to reproduce, the expected behaviour, the actual behaviour, and the environment (OS, language version, relevant deps).
-- **Feature requests**: explain the use case before the implementation. The decision-record style at [`.docs/adrs/0000-adr-template.md`](./.docs/adrs/0000-adr-template.md) is a good frame for "what shape is the change, and what are the trade-offs?".
-- **Security**: do not file public issues for vulnerabilities. Contact the maintainers privately (see `SECURITY.md` if present, otherwise email the repository owner). See [`.docs/security/methodology.md`](./.docs/security/methodology.md) for the project's overall security posture.
+- **Feature requests**: explain the use case before the implementation. The decision-record style at [`docs/adrs/0000-adr-template.md`](./docs/adrs/0000-adr-template.md) is a good frame for "what shape is the change, and what are the trade-offs?".
+- **Security**: do not file public issues for vulnerabilities. Contact the maintainers privately (see `SECURITY.md` if present, otherwise email the repository owner). See [`docs/security/methodology.md`](./docs/security/methodology.md) for the project's overall security posture.
 
 ## Architecture decisions
 
-Significant structural changes (a new library, a new layer, a new pattern, a shift in tier or pricing behaviour) need a new ADR under [`.docs/adrs/`](./.docs/adrs/) in the same PR. The discipline is described in [`.agents/rules/workflow.md`](./.agents/rules/workflow.md).
+Significant structural changes (a new library, a new layer, a new pattern, a shift in tier or pricing behaviour) need a new ADR under [`docs/adrs/`](./docs/adrs/) in the same PR. The discipline is described in [`.agents/rules/workflow.md`](./.agents/rules/workflow.md).
 ````
 
 ---
@@ -4816,7 +4822,7 @@ Out of scope:
 
 ## Security posture
 
-The project's overall security methodology, rubric, and the dated audit history live under [`.docs/security/`](./.docs/security/). See [`.docs/security/methodology.md`](./.docs/security/methodology.md) for the playbook reviewers follow.
+The project's overall security methodology, rubric, and the dated audit history live under [`docs/security/`](./docs/security/). See [`docs/security/methodology.md`](./docs/security/methodology.md) for the playbook reviewers follow.
 
 The companion workflow rule at [`.agents/rules/workflow-security.md`](./.agents/rules/workflow-security.md) describes how security-sensitive changes are reviewed during day-to-day development.
 ````
@@ -4861,7 +4867,7 @@ Cargo.lock          linguist-generated=true
 go.sum              linguist-generated=true
 
 # Markdown docs aren't "code" — keep them out of language stats too.
-.docs/**           linguist-documentation=true
+docs/**           linguist-documentation=true
 ````
 
 ---
@@ -5327,10 +5333,10 @@ if [ ${#staged[@]} -eq 0 ]; then exit 0; fi
 # amending / continuing a task. Missing = soft-skip.
 prompt_file=""
 for f in "${staged[@]}"; do
-  case "$f" in .docs/prompts/*.md) prompt_file="$f"; break ;; esac
+  case "$f" in docs/prompts/*.md) prompt_file="$f"; break ;; esac
 done
 if [ -z "$prompt_file" ]; then
-  prompt_file=$(ls -1t .docs/prompts/*.md 2>/dev/null | head -n 1 || true)
+  prompt_file=$(ls -1t docs/prompts/*.md 2>/dev/null | head -n 1 || true)
 fi
 if [ -z "$prompt_file" ] || [ ! -f "$prompt_file" ]; then
   echo "check_consulted_rules: no prompt file staged or on disk — soft-skip"
@@ -5399,7 +5405,7 @@ After the agent finishes and pushes the first commit, here's what's worth doing 
 - **Verify each picked adapter actually loads the brief in its tool.** Open the project in each assistant in `AGENTS_USED` and confirm it picks up `AGENTS.md` + the rule files — Claude follows the `@`-refs in `CLAUDE.md`, Cursor applies the `alwaysApply: true` rule in `.cursor/rules/agents.mdc`, Aider reads files listed in `.aider.conf.yml`'s `read:`, etc. If an adapter is silently ignored, that's a load-bearing gap.
 - **Refine `best-practices.md` from current web sources** if the Step 8 report flagged it as *stubbed*. Open the file's `§ Enable refinement` matrix, flip whichever knob your agent host needs (Claude Code permission entries, Cursor `@web` invocation, Codex `--web` flag, Continue.dev's `web` context provider, etc.), then ask any agent to *"re-run the bootstrap's Step 4b best-practices refinement"*. The stub variant becomes a stack-specific refined variant with inline citations — substantially more useful than the generic baseline. If your host can't reach the web at all, fetch the few canonical sources for your stack manually and paste excerpts into the chat to seed the refinement.
 - **Write the first real ADR** (`0001-<slug>.md`) if the project starts with a load-bearing decision — framework choice, persistence story, deployment shape. Update the README index in the same commit.
-- **Schedule the first security audit.** The methodology at [`.docs/security/methodology.md`](.docs/security/methodology.md) is the playbook; the first dated audit (`.docs/security/<YYYY-MM-DD>-baseline.md`) is a useful pre-release baseline even on a small codebase. The rubric is also a usable pre-commit aid once the project has shipped its first security-sensitive surface.
+- **Schedule the first security audit.** The methodology at [`docs/security/methodology.md`](docs/security/methodology.md) is the playbook; the first dated audit (`docs/security/<YYYY-MM-DD>-baseline.md`) is a useful pre-release baseline even on a small codebase. The rubric is also a usable pre-commit aid once the project has shipped its first security-sensitive surface.
 - **Grow `.claude/settings.json`** (if Claude is in `AGENTS_USED`) as the project's agent-host needs surface — hooks, permission allowlists, environment vars, model pin. The bootstrap leaves it as an empty `{}`; document each addition in an ADR.
 - **Add CI** for your hosting platform of choice — GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI, etc. The bootstrap intentionally skips CI (it's host-specific); the security methodology's "CVE scanner in CI" rubric stays aspirational until you wire one up.
 - **Lock dependencies** — run the language's lockfile generator (`uv lock`, `npm install` / `pnpm install`, `cargo build`, `go mod tidy`) and commit the resulting lockfile per `methodology.md §5.10`.

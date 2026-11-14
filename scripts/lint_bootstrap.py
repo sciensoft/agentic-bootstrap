@@ -207,7 +207,7 @@ def check_decision_matrix(bootstrap: str) -> list[str]:
         # Skip dynamic placeholders — the row describes a class of files, not one path.
         if "<" in path:
             continue
-        # Allow loose match: a row like `.docs/prompts/<ts>.bootstrap_project.md` is
+        # Allow loose match: a row like `docs/prompts/<ts>.bootstrap_project.md` is
         # filtered by the `<` check above; everything else should match a template.
         if path in template_paths:
             continue
