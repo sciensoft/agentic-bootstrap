@@ -9,6 +9,14 @@ Format: Keep a Changelog, dated by ISO date. The version marker at the top of `A
 
 ## [Unreleased]
 
+## [2026-10-24] — Rename `.docs/` → `docs/` (visible top-level artifacts)
+
+### Changed
+
+- **Bootstrap now emits a visible `docs/` folder for ADRs, prompts, todos, and the security methodology** instead of the previous hidden `.docs/`. Rationale: `docs/` is the standard place readers (and GitHub Pages) look for project documentation; hiding it under a dotted name obscured it from humans browsing the repo and from file explorers that collapse dotfiles by default. The artefact kinds and their contents are unchanged — only the parent directory name differs.
+- **Re-run mode auto-migrates existing `.docs/` layouts.** When the bootstrap detects any of `.docs/adrs/`, `.docs/prompts/`, `.docs/todos/`, `.docs/security/` in an already-bootstrapped project, it `git mv`'s each sub-directory into `docs/<same-name>/`, removes the now-empty `.docs/` parent, and rewrites `.docs/` → `docs/` text references across the usual trigger-index files (rules, briefs, README, CHANGELOG, SECURITY, `.gitignore`, prompt and ADR bodies). The migration is lossless and runs without prompting; the Step 8 report names the moved sub-directories and the count of rewritten references. If a sub-directory conflict exists (e.g. a hand-built `docs/adrs/` pre-dates the bootstrap), the agent stops and asks the user which wins.
+- **Step 1 collision check and the clean-wipe backup list** both now include the legacy `.docs/` paths alongside the new `docs/` ones, so first-time mode on a project carrying leftovers from a pre-2026-10-24 bootstrap still flags them for the user to resolve.
+
 ## [2026-09-16] — Landing-page rebuild (context-management ad, subscription banner, per-agent tabs) + Doctor-mode hook-reinforcement check
 
 ### Added
